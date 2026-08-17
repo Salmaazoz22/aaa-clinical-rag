@@ -1,0 +1,1406 @@
+{
+  "gold_standard_id": "aaa-projectA-fresh-2026-08-17",
+  "gold_sha256": "0b8a443b69960bc5ac20311f0010926a2f131bbb5531ccf369f321f59ed2e5c1",
+  "metrics": {
+    "n_queries": 10,
+    "P@1": 0.5,
+    "P@3": 0.3,
+    "P@5": 0.22,
+    "MRR": 0.55,
+    "Recall@5": 0.2067,
+    "Recall@10": 0.2717,
+    "Relevant_Top1": 5,
+    "Answering@5": 6
+  },
+  "per_query": [
+    {
+      "query_id": 1,
+      "query": "What are the recommendations for screening for abdominal aortic aneurysm?",
+      "p_at_1": 0.0,
+      "p_at_3": 0.0,
+      "p_at_5": 0.0,
+      "rr": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "first_relevant_rank": null,
+      "relevant_top1": false,
+      "answering_at_5": false,
+      "n_answer_passages": 5,
+      "top1": {
+        "chunk_id": "ESVS_2024__p6-6__c0097",
+        "document_id": "ESVS_2024",
+        "page": 6,
+        "section": "Open Surgical Repair",
+        "score": 7.818713665008545
+      },
+      "relevant_ranks": []
+    },
+    {
+      "query_id": 2,
+      "query": "What AAA diameter is generally associated with consideration of elective repair?",
+      "p_at_1": 1.0,
+      "p_at_3": 0.3333333333333333,
+      "p_at_5": 0.2,
+      "rr": 1.0,
+      "recall_at_5": 0.3333333333333333,
+      "recall_at_10": 0.3333333333333333,
+      "first_relevant_rank": 1,
+      "relevant_top1": true,
+      "answering_at_5": true,
+      "n_answer_passages": 3,
+      "top1": {
+        "chunk_id": "ESVS_2024__p26-26__c0351",
+        "document_id": "ESVS_2024",
+        "page": 26,
+        "section": "ABDOMINAL AORTIC ANEURYSM",
+        "score": 6.1076154708862305
+      },
+      "relevant_ranks": [
+        1,
+        7,
+        10
+      ]
+    },
+    {
+      "query_id": 3,
+      "query": "What surveillance strategy is recommended for small abdominal aortic aneurysms?",
+      "p_at_1": 0.0,
+      "p_at_3": 0.3333333333333333,
+      "p_at_5": 0.2,
+      "rr": 0.5,
+      "recall_at_5": 0.3333333333333333,
+      "recall_at_10": 0.3333333333333333,
+      "first_relevant_rank": 2,
+      "relevant_top1": false,
+      "answering_at_5": true,
+      "n_answer_passages": 3,
+      "top1": {
+        "chunk_id": "ESVS_2024__p9-9__c0144",
+        "document_id": "ESVS_2024",
+        "page": 9,
+        "section": "Table 1-continued",
+        "score": 5.7458720207214355
+      },
+      "relevant_ranks": [
+        2,
+        6,
+        10
+      ]
+    },
+    {
+      "query_id": 4,
+      "query": "What are the indications for endovascular aneurysm repair?",
+      "p_at_1": 0.0,
+      "p_at_3": 0.0,
+      "p_at_5": 0.0,
+      "rr": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "first_relevant_rank": null,
+      "relevant_top1": false,
+      "answering_at_5": false,
+      "n_answer_passages": 5,
+      "top1": {
+        "chunk_id": "ESVS_2024__p9-9__c0154",
+        "document_id": "ESVS_2024",
+        "page": 9,
+        "section": "Table 1-continued",
+        "score": 5.264367580413818
+      },
+      "relevant_ranks": []
+    },
+    {
+      "query_id": 5,
+      "query": "What are the risk factors associated with abdominal aortic aneurysm?",
+      "p_at_1": 0.0,
+      "p_at_3": 0.0,
+      "p_at_5": 0.0,
+      "rr": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "first_relevant_rank": null,
+      "relevant_top1": false,
+      "answering_at_5": false,
+      "n_answer_passages": 4,
+      "top1": {
+        "chunk_id": "ESVS_2024__p65-65__c0839",
+        "document_id": "ESVS_2024",
+        "page": 65,
+        "section": "Recommendation 105",
+        "score": 7.117127895355225
+      },
+      "relevant_ranks": []
+    },
+    {
+      "query_id": 6,
+      "query": "What imaging modality is recommended for diagnosis or surveillance of AAA?",
+      "p_at_1": 1.0,
+      "p_at_3": 0.3333333333333333,
+      "p_at_5": 0.2,
+      "rr": 1.0,
+      "recall_at_5": 0.25,
+      "recall_at_10": 0.5,
+      "first_relevant_rank": 1,
+      "relevant_top1": true,
+      "answering_at_5": true,
+      "n_answer_passages": 4,
+      "top1": {
+        "chunk_id": "ESVS_2024__p21-21__c0282",
+        "document_id": "ESVS_2024",
+        "page": 21,
+        "section": "ABDOMINAL AORTIC ANEURYSM",
+        "score": 5.617649078369141
+      },
+      "relevant_ranks": [
+        1,
+        7,
+        9
+      ]
+    },
+    {
+      "query_id": 7,
+      "query": "What factors influence the risk of AAA rupture?",
+      "p_at_1": 1.0,
+      "p_at_3": 0.6666666666666666,
+      "p_at_5": 0.4,
+      "rr": 1.0,
+      "recall_at_5": 0.2,
+      "recall_at_10": 0.4,
+      "first_relevant_rank": 1,
+      "relevant_top1": true,
+      "answering_at_5": true,
+      "n_answer_passages": 5,
+      "top1": {
+        "chunk_id": "USPSTF_2019__p2-2__c0017",
+        "document_id": "USPSTF_2019",
+        "page": 2,
+        "section": "Summary of Recommendations",
+        "score": 8.01901626586914
+      },
+      "relevant_ranks": [
+        1,
+        2,
+        6,
+        10
+      ]
+    },
+    {
+      "query_id": 8,
+      "query": "What are the recommendations for smoking cessation in patients with AAA?",
+      "p_at_1": 1.0,
+      "p_at_3": 0.6666666666666666,
+      "p_at_5": 0.6,
+      "rr": 1.0,
+      "recall_at_5": 0.75,
+      "recall_at_10": 0.75,
+      "first_relevant_rank": 1,
+      "relevant_top1": true,
+      "answering_at_5": true,
+      "n_answer_passages": 4,
+      "top1": {
+        "chunk_id": "SVS_2018__p20-20__c0020",
+        "document_id": "SVS_2018",
+        "page": 20,
+        "section": "Medical management during the period of",
+        "score": 7.206415176391602
+      },
+      "relevant_ranks": [
+        1,
+        2,
+        5
+      ]
+    },
+    {
+      "query_id": 9,
+      "query": "What are the recommendations for women regarding AAA screening?",
+      "p_at_1": 1.0,
+      "p_at_3": 0.6666666666666666,
+      "p_at_5": 0.6,
+      "rr": 1.0,
+      "recall_at_5": 0.2,
+      "recall_at_10": 0.4,
+      "first_relevant_rank": 1,
+      "relevant_top1": true,
+      "answering_at_5": true,
+      "n_answer_passages": 5,
+      "top1": {
+        "chunk_id": "USPSTF_2019__p1-1__c0004",
+        "document_id": "USPSTF_2019",
+        "page": 1,
+        "section": "Screening for Abdominal Aortic Aneurysm",
+        "score": 7.290973663330078
+      },
+      "relevant_ranks": [
+        1,
+        2,
+        5,
+        6,
+        9,
+        10
+      ]
+    },
+    {
+      "query_id": 10,
+      "query": "What are the differences between open surgical repair and EVAR recommendations?",
+      "p_at_1": 0.0,
+      "p_at_3": 0.0,
+      "p_at_5": 0.0,
+      "rr": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "first_relevant_rank": null,
+      "relevant_top1": false,
+      "answering_at_5": false,
+      "n_answer_passages": 3,
+      "top1": {
+        "chunk_id": "NICE_NG156__p41-41__c0125",
+        "document_id": "NICE_NG156",
+        "page": 41,
+        "section": "Repairing unruptured aneurysms",
+        "score": 7.439339637756348
+      },
+      "relevant_ranks": []
+    }
+  ],
+  "label": "exp4_rerank_c20",
+  "retrieval": {
+    "mode": "dense+crossencoder",
+    "top_k": 10,
+    "candidates": 20,
+    "index_meta": {
+      "index_type": "numpy_cosine",
+      "metric": "cosine",
+      "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+      "embedding_dim": 384,
+      "token_limit": 256,
+      "max_chunk_tokens": 254,
+      "n_vectors": 1330,
+      "failed_embeddings": [],
+      "vectors_file": "embeddings.npy",
+      "chunks_file": "embedded_chunks.json",
+      "created_at_utc": "2026-08-16T21:06:37.992093+00:00"
+    }
+  },
+  "top10": {
+    "1": [
+      {
+        "rank": 1,
+        "chunk_id": "ESVS_2024__p6-6__c0097",
+        "score": 7.818714,
+        "document_id": "ESVS_2024",
+        "page": 6,
+        "page_start": 6,
+        "page_end": 6,
+        "section_title": "Open Surgical Repair",
+        "chunk_text": "158. For patients with abdominal aortic aneurysms with an underlying genetic cause, the threshold diameter for considering repair should be individualised, depending on the underlying genetics and anatomy.\n159. Shared decision making should be facilitated during conversations around abdominal aortic aneurysm screening, surveillance and the management of large asymptomatic abdominal aortic aneurysms being considered for repair\nNew Class IIa recommendations\n15.\nPatients with small abdominal aortic aneurysms, who are either not expected to reach the diameter threshold for repair within their life expectancy, or are unﬁt for repair, or prefer conservative management, should be considered for discontinuation of surveillance.\n26.\nPrior to abdominal aortic aneurysm repair, routine imaging screening of the entire aorta, access and femoropopliteal arteries should be considered.\n27."
+      },
+      {
+        "rank": 2,
+        "chunk_id": "USPSTF_2019__p1-1__c0001",
+        "score": 7.796318,
+        "document_id": "USPSTF_2019",
+        "page": 1,
+        "page_start": 1,
+        "page_end": 1,
+        "section_title": "Screening for Abdominal Aortic Aneurysm",
+        "chunk_text": "Screening for Abdominal Aortic Aneurysm\nUS Preventive Services Task Force Recommendation Statement\nUS Preventive Services Task Force\nIMPORTANCE An abdominal aortic aneurysm (AAA) is typically defined as aortic enlargement with a diameter of 3.0 cm or larger. The prevalence of AAA has declined over the past 2 decades among screened men 65 years or older in various European countries. The current prevalence of AAA in the United States is unclear because of the low uptake of screening.\nMost AAAs are asymptomatic until they rupture. Although the risk for rupture varies greatly by aneurysm size, the associated risk for death with rupture is as high as 81%.\nOBJECTIVE To update its 2014 recommendation, the USPSTF commissioned a review of the evidence on the effectiveness of 1-time and repeated screening for AAA, the associated harms of screening, and the benefits and harms of available treatments for small AAAs\n(3.0-5.4 cm in diameter) identified through screening."
+      },
+      {
+        "rank": 3,
+        "chunk_id": "ESVS_2024__p9-9__c0144",
+        "score": 7.792524,
+        "document_id": "ESVS_2024",
+        "page": 9,
+        "page_start": 9,
+        "page_end": 9,
+        "section_title": "Table 1-continued",
+        "chunk_text": "After endovascular treatment for complex abdominal aortic aneurysm, long term imaging surveillance is recommended; with computed tomography angiography within 30 days and one year and thereafter individualised (rephrased)\n154. Patients with an abdominal aortic aneurysm with a suspected underlying genetic cause, such as early onset (< 60 years) or positive family history of aneurysmal disease, or with physical features associated with monogenetic syndromes, are recommended genetic evaluation (rephrased)\nUpdated Class IIa recommendations\n13.\nMen should be considered for imaging surveillance using ultrasound, every ﬁve years for a sub-aneurysmal aorta 25 e 29 mm in diameter, every three years for abdominal aortic aneurysms 30 e 39 mm in diameter, annually for aneurysms 40 e 49 mm, and every six months for aneurysms \u0001 50 mm, taking into account life expectancy, suitability for future repair, and patient preferences"
+      },
+      {
+        "rank": 4,
+        "chunk_id": "ESVS_2024__p8-8__c0130",
+        "score": 7.769785,
+        "document_id": "ESVS_2024",
+        "page": 8,
+        "page_start": 8,
+        "page_end": 8,
+        "section_title": "Table 1-continued",
+        "chunk_text": "Computed tomography angiography is recommended for treatment planning once the anteroposterior diameter threshold for elective abdominal aortic aneurysm repair has been met on ultrasound, and for the diagnosis of rupture (speciﬁed; once threshold diameter met on\nUS)\n10.\nAortic diameter measurement with computed tomography angiography is recommended using dedicated post-processing software analysis; with consistent calliper placement in an orthogonal plane perpendicular to the aorta (upgraded to Class I)\n11.\nUltrasound screening for early detection of abdominal aortic aneurysm is recommended in high risk populations* to reduce death from aneurysm rupture (generic with unspeciﬁed target groups)\n16.\nAll patients with abdominal aortic aneurysm should receive cardiovascular risk factor management; with smoking cessation*, blood pressure control*, statin and antiplatelet therapy*, and lifestyle advice (including exercise and healthy diet) (upgraded to Class I)\n37."
+      },
+      {
+        "rank": 5,
+        "chunk_id": "ESVS_2024__p19-19__c0260",
+        "score": 7.600413,
+        "document_id": "ESVS_2024",
+        "page": 19,
+        "page_start": 19,
+        "page_end": 19,
+        "section_title": "Recommendation 9",
+        "chunk_text": "Recommendation 9\nChanged\nComputed tomography angiography is recommended for treatment planning once the anteroposterior diameter threshold for elective abdominal aortic aneurysm repair has been met on ultrasound, and for the diagnosis of rupture.\nClass\nLevel\nReferences\nToE\nI\nC\nLong et al. (2012),112\nOliver-Williams et al (2019),117\nBiancari et al. (2013)122\nRecommendation 10\nChanged\nAortic diameter measurement with computed tomography angiography is recommended using dedicated postprocessing software analysis; with consistent calliper placement in an orthogonal plane perpendicular to the aorta.\nClass\nLevel\nReferences\nToE\nI\nC\nMora et al. (2014)123\n3.3. Screening for abdominal aortic aneurysm\nThere have been four randomised trials of population based screening for AAA in men in the UK, Denmark, and\nAustralia127e129 and one small trial of screening in women in the UK130 (Table 5). The four screening trials in men have been summarised in a Cochrane Review and by the USA"
+      },
+      {
+        "rank": 6,
+        "chunk_id": "NICE_NG156__p29-29__c0096",
+        "score": 7.12144,
+        "document_id": "NICE_NG156",
+        "page": 29,
+        "page_start": 29,
+        "page_end": 29,
+        "section_title": "Rationale and impact",
+        "chunk_text": "The committee recommended that people with aneurysms less than 5.5 cm in diameter are seen within 12 weeks of diagnosis because this is the timeframe set by the NHS AAA screening programme.\nHow the recommendations might affect practice\nThe recommendations outlining key risk factors will increase the number of people being\nAbdominal aortic aneurysm: diagnosis and management (NG156)\n© NICE 2025. All rights reserved. Subject to Notice of rights (https://www.nice.org.uk/terms-andconditions#notice-of-rights).\nPage 29 of"
+      },
+      {
+        "rank": 7,
+        "chunk_id": "USPSTF_2019__p3-3__c0027",
+        "score": 6.96232,
+        "document_id": "USPSTF_2019",
+        "page": 3,
+        "page_start": 3,
+        "page_end": 3,
+        "section_title": "Treatment",
+        "chunk_text": "Clinicians should understand the evidence but individualize decision-making to the specific patient or situation.\nAsymptomatic adults\nHow often?\nOne-time screening\nWhat are other relevant USPSTF recommendations?\nThe USPSTF has made recommendations on screening for carotid artery stenosis and screening for peripheral arterial disease.\nThese recommendations are available at https://www.uspreventiveservicestaskforce.org.\nThis recommendation is consistent with the 2014 USPSTF recommendation. Family history (first-degree relative) of AAA has been added as a risk factor for screening decisions in women.\nFor those who screen positive, treatment of AAA will depend on aneurysm size, the risk of rupture, and the risk of operative mortality.\nPerform 1-time screening for abdominal aortic aneurysm (AAA) with ultrasonography in men who have a history of smoking.\nFor men aged 65 to 75 years who have never smoked: Grade C"
+      },
+      {
+        "rank": 8,
+        "chunk_id": "NICE_NG156__p9-9__c0045",
+        "score": 6.729187,
+        "document_id": "NICE_NG156",
+        "page": 9,
+        "page_start": 9,
+        "page_end": 9,
+        "section_title": "Imaging technique",
+        "chunk_text": "For a short explanation of why the committee made these recommendations and how they might affect practice, see the rationale and impact section on identifying symptomatic or ruptured abdominal aortic aneurysms.\nFull details of the evidence and the committee's discussion are in evidence review B:\nimaging techniques to diagnose abdominal aortic aneurysms and evidence review N:\nsigns, symptoms and risk factors predicting ruptured or symptomatic unruptured aneurysms before arrival at the hospital, and in non-specialist hospital settings.\nImaging technique\n1.1.10\nWhen measuring aortic size with ultrasound, report the inner-to-inner maximum anterior-posterior aortic diameter, in accordance with the NHS AAA screening programme. Clearly document any additional measurements taken.\n1.1.11\nOffer thin-slice contrast-enhanced arterial-phase CT angiography to people who are being evaluated for elective AAA repair.\n1.1.12"
+      },
+      {
+        "rank": 9,
+        "chunk_id": "SVS_2018__p16-16__c0017",
+        "score": 6.538613,
+        "document_id": "SVS_2018",
+        "page": 16,
+        "page_start": 16,
+        "page_end": 16,
+        "section_title": "Aneurysm imaging",
+        "chunk_text": "Aneurysm imaging\nRecommendation\nLevel of recommendation\nQuality of evidence\nIf initial ultrasound screening identified an aortic diameter >2.5 cm but <3 cm, we suggest rescreening after 10 years.\n2\nC\nWe suggest surveillance imaging at 3-year intervals for patients with an AAA between 3.0 and 3.9 cm.\n2\nC\nWe suggest surveillance imaging at 12-month intervals for patients with an AAA of 4.0 to 4.9 cm in diameter.\n2\nC\nWe suggest surveillance imaging at 6-month intervals for patients with an AAA between 5.0 and 5.4 cm in diameter.\n2\nC\nWe recommend a CT scan to evaluate patients thought to have\nAAA presenting with recent-onset abdominal or back pain, particularly in the presence of a pulsatile epigastric mass or significant risk factors for AAA.\n1\nB"
+      },
+      {
+        "rank": 10,
+        "chunk_id": "ESVS_2024__p95-95__c1176",
+        "score": 6.310241,
+        "document_id": "ESVS_2024",
+        "page": 95,
+        "page_start": 95,
+        "page_end": 95,
+        "section_title": "INFORMATION FOR PATIENTS",
+        "chunk_text": "Shared decision making should be facilitated during conversations around abdominal aortic aneurysm screening, surveillance and the management of large asymptomatic abdominal aortic aneurysms being considered for repair.\nClass\nLevel\nReferences\nToE\nI\nB\nMachin et al. (2023)1241\nRecommendation 160\nNew\nUse of decision support tools to assist patients in their decisions about the management of abdominal aortic aneurysms being considered for repair should be considered.\nClass\nLevel\nReferences\nToE\nIIa\nA\nKnops et al. (2014),1254\nStubenrouch et al. (2022),1257\nEid et al. (2022)1258\n11.2. Information for patients\nThis information has been developed by the ESVS. In order to provide guidance for healthcare professionals involved in the care of patients with AAA the ESVS produces guidelines and recommendations. The ESVS guidelines committee for\nAAA has produced a full set of guidelines for professionals, which is the main part of this document."
+      }
+    ],
+    "2": [
+      {
+        "rank": 1,
+        "chunk_id": "ESVS_2024__p26-26__c0351",
+        "score": 6.107615,
+        "document_id": "ESVS_2024",
+        "page": 26,
+        "page_start": 26,
+        "page_end": 26,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "On the contrary, based on the NAAASP data it has been suggested to raise the diameter threshold to 60 mm when based on\nCTA.254 Although it is possible that the threshold should be raised in the future, the GWC does not believe there is suf- ﬁcient support at this time. Nevertheless, the GWC has chosen to issue a new strong negative recommendation of elective repair of AAA < 55 mm, and to downgrade the recommendation on the threshold for considering repair in men (from Class I and LoE A to Class IIa and LoE C) due to the fact that the RCTs underlying this recommendation only showed that it is not worthwhile operating on AAAs < 55mm, which only indirectly suggests that elective repair should be considered in AAAs larger than that, i.e., 55 mm. To further emphasize the lack of an evidence based distinct diameter limit for when elective repair should take place, we refrain from labelling it a threshold in the revised recommendation.\n217"
+      },
+      {
+        "rank": 2,
+        "chunk_id": "USPSTF_2019__p4-4__c0035",
+        "score": 6.019094,
+        "document_id": "USPSTF_2019",
+        "page": 4,
+        "page_start": 4,
+        "page_end": 4,
+        "section_title": "Treatment",
+        "chunk_text": "The standard of care for elective repair is that patients with an\nAAA of 5.5 cm or larger in diameter should be referred for surgical intervention with either open repair or EVAR.1 This recommendation is based on RCTs conducted in men. The AAA size needed for surgicalinterventioninwomenmaydiffer.Asaresult,guidelinesfrom the Society for Vascular Surgery recommend repairing AAAs between 5.0 and 5.4 cm in diameter in women.26 However, concerns about poorer surgical outcomes in women, who have more complex anatomy and smaller blood vessels, have led some to caution against lowering the threshold for surgical intervention in women.1\nUpdate of Previous USPSTF Recommendation\nThisrecommendationincorporatesnewevidenceandreplacesthe\n2014 USPSTF recommendation.35 It is consistent with the 2014\nUSPSTFrecommendation,whichwasaBrecommendationfor1-time screeningforAAAwithultrasonographyinasymptomaticmenaged"
+      },
+      {
+        "rank": 3,
+        "chunk_id": "ESVS_2024__p73-73__c0921",
+        "score": 4.412374,
+        "document_id": "ESVS_2024",
+        "page": 73,
+        "page_start": 73,
+        "page_end": 73,
+        "section_title": "Complex AAAs are estimated to constitute about 15 e",
+        "chunk_text": "Complex AAAs are estimated to constitute about 15 e\n20% of all AAAs. There are no data available on rupture risk and natural history speciﬁcally for complex AAAs. Because of the lack of evidence for this speciﬁc subgroup and the fact that complex AAA repair carries a higher risk, an individualised approach regarding indication for repair is appropriate. This is reﬂected in the weak recommendation\n(Class IIb) of a minimum threshold of 55 mm for when elective repair of complex AAA may be considered in men and 50 mm in women, whereas in practice a larger threshold diameter may be more appropriate in patients with increased comorbidities or more complex anatomy. In most published case series, patients were treated by open or endovascular repair when the mean or median diameter of the aneurysm was 60 mm. It is worthwhile to reiterate the (negative) Class III recommendation not to repair AAA below 55 mm (Recommendation 21, section 4.4), which understandably also applies to complex AAAs."
+      },
+      {
+        "rank": 4,
+        "chunk_id": "USPSTF_2019__p4-4__c0034",
+        "score": 4.063354,
+        "document_id": "USPSTF_2019",
+        "page": 4,
+        "page_start": 4,
+        "page_end": 4,
+        "section_title": "Treatment",
+        "chunk_text": "(1.37%) after EVAR procedures (OR, 1.67 [95% CI, 1.38-2.04]) and open repair (5.37% vs 2.82%; OR, 1.76 [95% CI, 1.35-2.30]).1,34\nWomen also experience higher rates of other harms, such as major surgicalcomplicationsandhospitalreadmission,afterelectiveopen repair or EVAR compared with men.1\nCurrent Practice\nEvidence is insufficient to accurately characterize current practice patterns related to screening for AAA in women.\nThe standard of care for elective repair is that patients with an\nAAA of 5.5 cm or larger in diameter should be referred for surgical intervention with either open repair or EVAR.1 This recommendation is based on RCTs conducted in men."
+      },
+      {
+        "rank": 5,
+        "chunk_id": "ESVS_2024__p58-58__c0746",
+        "score": 3.943285,
+        "document_id": "ESVS_2024",
+        "page": 58,
+        "page_start": 58,
+        "page_end": 58,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM REPAIR",
+        "chunk_text": "This includes secondary prevention, complications occurring after the peri-operative period, and implications for follow up. For juxtarenal AAA, see Chapter 8.\nPatients who have undergone AAA repair are at increased risk of death compared with the general population. In a meta-analysis of survivors after elective\nAAA repair, including 107 814 patients in 36 studies, the ﬁve year survival rate was 69%, which is lower than individuals without\nAAA but higher than observed for other vascular diseases such as PAOD.683\nThe long term survival after AAA repair is affected by age, sex, comorbidities, and regional differences.42,683,684 End stage renal disease and COPD requiring supplementary oxygen are particularly relevant predictors of late death in patients with AAA, increasing risk over three fold.684 Baseline AAA diameter is also a consistent predictor of survival.683,685e687 Large AAAs are associated not only with a higher mortality rate, but also more secondary interventions, post-repair ruptures and loss of follow up.688"
+      },
+      {
+        "rank": 6,
+        "chunk_id": "USPSTF_2019__p3-3__c0024",
+        "score": 3.624991,
+        "document_id": "USPSTF_2019",
+        "page": 3,
+        "page_start": 3,
+        "page_end": 3,
+        "section_title": "Treatment",
+        "chunk_text": "(defined as an AAA <3 cm in diameter).1\nTreatment\nTreatment of AAA depends on aneurysm size, the risk of rupture, and the risk of operative mortality. Larger size is associated with an increased risk of rupture. The annual risk for rupture is nearly 0% for persons with AAAs between 3.0 and 3.9 cm in diameter, 1% for those with AAAs between 4.0 and 4.9 cm in diameter, and 11% for those with AAAs between 5.0 and 5.9 cm in diameter.1 Surgical repair is standard practice for men with an AAA of 5.5 cm or larger in diameter or an AAA larger than 4.0 cm in diameter that has rapidly increased in size (defined as an increase of 1.0 cm in diameter over a 1-year period)."
+      },
+      {
+        "rank": 7,
+        "chunk_id": "ESVS_2024__p26-26__c0348",
+        "score": 3.185927,
+        "document_id": "ESVS_2024",
+        "page": 26,
+        "page_start": 26,
+        "page_end": 26,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "Multiple papers have reported the mean AAA diameter at the time of rupture, which vary between 75 e 80 mm for men and 67 mm for women.250e252 About 8 e 10% of rAAA operations are done for aneurysms with a diameter < 55 mm. This has been put forward as an argument for lowering the current diameter threshold at which repair is considered. This is, however, a misguided conclusion. Despite small AAA having a very low risk of rupture, their sheer numbers in the population (due to the normal distribution of aortic diameter) make them a sizeable proportion of all operations for rAAA. This is further underlined by a VASCUNET study, showing that the average diameter at repair varies between countries, but this does not translate to a reduced number of operations for rAAA.253\nA recent prospective surveillance registry study, including"
+      },
+      {
+        "rank": 8,
+        "chunk_id": "ESVS_2024__p5-5__c0088",
+        "score": 3.091837,
+        "document_id": "ESVS_2024",
+        "page": 5,
+        "page_start": 5,
+        "page_end": 5,
+        "section_title": "Open Surgical Repair",
+        "chunk_text": "Based on a comprehensive analysis of the available evidence it is not considered to be justiﬁed to restrict the use of ﬂuoroquinolone antibiotics in patients with AAA as was previously suggested by the United States\nFood and Drug Administration (FDA) and European Medicines Agency (EMA). Similarly, this guideline advises against restricting exercise and sexual activity in patients with\nAAAs.\nSection 4.4, on indications for repair has been signiﬁ- cantly revised. In line with the evidence, a clear negative recommendation is now issued for the repair of AAA < 55 mm in men and < 50 mm in women. The diameter threshold for when repair can be considered is maintained at 55 mm for men and 50 mm for women; however, the recommendations have been downgraded due to the lack of supporting high quality evidence. Furthermore, in line with recent data, it is clariﬁed that the diameter threshold for considering repair should preferably be based on the US measurement."
+      },
+      {
+        "rank": 9,
+        "chunk_id": "USPSTF_2019__p3-3__c0025",
+        "score": 3.07104,
+        "document_id": "USPSTF_2019",
+        "page": 3,
+        "page_start": 3,
+        "page_end": 3,
+        "section_title": "Treatment",
+        "chunk_text": "The annual risk for rupture is nearly 0% for persons with AAAs between 3.0 and 3.9 cm in diameter, 1% for those with AAAs between 4.0 and 4.9 cm in diameter, and 11% for those with AAAs between 5.0 and 5.9 cm in diameter.1 Surgical repair is standard practice for men with an AAA of 5.5 cm or larger in diameter or an AAA larger than 4.0 cm in diameter that has rapidly increased in size (defined as an increase of 1.0 cm in diameter over a 1-year period). Endovascular aneurysm repair (EVAR) has becomethemostcommonapproachforelectiveAAArepair.Openrepair is a time-tested, effective treatment for AAA. In the United\nStates, 80% of intact AAA repairs and 52% of ruptured AAA repairs are performed using EVAR.1"
+      },
+      {
+        "rank": 10,
+        "chunk_id": "ESVS_2024__p26-26__c0344",
+        "score": 2.459002,
+        "document_id": "ESVS_2024",
+        "page": 26,
+        "page_start": 26,
+        "page_end": 26,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "AAAs < 55 mm, as opposed to the UK, where the small AAA repair rate was less than 10%.245 This paper has, however, been questioned for reasons relating to incidental detection rates, differences in coding systems, population structure, and total healthcare expenditure, as well as the indications for surgery and impact of population screening.246e248\nAnother topic of debate is which imaging modality and methodology should be used for decisions about repair. It is known that CTA measurements provide a larger diameter than US,125,126 and it is common to perform a CTA at a diameter just below the diameter threshold at which repair is considered as measured by US, thereby probably obtaining a larger diameter which may unnecessarily warrant repair."
+      }
+    ],
+    "3": [
+      {
+        "rank": 1,
+        "chunk_id": "ESVS_2024__p9-9__c0144",
+        "score": 5.745872,
+        "document_id": "ESVS_2024",
+        "page": 9,
+        "page_start": 9,
+        "page_end": 9,
+        "section_title": "Table 1-continued",
+        "chunk_text": "After endovascular treatment for complex abdominal aortic aneurysm, long term imaging surveillance is recommended; with computed tomography angiography within 30 days and one year and thereafter individualised (rephrased)\n154. Patients with an abdominal aortic aneurysm with a suspected underlying genetic cause, such as early onset (< 60 years) or positive family history of aneurysmal disease, or with physical features associated with monogenetic syndromes, are recommended genetic evaluation (rephrased)\nUpdated Class IIa recommendations\n13.\nMen should be considered for imaging surveillance using ultrasound, every ﬁve years for a sub-aneurysmal aorta 25 e 29 mm in diameter, every three years for abdominal aortic aneurysms 30 e 39 mm in diameter, annually for aneurysms 40 e 49 mm, and every six months for aneurysms \u0001 50 mm, taking into account life expectancy, suitability for future repair, and patient preferences"
+      },
+      {
+        "rank": 2,
+        "chunk_id": "ESVS_2024__p22-22__c0297",
+        "score": 5.570972,
+        "document_id": "ESVS_2024",
+        "page": 22,
+        "page_start": 22,
+        "page_end": 22,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "Sogaard et al. (2012),179\nRockley et al. (2020)180\nRecommendation 14\nChanged\nWomen should be considered for imaging surveillance using ultrasound every ﬁve years for a sub-aneurysmal aorta 25 e\n29 mm in diameter, every three years for abdominal aortic aneurysms 30 e 39 mm in diameter, annually for aneurysms\n40 e 44 mm, and every six months for aneurysms ‡ 45 mm, taking into account life expectancy, suitability for future repair, and patient preferences.\nClass\nLevel\nReferences\nToE\nIIa\nC\nBown et al. (2013)106\nRecommendation 15\nNew\nPatients with small abdominal aortic aneurysms who are either not expected to reach the diameter threshold for repair within their life expectancy, or are unﬁt for repair, or prefer conservative management, should be considered for discontinuation of surveillance.\nClass\nLevel\nReferences\nIIa\nC\nConsensus\n4.2. Medical management of patients with small abdominal aortic aneurysms\n4.2.1. Cardiovascular risk reduction."
+      },
+      {
+        "rank": 3,
+        "chunk_id": "ESVS_2024__p6-6__c0097",
+        "score": 5.563501,
+        "document_id": "ESVS_2024",
+        "page": 6,
+        "page_start": 6,
+        "page_end": 6,
+        "section_title": "Open Surgical Repair",
+        "chunk_text": "158. For patients with abdominal aortic aneurysms with an underlying genetic cause, the threshold diameter for considering repair should be individualised, depending on the underlying genetics and anatomy.\n159. Shared decision making should be facilitated during conversations around abdominal aortic aneurysm screening, surveillance and the management of large asymptomatic abdominal aortic aneurysms being considered for repair\nNew Class IIa recommendations\n15.\nPatients with small abdominal aortic aneurysms, who are either not expected to reach the diameter threshold for repair within their life expectancy, or are unﬁt for repair, or prefer conservative management, should be considered for discontinuation of surveillance.\n26.\nPrior to abdominal aortic aneurysm repair, routine imaging screening of the entire aorta, access and femoropopliteal arteries should be considered.\n27."
+      },
+      {
+        "rank": 4,
+        "chunk_id": "ESVS_2024__p6-6__c0098",
+        "score": 5.281328,
+        "document_id": "ESVS_2024",
+        "page": 6,
+        "page_start": 6,
+        "page_end": 6,
+        "section_title": "Open Surgical Repair",
+        "chunk_text": "Patients with small abdominal aortic aneurysms, who are either not expected to reach the diameter threshold for repair within their life expectancy, or are unﬁt for repair, or prefer conservative management, should be considered for discontinuation of surveillance.\n26.\nPrior to abdominal aortic aneurysm repair, routine imaging screening of the entire aorta, access and femoropopliteal arteries should be considered.\n27.\nPrior to endovascular abdominal aortic repair, detailed pre-operative procedure planning with computer tomography angiography, including the use of a dedicated post-processing software analysis, should be considered.\n48.\nAll patients undergoing elective abdominal aortic aneurysm repair and deemed at risk of post-operative venous thromboembolism should be considered for thromboprophylaxis.\n50."
+      },
+      {
+        "rank": 5,
+        "chunk_id": "NICE_NG156__p48-48__c0147",
+        "score": 4.429492,
+        "document_id": "NICE_NG156",
+        "page": 48,
+        "page_start": 48,
+        "page_end": 48,
+        "section_title": null,
+        "chunk_text": "Why the committee made the recommendations\nRecommendations 1.7.1 to 1.7.5\nImaging surveillance is needed after EVAR, because there is a risk that people will develop complications from the procedure or need another operation. These risks are lower after open surgical repair, so surveillance is not standard practice and in this case the committee did not recommend it.\nAbdominal aortic aneurysm: diagnosis and management (NG156)\n© NICE 2025. All rights reserved. Subject to Notice of rights (https://www.nice.org.uk/terms-andconditions#notice-of-rights).\nPage 48 of"
+      },
+      {
+        "rank": 6,
+        "chunk_id": "ESVS_2024__p22-22__c0295",
+        "score": 4.361715,
+        "document_id": "ESVS_2024",
+        "page": 22,
+        "page_start": 22,
+        "page_end": 22,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "In a recent UK and Dutch study only 8% of conservatively managed patients with an\nAAA received a palliative care consultation, indicating a need for improvement.181\nDue to reports of synchronous aneurysms in other vascular beds in patients with\nAAA, pre-operative screening of the thoraco-abdominal aorta with CTA and the femoropopliteal segment with US is advocated (see section 5.1.1.). Whether such screening should be initiated earlier, already in patients with small AAAs under surveillance, is unclear, and must be determined on a case by case basis.\nRecommendation 13\nChanged\nMen should be considered for imaging surveillance using ultrasound, every ﬁve years for a sub-aneurysmal aorta 25 e\n29 mm in diameter, every three years for abdominal aortic aneurysms 30 e 39 mm in diameter, annually for aneurysms\n40 e 49 mm, and every six months for aneurysms ‡ 50 mm, taking into account life expectancy, suitability for future repair, and patient preferences.\nClass"
+      },
+      {
+        "rank": 7,
+        "chunk_id": "ESVS_2024__p9-9__c0145",
+        "score": 3.34191,
+        "document_id": "ESVS_2024",
+        "page": 9,
+        "page_start": 9,
+        "page_end": 9,
+        "section_title": "Table 1-continued",
+        "chunk_text": "Men should be considered for imaging surveillance using ultrasound, every ﬁve years for a sub-aneurysmal aorta 25 e 29 mm in diameter, every three years for abdominal aortic aneurysms 30 e 39 mm in diameter, annually for aneurysms 40 e 49 mm, and every six months for aneurysms \u0001 50 mm, taking into account life expectancy, suitability for future repair, and patient preferences\n(gender speciﬁc, including sub-aneurysms, downgraded to Class IIa)\n14."
+      },
+      {
+        "rank": 8,
+        "chunk_id": "ESVS_2024__p68-68__c0871",
+        "score": 3.169145,
+        "document_id": "ESVS_2024",
+        "page": 68,
+        "page_start": 68,
+        "page_end": 68,
+        "section_title": "Recommendation 105",
+        "chunk_text": "Follow up after open surgical repair for abdominal aortic aneurysm\nScheduled imaging after OSR is aimed at detecting possible asymptomatic complications like anastomotic pseudoaneurysm or progression of disease. A long term follow up study (mean 87 months) revealed aneurysms in noncontiguous arterial segments in 45% of patients, most requiring no treatment due to small size, and 19% had multiple late synchronous aneurysms.708 An incidence of femoral or popliteal aneurysms of up to 14%891 and of thoracic aortic aneurysms of 13%892 has been reported after OSR for AAA.\nNo high level evidence is available regarding the potential beneﬁt of post-operative imaging surveillance after OSR of\nAAA."
+      },
+      {
+        "rank": 9,
+        "chunk_id": "ESVS_2024__p8-8__c0130",
+        "score": 3.080693,
+        "document_id": "ESVS_2024",
+        "page": 8,
+        "page_start": 8,
+        "page_end": 8,
+        "section_title": "Table 1-continued",
+        "chunk_text": "Computed tomography angiography is recommended for treatment planning once the anteroposterior diameter threshold for elective abdominal aortic aneurysm repair has been met on ultrasound, and for the diagnosis of rupture (speciﬁed; once threshold diameter met on\nUS)\n10.\nAortic diameter measurement with computed tomography angiography is recommended using dedicated post-processing software analysis; with consistent calliper placement in an orthogonal plane perpendicular to the aorta (upgraded to Class I)\n11.\nUltrasound screening for early detection of abdominal aortic aneurysm is recommended in high risk populations* to reduce death from aneurysm rupture (generic with unspeciﬁed target groups)\n16.\nAll patients with abdominal aortic aneurysm should receive cardiovascular risk factor management; with smoking cessation*, blood pressure control*, statin and antiplatelet therapy*, and lifestyle advice (including exercise and healthy diet) (upgraded to Class I)\n37."
+      },
+      {
+        "rank": 10,
+        "chunk_id": "ESVS_2024__p22-22__c0296",
+        "score": 2.568808,
+        "document_id": "ESVS_2024",
+        "page": 22,
+        "page_start": 22,
+        "page_end": 22,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "29 mm in diameter, every three years for abdominal aortic aneurysms 30 e 39 mm in diameter, annually for aneurysms\n40 e 49 mm, and every six months for aneurysms ‡ 50 mm, taking into account life expectancy, suitability for future repair, and patient preferences.\nClass\nLevel\nReferences\nToE\nIIa\nB\nPrendes et al. (2023),4\nBown et al (2013),106\nSvensjö et al. (2014),138\nThompson et al. (2012),174\nOliver-Williams et al. (2018),175\nWild et al. (2013),176\nThorbjornsen et al. (2021),177\nHamel et al. (2018),178\nSogaard et al. (2012),179\nRockley et al. (2020)180\nRecommendation 14\nChanged\nWomen should be considered for imaging surveillance using ultrasound every ﬁve years for a sub-aneurysmal aorta 25 e"
+      }
+    ],
+    "4": [
+      {
+        "rank": 1,
+        "chunk_id": "ESVS_2024__p9-9__c0154",
+        "score": 5.264368,
+        "document_id": "ESVS_2024",
+        "page": 9,
+        "page_start": 9,
+        "page_end": 9,
+        "section_title": "Table 1-continued",
+        "chunk_text": "Forpatientswithrupturedabdominalaorticaneurysm,apolicyofpermissivehypotensionisrecommended*(downgradedtoLoEC) 80. For patients with a ruptured abdominal aortic aneurysm and suitable anatomy, endovascular repair is recommended as the first treatmentoption(upgradedtoLoEA) 87. Patients operated on for an abdominal aortic aneurysm with new onset or worsening of lower limb ischaemia are recommended immediateevaluationofgraftrelatedproblems,suchaslimbkinkingorocclusion(upgradedtoLoEB) 130. Afterendovasculartreatmentforcomplexabdominalaorticaneurysm,longtermimagingsurveillanceisrecommended;withcomputed tomographyangiographywithin30daysandoneyearandthereafterindividualised(rephrased) 154."
+      },
+      {
+        "rank": 2,
+        "chunk_id": "ESVS_2024__p43-43__c0562",
+        "score": 5.153646,
+        "document_id": "ESVS_2024",
+        "page": 43,
+        "page_start": 43,
+        "page_end": 43,
+        "section_title": "EVAR SIZING AND PLANNING WORKSHEET",
+        "chunk_text": "For patients undergoing endovascular repair of an abdominal aortic aneurysm, routine pre-emptive embolisation of the inferior mesenteric artery, lumbar arteries, and non-selective aneurysm sac embolisation is not indicated.\nClass\nLevel\nReferences\nToE\nIII\nB\nZhang et al. (2022),456\nSamura et al. (2020),457\nLi (2020),458\nKontopodis et al. (2023)459\n5.3.3. Open surgical repair vs. endovascular aortic repair.\nSeveral RCTs have compared open and endovascular AAA treatment in patients with suitable anatomy, including the\nUnited Kingdom Endovascular Aneurysm Repair 1 (EVAR 1) trial,464e466 the Dutch Randomised Endovascular Aneurysm\nManagement (DREAM) trial,467,468 the Open vs."
+      },
+      {
+        "rank": 3,
+        "chunk_id": "ESVS_2024__p6-6__c0101",
+        "score": 4.662791,
+        "document_id": "ESVS_2024",
+        "page": 6,
+        "page_start": 6,
+        "page_end": 6,
+        "section_title": "Open Surgical Repair",
+        "chunk_text": "Patients who have undergone endovascular abdominal aortic aneurysm repair are recommended for long term imaging follow up (regardlessofinitialriskstratification),todetectlatecomplicationsandidentifylatedevicefailureanddiseaseprogression. 142. Patients with mycotic abdominal aortic aneurysms are recommended to be referred to high volume vascular surgical centres, for multidisciplinarymanagement. 156. PatientswithvascularEhlerseDanlossyndromearerecommendedprophylactictreatmentwithceliprolol. 158. Forpatientswithabdominalaorticaneurysmswithanunderlyinggeneticcause,thethresholddiameterforconsideringrepairshould beindividualised,dependingontheunderlyinggeneticsandanatomy. 159."
+      },
+      {
+        "rank": 4,
+        "chunk_id": "ESVS_2024__p6-6__c0096",
+        "score": 4.284498,
+        "document_id": "ESVS_2024",
+        "page": 6,
+        "page_start": 6,
+        "page_end": 6,
+        "section_title": "Open Surgical Repair",
+        "chunk_text": "All patients with an abdominal aortic aneurysm undergoing open surgical repair and high risk patients undergoing endovascular repair are recommended to have early post-operative monitoring in an intensive care or high dependency unit.\n115. Patients who have undergone endovascular abdominal aortic aneurysm repair are recommended for long term imaging follow up\n(regardless of initial risk stratiﬁcation), to detect late complications and identify late device failure and disease progression.\n142. Patients with mycotic abdominal aortic aneurysms are recommended to be referred to high volume vascular surgical centres, for multidisciplinary management.\n156. Patients with vascular EhlerseDanlos syndrome are recommended prophylactic treatment with celiprolol.\n158. For patients with abdominal aortic aneurysms with an underlying genetic cause, the threshold diameter for considering repair should be individualised, depending on the underlying genetics and anatomy.\n159."
+      },
+      {
+        "rank": 5,
+        "chunk_id": "ESVS_2024__p72-72__c0920",
+        "score": 3.612118,
+        "document_id": "ESVS_2024",
+        "page": 72,
+        "page_start": 72,
+        "page_end": 72,
+        "section_title": "ANEURYSMS",
+        "chunk_text": "Suggested diagnostic step up for occult undetermined\nendoleaks after endovascular abdominal aortic aneurysm repair.\nCTA¼computedtomographyangiography;DUS¼duplexultra-\nsound; CEUS ¼ contrast enhanced ultrasound; MRI ¼ magnetic\nresonanceimaging;18F-FDG/PET-CT¼positronemissiontomog-\nraphy with 2-deoxy-2-fluorine-18-fluoro-D-glucose; WBCS ¼\nwhitebloodcellscintigraphy;OSR¼opensurgicalrepair."
+      },
+      {
+        "rank": 6,
+        "chunk_id": "ESVS_2024__p9-9__c0153",
+        "score": 3.354902,
+        "document_id": "ESVS_2024",
+        "page": 9,
+        "page_start": 9,
+        "page_end": 9,
+        "section_title": "Table 1-continued",
+        "chunk_text": "Forendovascularabdominalaorticaneurysmrepairbyapercutaneousapproach,ultrasoundguidanceisrecommended(upgradedto ClassIandLoEA) 70. Patientswithsuspectedrupturedabdominalaorticaneurysmshouldundergopromptimagingofthethoraco-abdominalaortaandof theaccessvesselswithcomputedtomographyangiography(rephrased) 72. Forpatientswithrupturedabdominalaorticaneurysm,apolicyofpermissivehypotensionisrecommended*(downgradedtoLoEC) 80. For patients with a ruptured abdominal aortic aneurysm and suitable anatomy, endovascular repair is recommended as the first treatmentoption(upgradedtoLoEA) 87."
+      },
+      {
+        "rank": 7,
+        "chunk_id": "SVS_2018__p6-7__c0006",
+        "score": 3.32732,
+        "document_id": "SVS_2018",
+        "page": 6,
+        "page_start": 6,
+        "page_end": 7,
+        "section_title": "GRADE",
+        "chunk_text": "Highlights\n• Surgeons should use the SVS Vascular Quality\nInitiative (VQI) mortality risk score to assist in making informed decisions and recommendations about aneurysm repair.\n• Endovascular repair is preferred over open repair for treating ruptured aneurysms if anatomically feasible.\n\nHighlights\n• A door-to-intervention time of < 90 minutes for emergency repairs.\n• A one-time AAA ultrasound screening for men and women ages 65 to 75 who have a history of tobacco use.\n(Several other organizations recommend screenings for male smokers only)\n• Recommendations for the treatment of endoleaks.\n• Appropriate use of antibiotic prophylaxis in patients with an aortic prosthesis undergoing dental and other invasive procedures"
+      },
+      {
+        "rank": 8,
+        "chunk_id": "ESVS_2024__p83-83__c1036",
+        "score": 3.030196,
+        "document_id": "ESVS_2024",
+        "page": 83,
+        "page_start": 83,
+        "page_end": 83,
+        "section_title": null,
+        "chunk_text": "The aim of surgical treatment of IAAs is to exclude the aneurysm from the circulation to prevent further growth and rupture. Before the advent of endovascular repair in the early\n1990s OSR was the mainstay of treatment of IAA. The steady shift towards endovascular techniques since 2000 has been associated with a signiﬁcant decrease in operative morbidity and mortality,1086 and a recent meta-analysis reported a perioperative mortality rate of 0.7% for endovascular repair.826\nFurthermore, endovascular repair is associated with fewer complications and a shorter length of hospital stay.1072,1073\nWhile this trend was initially partly explained by differences in case mix, with a higher number of emergency cases in the"
+      },
+      {
+        "rank": 9,
+        "chunk_id": "ESVS_2024__p13-13__c0210",
+        "score": 3.01342,
+        "document_id": "ESVS_2024",
+        "page": 13,
+        "page_start": 13,
+        "page_end": 13,
+        "section_title": "Table 1-continued",
+        "chunk_text": "AAA anatomically unsuitable for standard or complex EVAR.\nOpen surgery and endovascular techniques are complementary techniques for management of complications after aortic repair. Therefore, centres treating patients with AAA\nTable 4. Core outcome sets for elective abdominal aortic aneurysm repair.\nPost-operative death, 30 days after repair or in hospital if longer than 30 days\nSecondary rupture of the aneurysm after repair\nOverall quality of life, assessed before repair and after recovery period\nRetention of cognitive function, assessed before repair and after recovery period\nLong term survival, ﬁve years\nFor endovascular aortic repair only; continued aneurysm sac expansion after repair\n204\nAnders Wanhainen et al.\n\nTable:\nRecommendation1 Unchanged |  | \nCentresperformingaorticsurgeryarerecommendedtoenter casesinavalidatedprospectiveregistrytoallowfor monitoringofpracticeandoutcomes. Class Level References |  | \nI | C | Consensus\n\nTable 4."
+      },
+      {
+        "rank": 10,
+        "chunk_id": "ESVS_2024__p66-66__c0843",
+        "score": 3.004859,
+        "document_id": "ESVS_2024",
+        "page": 66,
+        "page_start": 66,
+        "page_end": 66,
+        "section_title": "Recommendation 105",
+        "chunk_text": "Based on the above, there is no strong evidence for when intervention is indicated for T2EL, but it is reasonable to proceed to invasive treatment when the aneurysm has expanded > 10 mm compared with baseline or the lowest diameter during follow up using the same imaging modality and measurement method.719,846,849\nThere is also uncertainty about the optimal treatment to resolve T2ELs. Various endovascular and open techniques have been described. Endovascular treatment consists of transarterial, translumbar, transperitoneal, transcaval, or trans-sealing (between iliac graft and iliac arterial wall) embolisation of the aneurysm sac and feeding vessels.\nAlthough endovascular treatment is associated with high technical success, endoleak recurrence is common845,847 and a clear deﬁnition for successful intervention is lacking, affecting the interpretation of evidence."
+      }
+    ],
+    "5": [
+      {
+        "rank": 1,
+        "chunk_id": "ESVS_2024__p65-65__c0839",
+        "score": 7.117128,
+        "document_id": "ESVS_2024",
+        "page": 65,
+        "page_start": 65,
+        "page_end": 65,
+        "section_title": "Recommendation 105",
+        "chunk_text": "Risk factors associated with persistent or late developing Type 2 endoleaks after endovascular abdominal aorticaneurysmrepair.\nRiskfactorsconsistentlyreportedinliterature\nAbsenceofcircumferentialthrombusintheaneurysmsacor largeflowlumen455,827e831\nNumberofpatentaorticsidebranchesarisingfrom AAA827,831,832\nInferiormesentericarterypatency454,455,828,830,831,833\nNumberofpatentlumbararteries>3453e455,829,831e834\nDiameterofinferiormesentericartery(cid:1)3mm454,455,834\nDiameteroflumbararteries(cid:1)2mm453e455\nAnticoagulanttherapy835e839\nRiskfactorsinconsistentlyreportedoruncertain"
+      },
+      {
+        "rank": 2,
+        "chunk_id": "NICE_NG156__p8-8__c0043",
+        "score": 6.808702,
+        "document_id": "NICE_NG156",
+        "page": 8,
+        "page_start": 8,
+        "page_end": 8,
+        "section_title": "Recommendations",
+        "chunk_text": "For a short explanation of why the committee made these recommendations and how they might affect practice, see the rationale and impact section on identifying asymptomatic abdominal aortic aneurysms.\nFull details of the evidence and the committee's discussion are in evidence review A:\nrisk factors for predicting presence of an abdominal aortic aneurysm and evidence review B: imaging techniques to diagnose abdominal aortic aneurysms.\nIdentifying symptomatic or ruptured abdominal aortic aneurysms\n1.1.7\nThink about the possibility of ruptured AAA in people with new abdominal and/or back pain, cardiovascular collapse, or loss of consciousness. Be aware that ruptured AAA is more likely if they also have any of the following risk factors:\n• an existing diagnosis of AAA\n• age over 60\n• they smoke or used to smoke\n• history of hypertension.\n1.1.8\nBe aware that AAAs are more likely to rupture in women than men.\n1.1.9"
+      },
+      {
+        "rank": 3,
+        "chunk_id": "ESVS_2024__p8-8__c0131",
+        "score": 5.31587,
+        "document_id": "ESVS_2024",
+        "page": 8,
+        "page_start": 8,
+        "page_end": 8,
+        "section_title": "Table 1-continued",
+        "chunk_text": "All patients with abdominal aortic aneurysm should receive cardiovascular risk factor management; with smoking cessation*, blood pressure control*, statin and antiplatelet therapy*, and lifestyle advice (including exercise and healthy diet) (upgraded to Class I)\n37.\nFor patients with abdominal aortic aneurysms and concomitant symptomatic (within the last six months) 50 e 99% carotid stenosis, carotid intervention before elective abdominal aortic aneurysm repair is recommended (upgraded to Class I and downgraded to LoE B)\nContinued\nContinued\n199\n\nTable:\nTable1-continued\n92. For patients undergoing complete explantation of an infected aortic graft or stent graft, extra-anatomical reconstruction may be consideredanalternativerepairmodalityinfrailpatients,incaseswithextensiveinfections,orwithgraftentericfistula. 94."
+      },
+      {
+        "rank": 4,
+        "chunk_id": "ESVS_2024__p58-58__c0751",
+        "score": 5.235326,
+        "document_id": "ESVS_2024",
+        "page": 58,
+        "page_start": 58,
+        "page_end": 58,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM REPAIR",
+        "chunk_text": "Although the risk of late aneurysm related death is difﬁcult to assess due to the uncertainty in cause of death registration and lack of adequate long term cohorts, it has been reported to be less than 3%.692,697\n7.1. Medical management after abdominal aortic aneurysm repair\nMost patients requiring AAA repair suffer from advanced atherosclerotic disease and other smoke related comorbidities.698,699 Despite the increased risk, no RCTs have been performed to assess whether medical management modiﬁes the prognosis of these patients190 but there is consensus that secondary prevention directed at risk factor management and medication for any underlying cardiovascular disease should be continued."
+      },
+      {
+        "rank": 5,
+        "chunk_id": "ESVS_2024__p22-22__c0298",
+        "score": 4.95123,
+        "document_id": "ESVS_2024",
+        "page": 22,
+        "page_start": 22,
+        "page_end": 22,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "Patients with small abdominal aortic aneurysms who are either not expected to reach the diameter threshold for repair within their life expectancy, or are unﬁt for repair, or prefer conservative management, should be considered for discontinuation of surveillance.\nClass\nLevel\nReferences\nIIa\nC\nConsensus\n4.2. Medical management of patients with small abdominal aortic aneurysms\n4.2.1. Cardiovascular risk reduction. Patients with an AAA have a high risk of future cardiovascular events. A systematic review including 21 articles demonstrated a 3% annual risk of cardiovascular death in patients with a small AAA, with a high risk of ischaemic heart disease (IHD) (45%), myocardial infarction (MI) (27%), and stroke (14%).182 More recently, results from the MASS trial including almost\n213\n\nTable:\nRecommendation13 |  |  | Changed"
+      },
+      {
+        "rank": 6,
+        "chunk_id": "NICE_NG156__p29-29__c0096",
+        "score": 4.751431,
+        "document_id": "NICE_NG156",
+        "page": 29,
+        "page_start": 29,
+        "page_end": 29,
+        "section_title": "Rationale and impact",
+        "chunk_text": "The committee recommended that people with aneurysms less than 5.5 cm in diameter are seen within 12 weeks of diagnosis because this is the timeframe set by the NHS AAA screening programme.\nHow the recommendations might affect practice\nThe recommendations outlining key risk factors will increase the number of people being\nAbdominal aortic aneurysm: diagnosis and management (NG156)\n© NICE 2025. All rights reserved. Subject to Notice of rights (https://www.nice.org.uk/terms-andconditions#notice-of-rights).\nPage 29 of"
+      },
+      {
+        "rank": 7,
+        "chunk_id": "USPSTF_2019__p1-1__c0001",
+        "score": 4.642466,
+        "document_id": "USPSTF_2019",
+        "page": 1,
+        "page_start": 1,
+        "page_end": 1,
+        "section_title": "Screening for Abdominal Aortic Aneurysm",
+        "chunk_text": "Screening for Abdominal Aortic Aneurysm\nUS Preventive Services Task Force Recommendation Statement\nUS Preventive Services Task Force\nIMPORTANCE An abdominal aortic aneurysm (AAA) is typically defined as aortic enlargement with a diameter of 3.0 cm or larger. The prevalence of AAA has declined over the past 2 decades among screened men 65 years or older in various European countries. The current prevalence of AAA in the United States is unclear because of the low uptake of screening.\nMost AAAs are asymptomatic until they rupture. Although the risk for rupture varies greatly by aneurysm size, the associated risk for death with rupture is as high as 81%.\nOBJECTIVE To update its 2014 recommendation, the USPSTF commissioned a review of the evidence on the effectiveness of 1-time and repeated screening for AAA, the associated harms of screening, and the benefits and harms of available treatments for small AAAs\n(3.0-5.4 cm in diameter) identified through screening."
+      },
+      {
+        "rank": 8,
+        "chunk_id": "ESVS_2024__p98-98__c1201",
+        "score": 4.119557,
+        "document_id": "ESVS_2024",
+        "page": 98,
+        "page_start": 98,
+        "page_end": 98,
+        "section_title": "Open surgical repair",
+        "chunk_text": "Given these risks some patients choose not to have a ruptured aneurysm repaired despite the fact that almost all patients with a ruptured aneurysm will die from this within a few days, without an emergency repair.\nRuptured aneurysms can be treated using the same operations as for planned surgery.\n\u0007 Based on recent evidence we recommend that patients with a ruptured aneurysm who are suitable for an endovascular repair should have this as the ﬁrst option wherever possible.\nRare causes of abdominal aortic aneurysm. Most aneurysms are caused by a combination of factors, such as an individual’s genetic background, that predispose certain groups to the development of an AAA and environmental factors, such as smoking, that in combination lead to damage of the structure of the aortic wall and the formation of an aneurysm. In some rare cases an AAA can be caused by other factors, including infection and genetic causes."
+      },
+      {
+        "rank": 9,
+        "chunk_id": "NICE_NG156__p52-52__c0156",
+        "score": 3.63128,
+        "document_id": "NICE_NG156",
+        "page": 52,
+        "page_start": 52,
+        "page_end": 52,
+        "section_title": "Context",
+        "chunk_text": "Context\nAbdominal aortic aneurysms develop when the wall of the aorta in the abdomen weakens, causing it to bulge and form a balloon-like expansion. When the abdominal aorta reaches a diameter at least 1.5 times the normal size, or greater than 3 cm in total, it is called an abdominal aortic aneurysm (AAA).\nThe increased stress on the aortic wall may eventually cause the AAA to rupture (burst).\nThe subsequent internal bleeding is frequently fatal before emergency repair can be attempted. When people have emergency repair for rupture, up to half will not survive to leave hospital.\nThere is a long period of growth before an AAA ruptures. The rate of growth may depend on a number of factors, including increasing age, smoking, blood pressure and a family history of aneurysm.\nMost AAAs are asymptomatic, and they are often diagnosed opportunistically during clinical examination or investigation for another condition. Because of this it is difficult to establish their prevalence."
+      },
+      {
+        "rank": 10,
+        "chunk_id": "NICE_NG156__p36-36__c0114",
+        "score": 2.849395,
+        "document_id": "NICE_NG156",
+        "page": 36,
+        "page_start": 36,
+        "page_end": 36,
+        "section_title": "Monitoring the risk of rupture",
+        "chunk_text": "The evidence highlighted that none of the risk assessment tools had a high enough predictive accuracy at predicting postoperative outcomes. The specific tools listed are the ones for which evidence was available. This evidence led the committee to conclude that\nAbdominal aortic aneurysm: diagnosis and management (NG156)\n© NICE 2025. All rights reserved. Subject to Notice of rights (https://www.nice.org.uk/terms-andconditions#notice-of-rights).\nPage 36 of"
+      }
+    ],
+    "6": [
+      {
+        "rank": 1,
+        "chunk_id": "ESVS_2024__p21-21__c0282",
+        "score": 5.617649,
+        "document_id": "ESVS_2024",
+        "page": 21,
+        "page_start": 21,
+        "page_end": 21,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "Guirguis-Blake et al. (2014)159\n* What can be considered a high risk group varies based on local conditions, such as disease prevalence, life expectancy, and healthcare structure, see Table 6.\n3.4. Incidental detection\nDiagnostic imaging used for the investigation of other pathologies including back or chest pain, abdominal and genitourinary symptoms may also detect an AAA. While US and CT scan are most commonly used, there are other imaging modalities including magnetic resonance imaging\n(MRI), echocardiography, CT colonography, and spinal imaging that may diagnose an AAA.152,160e164 There is little information about the sensitivity and speciﬁcity of these imaging modalities for the diagnosis of AAA. There is also the worrying observation that many of these incidentally diagnosed AAAs are ignored and not referred to vascular surgeons.142,165,166\nRecommendation 12\nUnchanged\nPatients with an incidentally detected abdominal aortic aneurysm should be referred to a vascular surgeon for evaluation, except for cases with very limited life expectancy."
+      },
+      {
+        "rank": 2,
+        "chunk_id": "NICE_NG156__p32-32__c0102",
+        "score": 4.740834,
+        "document_id": "NICE_NG156",
+        "page": 32,
+        "page_start": 32,
+        "page_end": 32,
+        "section_title": "How the recommendations might affect practice",
+        "chunk_text": "How the recommendations might affect practice\nImplementing a consistent measurement method to be used across the NHS (and that matches the method used in the NHS AAA screening programme) will improve the reproducibility of results, improving surveillance for individuals with AAA and the ability to analyse data at the population level.\nThin-slice contrast-enhanced arterial-phase CT angiography is widely used for imaging in people being evaluated for AAA repair, so this recommendation is unlikely to make a major difference to current practice. The recommended timings reflect current standards within the NHS AAA screening programme.\nAs post-processing techniques are established in practice, a lack of recommendations on these will not have an impact.\nReturn to recommendations\nProviding information to people with a diagnosed\nAAA\nWhy the committee made the recommendations\nRecommendations 1.1.13 to 1.1.15\nThe committee agreed some consensus recommendations on what information should be provided to people who have been diagnosed with an AAA."
+      },
+      {
+        "rank": 3,
+        "chunk_id": "USPSTF_2019__p3-3__c0022",
+        "score": 4.092807,
+        "document_id": "USPSTF_2019",
+        "page": 3,
+        "page_start": 3,
+        "page_end": 3,
+        "section_title": "Treatment",
+        "chunk_text": "The primary method of screening for AAA is conventional abdominalduplexultrasonography.26Screeningwithultrasonographyisnoninvasive,issimpletoperform,hashighsensitivity(94%-100%)and specificity (98%-100%) for detecting AAA,1,27-31 and does not exposepatientstoradiation.Computedtomographyisanaccuratetool for identifying AAA; however, it is not recommended as a screening method because of the potential for harms from radiation exposure.1 Physical examination has been used in practice but has low sensitivity (39%-68%) and specificity (75%) and is not recommended for screening.32\nScreening Intervals\nEvidenceisadequatetosupport1-timescreeningformenwhohave ever smoked. All of the population-based randomized clinical trials\n(RCTs) of AAA screening used a 1-time screening approach; 7 fairto good-quality cohort studies and 1 fair-quality case-control study"
+      },
+      {
+        "rank": 4,
+        "chunk_id": "ESVS_2024__p17-17__c0245",
+        "score": 4.049019,
+        "document_id": "ESVS_2024",
+        "page": 17,
+        "page_start": 17,
+        "page_end": 17,
+        "section_title": null,
+        "chunk_text": "Detection rates are affected by aortic diameter, experience of the clinician, and body habitus of the patient.99,107e109 Therefore, abdominal palpation is not reliable for the diagnosis of AAA.\n3.2.1. Ultrasonography. Abdominal US and duplex ultrasound (DUS) are ﬁrst line imaging tools for the detection and management of small AAAs, with high (> 97%) sensitivity and speciﬁcity.110e112 Measurements must be performed in a plane perpendicular to the aortic longitudinal axis, which will vary in the presence of aortic tortuosity.\nDifferent diameters can be measured: anteroposterior\n(AP), transverse, or maximum in any direction. Intraobserver coefﬁcients of repeatability for the AP and transverse diameters vary from 2 to 8 mm and from 3 to 15 mm, respectively,113 which supports the use of the AP diameter as the principal measuring plane."
+      },
+      {
+        "rank": 5,
+        "chunk_id": "SVS_2018__p16-16__c0017",
+        "score": 3.413757,
+        "document_id": "SVS_2018",
+        "page": 16,
+        "page_start": 16,
+        "page_end": 16,
+        "section_title": "Aneurysm imaging",
+        "chunk_text": "Aneurysm imaging\nRecommendation\nLevel of recommendation\nQuality of evidence\nIf initial ultrasound screening identified an aortic diameter >2.5 cm but <3 cm, we suggest rescreening after 10 years.\n2\nC\nWe suggest surveillance imaging at 3-year intervals for patients with an AAA between 3.0 and 3.9 cm.\n2\nC\nWe suggest surveillance imaging at 12-month intervals for patients with an AAA of 4.0 to 4.9 cm in diameter.\n2\nC\nWe suggest surveillance imaging at 6-month intervals for patients with an AAA between 5.0 and 5.4 cm in diameter.\n2\nC\nWe recommend a CT scan to evaluate patients thought to have\nAAA presenting with recent-onset abdominal or back pain, particularly in the presence of a pulsatile epigastric mass or significant risk factors for AAA.\n1\nB"
+      },
+      {
+        "rank": 6,
+        "chunk_id": "ESVS_2024__p19-19__c0263",
+        "score": 2.423147,
+        "document_id": "ESVS_2024",
+        "page": 19,
+        "page_start": 19,
+        "page_end": 19,
+        "section_title": "Recommendation 9",
+        "chunk_text": "AAA repair of 1.5 to prevent one premature AAA related death.119 A recent systematic review and meta-analysis pooling all available quantitative and qualitative studies with pre- and post-screening health related QoL (HRQoL) data demonstrated no signiﬁcant impact on HRQoL from being under surveillance for a screen detected AAA.136\nThere are several limitations in translating the results of these screening trials to contemporary practice. The trials all started in the last century when the prevalence of AAA in men was 4 e 7% in the men screened and most repairs were done by OSR. Today the population prevalence of AAA in 65 year old men has decreased signiﬁcantly in several\nEuropean countries and EVAR has become the treatment modality of choice in elective and in emergency repairs. In addition, the incidental AAA detection rate may have increased with more widespread use of diagnostic imaging, and last but not least, life expectancy has increased substantially."
+      },
+      {
+        "rank": 7,
+        "chunk_id": "NICE_NG156__p9-9__c0046",
+        "score": 2.198695,
+        "document_id": "NICE_NG156",
+        "page": 9,
+        "page_start": 9,
+        "page_end": 9,
+        "section_title": "Imaging technique",
+        "chunk_text": "Clearly document any additional measurements taken.\n1.1.11\nOffer thin-slice contrast-enhanced arterial-phase CT angiography to people who are being evaluated for elective AAA repair.\n1.1.12\nConsider thin-slice contrast-enhanced arterial-phase CT angiography for people with a suspected ruptured AAA who are being evaluated for AAA repair.\nFor a short explanation of why the committee made these recommendations and how they might affect practice, see the rationale and impact section on imaging technique.\nFull details of the evidence and the committee's discussion are in evidence review B:\nimaging techniques to diagnose abdominal aortic aneurysms.\nProviding information to people with a diagnosed AAA\n1.1.13\nGive people with AAA of any size information explaining:\n• what an AAA is\n• that most AAAs do not cause any problems\nAbdominal aortic aneurysm: diagnosis and management (NG156)\n© NICE 2025. All rights reserved."
+      },
+      {
+        "rank": 8,
+        "chunk_id": "ESVS_2024__p26-26__c0344",
+        "score": 1.276092,
+        "document_id": "ESVS_2024",
+        "page": 26,
+        "page_start": 26,
+        "page_end": 26,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "AAAs < 55 mm, as opposed to the UK, where the small AAA repair rate was less than 10%.245 This paper has, however, been questioned for reasons relating to incidental detection rates, differences in coding systems, population structure, and total healthcare expenditure, as well as the indications for surgery and impact of population screening.246e248\nAnother topic of debate is which imaging modality and methodology should be used for decisions about repair. It is known that CTA measurements provide a larger diameter than US,125,126 and it is common to perform a CTA at a diameter just below the diameter threshold at which repair is considered as measured by US, thereby probably obtaining a larger diameter which may unnecessarily warrant repair."
+      },
+      {
+        "rank": 9,
+        "chunk_id": "NICE_NG156__p7-7__c0041",
+        "score": 1.121791,
+        "document_id": "NICE_NG156",
+        "page": 7,
+        "page_start": 7,
+        "page_end": 7,
+        "section_title": "Recommendations",
+        "chunk_text": "1.1.3\nConsider an aortic ultrasound for women aged 70 and over if AAA has not already been excluded on abdominal imaging and they have any of the following risk factors:\n• COPD\n• coronary, cerebrovascular or peripheral arterial disease\n• family history of AAA\n• hyperlipidaemia\n• hypertension\n• they smoke or used to smoke.\n1.1.4\nBe aware that people of European family origin are at a higher risk of an AAA.\nIdentifying asymptomatic abdominal aortic aneurysms\n1.1.5\nOffer an aortic ultrasound to people in whom a diagnosis of asymptomatic AAA is being considered if they are not already in the NHS screening programme.\n• Refer people with an AAA that is 5.5 cm or larger to a regional vascular service, to be seen within 2 weeks of diagnosis.\n• Refer people with an AAA that is 3.0 cm to 5.4 cm to a regional vascular service, to be seen within 12 weeks of diagnosis.\n1.1.6"
+      },
+      {
+        "rank": 10,
+        "chunk_id": "ESVS_2024__p26-26__c0343",
+        "score": 0.536121,
+        "document_id": "ESVS_2024",
+        "page": 26,
+        "page_start": 26,
+        "page_end": 26,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "Despite this high quality evidence, AAAs in men are still repaired below the 55 mm diameter threshold in several countries particularly those with privately funded healthcare, many of these repairs breaching quality standards.15,244 An administrative registry based analysis showed a signiﬁcantly lower population aneurysm related mortality in the USA, where more than 40% of repairs were performed on small\nAAAs < 55 mm, as opposed to the UK, where the small AAA repair rate was less than 10%.245 This paper has, however, been questioned for reasons relating to incidental detection rates, differences in coding systems, population structure, and total healthcare expenditure, as well as the indications for surgery and impact of population screening.246e248\nAnother topic of debate is which imaging modality and methodology should be used for decisions about repair."
+      }
+    ],
+    "7": [
+      {
+        "rank": 1,
+        "chunk_id": "USPSTF_2019__p2-2__c0017",
+        "score": 8.019016,
+        "document_id": "USPSTF_2019",
+        "page": 2,
+        "page_start": 2,
+        "page_end": 2,
+        "section_title": "Summary of Recommendations",
+        "chunk_text": "Other risk factors include a history of other vascular aneurysms, coronary artery disease, cerebrovascular disease, atherosclerosis, hypercholesterolemia, and hypertension.17-19 Factors associated with a reduced risk include African American race, Hispanic ethnicity, Asian ethnicity, and diabetes.13,20-24 Risk factors for AAA rupture include older age, female sex, smoking, and elevated blood pressure.1 Clinicians should consider the presence of comorbid conditions and not offering screening if patients are unable to undergo surgical intervention or have a reduced life expectancy.\nSmoking Status\nEpidemiologic literature commonly defines an “ever smoker” as someone who has smoked 100 or more cigarettes. Indirect evidence shows that smoking is the strongest predictor of AAA prevalence,growth,andrupturerates.1Thereisadose-responserelationship, as greater smoking exposure is associated with an increased risk for AAA.1"
+      },
+      {
+        "rank": 2,
+        "chunk_id": "USPSTF_2019__p2-2__c0016",
+        "score": 7.111513,
+        "document_id": "USPSTF_2019",
+        "page": 2,
+        "page_start": 2,
+        "page_end": 2,
+        "section_title": "Summary of Recommendations",
+        "chunk_text": "In this Recommendation Statement, the recommendations are stratified by “men” and “women,” although the net benefit estimates are driven by biologic sex (ie, male/female) rather than gender identity. Persons should consider their sex at birth to determine which recommendation best applies to them.\nAssessment of Risk\nImportant risk factors for AAA include older age, male sex, smoking, and having a first-degree relative with an AAA.13-16\nOther risk factors include a history of other vascular aneurysms, coronary artery disease, cerebrovascular disease, atherosclerosis, hypercholesterolemia, and hypertension.17-19 Factors associated with a reduced risk include African American race, Hispanic ethnicity, Asian ethnicity, and diabetes.13,20-24 Risk factors for AAA rupture include older age, female sex, smoking, and elevated blood pressure.1 Clinicians should consider the presence of comorbid conditions and not offering screening if patients are unable to undergo surgical intervention or have a reduced life expectancy.\nSmoking Status"
+      },
+      {
+        "rank": 3,
+        "chunk_id": "NICE_NG156__p8-8__c0043",
+        "score": 5.647525,
+        "document_id": "NICE_NG156",
+        "page": 8,
+        "page_start": 8,
+        "page_end": 8,
+        "section_title": "Recommendations",
+        "chunk_text": "For a short explanation of why the committee made these recommendations and how they might affect practice, see the rationale and impact section on identifying asymptomatic abdominal aortic aneurysms.\nFull details of the evidence and the committee's discussion are in evidence review A:\nrisk factors for predicting presence of an abdominal aortic aneurysm and evidence review B: imaging techniques to diagnose abdominal aortic aneurysms.\nIdentifying symptomatic or ruptured abdominal aortic aneurysms\n1.1.7\nThink about the possibility of ruptured AAA in people with new abdominal and/or back pain, cardiovascular collapse, or loss of consciousness. Be aware that ruptured AAA is more likely if they also have any of the following risk factors:\n• an existing diagnosis of AAA\n• age over 60\n• they smoke or used to smoke\n• history of hypertension.\n1.1.8\nBe aware that AAAs are more likely to rupture in women than men.\n1.1.9"
+      },
+      {
+        "rank": 4,
+        "chunk_id": "NICE_NG156__p52-52__c0156",
+        "score": 4.478134,
+        "document_id": "NICE_NG156",
+        "page": 52,
+        "page_start": 52,
+        "page_end": 52,
+        "section_title": "Context",
+        "chunk_text": "Context\nAbdominal aortic aneurysms develop when the wall of the aorta in the abdomen weakens, causing it to bulge and form a balloon-like expansion. When the abdominal aorta reaches a diameter at least 1.5 times the normal size, or greater than 3 cm in total, it is called an abdominal aortic aneurysm (AAA).\nThe increased stress on the aortic wall may eventually cause the AAA to rupture (burst).\nThe subsequent internal bleeding is frequently fatal before emergency repair can be attempted. When people have emergency repair for rupture, up to half will not survive to leave hospital.\nThere is a long period of growth before an AAA ruptures. The rate of growth may depend on a number of factors, including increasing age, smoking, blood pressure and a family history of aneurysm.\nMost AAAs are asymptomatic, and they are often diagnosed opportunistically during clinical examination or investigation for another condition. Because of this it is difficult to establish their prevalence."
+      },
+      {
+        "rank": 5,
+        "chunk_id": "NICE_NG156__p17-17__c0065",
+        "score": 4.349747,
+        "document_id": "NICE_NG156",
+        "page": 17,
+        "page_start": 17,
+        "page_end": 17,
+        "section_title": null,
+        "chunk_text": "• the person's age, life expectancy, fitness for surgery, and any other conditions they have\n• the risk of AAA rupture if they do not have repair\n• the short- and long-term benefits and risks, and the other disadvantages of repair such as having to stay in hospital, the risks of the operation, the recovery period, the potential need for further procedures and the need for surveillance imaging appointments\n• the uncertainties around estimates of risk for AAAs larger than 5.5 cm\n(measured inner-to-inner maximum anterior-posterior aortic diameter on ultrasound).\nOpen surgical repair, standard endovascular aneurysm repair or conservative management\n1.5.3\nOffer open surgical repair for people with unruptured AAAs meeting the criteria in recommendation 1.5.1, unless it is contraindicated because of their abdominal copathology, anaesthetic risks, and/or medical comorbidities.\n1.5.4"
+      },
+      {
+        "rank": 6,
+        "chunk_id": "USPSTF_2019__p2-2__c0014",
+        "score": 4.061178,
+        "document_id": "USPSTF_2019",
+        "page": 2,
+        "page_start": 2,
+        "page_end": 2,
+        "section_title": "Summary of Recommendations",
+        "chunk_text": "Although the risk for rupture varies greatly by aneurysm size, the associated risk for death with rupture is as high as 81%.1,11\nUSPSTF Assessment of Magnitude of Net Benefit\nThe USPSTF concludes with moderate certainty that screening for AAA in men aged 65 to 75 years who have ever smoked is of moderate net benefit (Figure and Table; see the eFigure in the Supplement for explanation of USPSTF grades and levels of evidence).\nThe USPSTF concludes with moderate certainty that screening for AAA in men aged 65 to 75 years who have never smoked is of small net benefit (Figure and Table).\nThe USPSTF concludes that the evidence is insufficient to determine the net benefit of screening for AAA in women aged 65 to\n75 years who have ever smoked or have a family history of AAA\n(Figure and Table)."
+      },
+      {
+        "rank": 7,
+        "chunk_id": "USPSTF_2019__p3-3__c0025",
+        "score": 3.966708,
+        "document_id": "USPSTF_2019",
+        "page": 3,
+        "page_start": 3,
+        "page_end": 3,
+        "section_title": "Treatment",
+        "chunk_text": "The annual risk for rupture is nearly 0% for persons with AAAs between 3.0 and 3.9 cm in diameter, 1% for those with AAAs between 4.0 and 4.9 cm in diameter, and 11% for those with AAAs between 5.0 and 5.9 cm in diameter.1 Surgical repair is standard practice for men with an AAA of 5.5 cm or larger in diameter or an AAA larger than 4.0 cm in diameter that has rapidly increased in size (defined as an increase of 1.0 cm in diameter over a 1-year period). Endovascular aneurysm repair (EVAR) has becomethemostcommonapproachforelectiveAAArepair.Openrepair is a time-tested, effective treatment for AAA. In the United\nStates, 80% of intact AAA repairs and 52% of ruptured AAA repairs are performed using EVAR.1"
+      },
+      {
+        "rank": 8,
+        "chunk_id": "USPSTF_2019__p5-5__c0051",
+        "score": 3.894832,
+        "document_id": "USPSTF_2019",
+        "page": 5,
+        "page_start": 5,
+        "page_end": 5,
+        "section_title": "Treatment",
+        "chunk_text": "Although the risk for rupture at a smaller aneurysm diameter seems to be higher in women than in men,1,40 the overall rupture rate in women is low. In the\nChichester trial, more than two-thirds of deaths from AAA occurred in women 80 years or older.1,33\nPooled analysis of AAA-related mortality from the 4 trials showed a statistically significant 35% reduction associated with invitation to screening (Peto OR, 0.65 [95% CI, 0.57-0.74];\nI2 = 80%).1 The number needed to screen was 305 men (95% CI,\n248-411) to prevent 1 AAA death. The MASS and Viborg trials each found a statistically significant reduction in AAA-related mortality in the groups invited to screening compared with the control groups up to 13 years after screening (hazard ratio [HR],"
+      },
+      {
+        "rank": 9,
+        "chunk_id": "ESVS_2024__p96-96__c1184",
+        "score": 3.683545,
+        "document_id": "ESVS_2024",
+        "page": 96,
+        "page_start": 96,
+        "page_end": 96,
+        "section_title": "INFORMATION FOR PATIENTS",
+        "chunk_text": "For a 30 mm AAA the risk of it bursting within one year is about one in 2 000 (0.005%) for men and one in 500 (0.02%) for women. For a 50 mm aneurysm the risk is about one in 150 (0.66%) for men and one in 30 (3.3%) for women. It is known that the risks of aneurysm rupture increase for aneurysms larger than 55 mm.\n\u0007 For larger AAAs, the risk of surgical repair are considered to be lower than the risks of rupture. Therefore, most patients with a large AAA are offeredrepair.\nWe are less certain of the risk of rupture of AAA between 55 e 70 mm but the risk may be up to one in\n10 (10%) per year, increasing to about 30% for even larger aneurysms.\nWhat can I do to stop an aneurysm growing larger?"
+      },
+      {
+        "rank": 10,
+        "chunk_id": "ESVS_2024__p26-26__c0350",
+        "score": 2.973639,
+        "document_id": "ESVS_2024",
+        "page": 26,
+        "page_start": 26,
+        "page_end": 26,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "Women with AAA size 61 e 70 m had a three year cumulative incidence of rupture of 12.8% compared with 4.5% in men (p ¼ .002).76\nIn conclusion, in men the risk of rupture is very low (0.3 e\n0.8% per year) for AAAs with a diameter below 55 mm measured with US, which translates to a diameter on CTA between 55 e 62 mm depending on which measurement methodology is used.Therefore,there is no need to lower the diameter threshold for repair or to perform a CTA when US measures the AAA diameter < 55 mm in men. On the contrary, based on the NAAASP data it has been suggested to raise the diameter threshold to 60 mm when based on\nCTA.254 Although it is possible that the threshold should be raised in the future, the GWC does not believe there is suf- ﬁcient support at this time."
+      }
+    ],
+    "8": [
+      {
+        "rank": 1,
+        "chunk_id": "SVS_2018__p20-20__c0020",
+        "score": 7.206415,
+        "document_id": "SVS_2018",
+        "page": 20,
+        "page_start": 20,
+        "page_end": 20,
+        "section_title": "Medical management during the period of",
+        "chunk_text": "Medical management during the period of\nAAA surveillance\nRecommendation\nLevel of recommendation\nQuality of evidence\nWe recommend smoking cessation to reduce the risk of AAA growth and rupture.\n1\nB\nWe suggest not administering statins, doxycycline, roxithromycin,\nACE inhibitors, or angiotensin receptor blockers for the sole purpose of reducing the risk of AAA expansion and rupture.\n2\nC\nWe suggest not administering beta blocker therapy for the sole purpose of reducing the risk of AAA expansion and rupture.\n1\nB"
+      },
+      {
+        "rank": 2,
+        "chunk_id": "ESVS_2024__p23-23__c0309",
+        "score": 6.265758,
+        "document_id": "ESVS_2024",
+        "page": 23,
+        "page_start": 23,
+        "page_end": 23,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "prevalence, AAA growth and AAA rupture.71 The introduction of screening programmes and increased diagnosis of small AAAs provides an opportunity for improved cardiovascular risk prevention in these patients at risk.\nRecommendation 16\nChanged\nAll patients with an abdominal aortic aneurysm should receive cardiovascular risk factor management with smoking cessation*, blood pressure control*, statin and antiplatelet therapy*, and lifestyle advice (including exercise and healthy diet).\nClass\nLevel\nReferences\nToE\nI\nB\nBahia et al (2016),88\nBath et al. (2015),182\nNiebauer et al. (2021),188\nBhak et al. (2015),189\nRobertson et al. (2017),190\nWemmelund et al. (2014)191\n* For details regarding nicotine replacement therapy, speciﬁc drug choice, doses, and target values for medical treatment, reference is made to the latest dedicated guidelines on cardiovascular risk reduction.\n4.2.2. Strategies to reduce the rate of aneurysm growth and rupture."
+      },
+      {
+        "rank": 3,
+        "chunk_id": "ESVS_2024__p23-23__c0308",
+        "score": 4.393933,
+        "document_id": "ESVS_2024",
+        "page": 23,
+        "page_start": 23,
+        "page_end": 23,
+        "section_title": "ABDOMINAL AORTIC ANEURYSM",
+        "chunk_text": "Additional intensiﬁed risk factor treatment may be considered, with lower treatment goals (systolic BP < 130 mmHg, LDL cholesterol < 1.4 mmol/L, or < 55 mg/dL, and dual antiplatelet therapy).186 Despite recommendations for statin and antiplatelet treatment in patients with an AAA, recent studies have drawn attention to the fact that both medications are only prescribed in about 60%, and in whom compliance is as low as 60%.71,187 Furthermore, over 30% of patients diagnosed with an AAA in an English study continued smoking, despite the evidence that smoking is a key risk factor for AAA prevalence, AAA growth and AAA rupture.71 The introduction of screening programmes and increased diagnosis of small AAAs provides an opportunity for improved cardiovascular risk prevention in these patients at risk.\nRecommendation 16\nChanged"
+      },
+      {
+        "rank": 4,
+        "chunk_id": "USPSTF_2019__p3-3__c0029",
+        "score": 4.040092,
+        "document_id": "USPSTF_2019",
+        "page": 3,
+        "page_start": 3,
+        "page_end": 3,
+        "section_title": "Treatment",
+        "chunk_text": "Evidence is insufficient to assess the balance of benefits and harms of screening for AAA with ultrasonography in women aged 65 to 75 years who have ever smoked or have a family history of AAA.\nAssess risk. Risk factors for AAA include older age, male sex, smoking, and having a first-degree relative with an AAA.\nThe recommendation varies based on a patient’s sex, age, and smoking history. “Ever smoker” is commonly defined as smoking 100 or more cigarettes.\n1.\nScreen. Abdominal duplex ultrasonography is the standard approach for AAA screening. a. Screen men aged 65 to 75 years who have ever smoked. b. Selectively offer screening to men aged 65 to 75 years who have never smoked. Evidence shows that the overall benefit for screening all men in this group is small. To determine whether this service is appropriate, patients and clinicians should consider the patient’s medical history, family history, other risk factors, and personal values.\n2.\nAAA indicates abdominal aortic aneurysm; USPSTF, US Preventive Services Task Force."
+      },
+      {
+        "rank": 5,
+        "chunk_id": "NICE_NG156__p11-11__c0051",
+        "score": 3.813934,
+        "document_id": "NICE_NG156",
+        "page": 11,
+        "page_start": 11,
+        "page_end": 11,
+        "section_title": "Reducing the risk of rupture",
+        "chunk_text": "For a short explanation of why the committee made these recommendations and how they might affect practice, see the rationale and impact section on providing information to people with a diagnosed AAA.\nFull details of the evidence and the committee's discussion are in evidence review K:\neffectiveness of endovascular aneurysm repair, open surgical repair and non-surgical management of unruptured abdominal aortic aneurysms.\n1.2 Monitoring and reducing the risk of rupture\nReducing the risk of rupture\n1.2.1\nOffer a referral to a stop smoking service to people with an abdominal aortic aneurysm (AAA) who smoke. For more guidance, see the NICE guideline on tobacco: preventing uptake, promoting quitting and treating dependence.\n1.2.2\nEnsure that people with an AAA who have hypertension receive care in line with the NICE guideline on hypertension in adults."
+      },
+      {
+        "rank": 6,
+        "chunk_id": "USPSTF_2019__p2-2__c0016",
+        "score": 3.719437,
+        "document_id": "USPSTF_2019",
+        "page": 2,
+        "page_start": 2,
+        "page_end": 2,
+        "section_title": "Summary of Recommendations",
+        "chunk_text": "In this Recommendation Statement, the recommendations are stratified by “men” and “women,” although the net benefit estimates are driven by biologic sex (ie, male/female) rather than gender identity. Persons should consider their sex at birth to determine which recommendation best applies to them.\nAssessment of Risk\nImportant risk factors for AAA include older age, male sex, smoking, and having a first-degree relative with an AAA.13-16\nOther risk factors include a history of other vascular aneurysms, coronary artery disease, cerebrovascular disease, atherosclerosis, hypercholesterolemia, and hypertension.17-19 Factors associated with a reduced risk include African American race, Hispanic ethnicity, Asian ethnicity, and diabetes.13,20-24 Risk factors for AAA rupture include older age, female sex, smoking, and elevated blood pressure.1 Clinicians should consider the presence of comorbid conditions and not offering screening if patients are unable to undergo surgical intervention or have a reduced life expectancy.\nSmoking Status"
+      },
+      {
+        "rank": 7,
+        "chunk_id": "USPSTF_2019__p1-1__c0003",
+        "score": 2.838343,
+        "document_id": "USPSTF_2019",
+        "page": 1,
+        "page_start": 1,
+        "page_end": 1,
+        "section_title": "Screening for Abdominal Aortic Aneurysm",
+        "chunk_text": "AAA in men aged 65 to 75 years who have never smoked is of small net benefit. The USPSTF concludes that the evidence is insufficient to determine the net benefit of screening for AAA in women aged 65 to 75 years who have ever smoked or have a family history of AAA. The\nUSPSTF concludes with moderate certainty that the harms of screening for AAA in women aged 65 to 75 years who have never smoked and have no family history of AAA outweigh the benefits.\nRECOMMENDATIONS The USPSTF recommends 1-time screening for AAA with ultrasonography in men aged 65 to 75 years who have ever smoked. (B recommendation)"
+      },
+      {
+        "rank": 8,
+        "chunk_id": "USPSTF_2019__p6-6__c0072",
+        "score": 2.699686,
+        "document_id": "USPSTF_2019",
+        "page": 6,
+        "page_start": 6,
+        "page_end": 6,
+        "section_title": "Treatment",
+        "chunk_text": "These organizations do not recommend screening for AAA in men who have never smoked or in women.46 The Society for Vascular Surgery recommends 1-time ultrasonography screening for AAA in all men and women aged 65 to75yearswithahistoryoftobaccouse,men55yearsorolderwith a family history of AAA, and women 65 years or older who have smoked or have a family history of AAA.47 The American College of\nPreventiveMedicinerecommends1-timescreeninginmenaged65 to 75 years who have ever smoked; it does not recommend routine screening in women.48\nClinical Review & Education US Preventive Services Task Force\nUSPSTF Recommendation: Screening for Abdominal Aortic Aneurysm\n2216\nJAMA\nDecember 10, 2019\nVolume 322, Number 22\n(Reprinted) jama.com"
+      },
+      {
+        "rank": 9,
+        "chunk_id": "USPSTF_2019__p6-6__c0071",
+        "score": 2.260323,
+        "document_id": "USPSTF_2019",
+        "page": 6,
+        "page_start": 6,
+        "page_end": 6,
+        "section_title": "Treatment",
+        "chunk_text": "• Studies examining the efficacy of screening and treatment in diverse populations (eg, older adults, women, and racial/ethnic groups) are needed to inform the need for specific recommendations in subpopulations of Americans.\nRecommendations of Others\nThe American College of Cardiology and the American Heart Association jointly recommend 1-time screening for AAA with physical examination and ultrasonography in men aged 65 to 75 years who have ever smoked or in men 60 years or older who are the sibling or offspring of a person with AAA. These organizations do not recommend screening for AAA in men who have never smoked or in women.46 The Society for Vascular Surgery recommends 1-time ultrasonography screening for AAA in all men and women aged 65 to75yearswithahistoryoftobaccouse,men55yearsorolderwith a family history of AAA, and women 65 years or older who have smoked or have a family history of AAA.47 The American College of"
+      },
+      {
+        "rank": 10,
+        "chunk_id": "USPSTF_2019__p2-2__c0018",
+        "score": 1.787199,
+        "document_id": "USPSTF_2019",
+        "page": 2,
+        "page_start": 2,
+        "page_end": 2,
+        "section_title": "Summary of Recommendations",
+        "chunk_text": "Indirect evidence shows that smoking is the strongest predictor of AAA prevalence,growth,andrupturerates.1Thereisadose-responserelationship, as greater smoking exposure is associated with an increased risk for AAA.1\nThe USPSTF concludes that the current evidence is insufficient to assess the balance of benefits and harms of screening for AAA with ultrasonography in women aged 65 to 75 years who have ever smoked or have a family history of AAA.\nI statement\nThe USPSTF recommends 1-time screening for abdominal aortic aneurysm\n(AAA) with ultrasonography in men aged 65 to 75 years who have ever smoked.\nThe USPSTF recommends that clinicians selectively offer screening for AAA with ultrasonography in men aged 65 to 75 years who have never smoked rather than routinely screening all men in this group. Evidence indicates that the net benefit of screening all men in this group is small."
+      }
+    ],
+    "9": [
+      {
+        "rank": 1,
+        "chunk_id": "USPSTF_2019__p1-1__c0004",
+        "score": 7.290974,
+        "document_id": "USPSTF_2019",
+        "page": 1,
+        "page_start": 1,
+        "page_end": 1,
+        "section_title": "Screening for Abdominal Aortic Aneurysm",
+        "chunk_text": "USPSTF concludes with moderate certainty that the harms of screening for AAA in women aged 65 to 75 years who have never smoked and have no family history of AAA outweigh the benefits.\nRECOMMENDATIONS The USPSTF recommends 1-time screening for AAA with ultrasonography in men aged 65 to 75 years who have ever smoked. (B recommendation)\nThe USPSTF recommends that clinicians selectively offer screening for AAA with ultrasonography in men aged 65 to 75 years who have never smoked rather than routinely screening all men in this group. (C recommendation) The USPSTF recommends against routine screening for AAA with ultrasonography in women who have never smoked and have no family history of AAA. (D recommendation) The USPSTF concludes that the current evidence is insufficient to assess the balance of benefits and harms of screening for AAA with ultrasonography in women aged 65 to 75 years who have ever smoked or have a family history of AAA. (I statement)\nJAMA."
+      },
+      {
+        "rank": 2,
+        "chunk_id": "USPSTF_2019__p1-1__c0005",
+        "score": 6.796856,
+        "document_id": "USPSTF_2019",
+        "page": 1,
+        "page_start": 1,
+        "page_end": 1,
+        "section_title": "Screening for Abdominal Aortic Aneurysm",
+        "chunk_text": "The USPSTF recommends that clinicians selectively offer screening for AAA with ultrasonography in men aged 65 to 75 years who have never smoked rather than routinely screening all men in this group. (C recommendation) The USPSTF recommends against routine screening for AAA with ultrasonography in women who have never smoked and have no family history of AAA. (D recommendation) The USPSTF concludes that the current evidence is insufficient to assess the balance of benefits and harms of screening for AAA with ultrasonography in women aged 65 to 75 years who have ever smoked or have a family history of AAA. (I statement)\nJAMA. 2019;322(22):2211-2218. doi:10.1001/jama.2019.18928\nEditorial page 2177\nRelated article page 2219 and\nJAMA Patient Page page 2256\nAudio and Supplemental content\nCME Quiz at jamanetwork.com/learning and CME Questions page 2243\nRelated articles at jamanetworkopen.com jamasurgery.com\nCorresponding Author: Douglas K."
+      },
+      {
+        "rank": 3,
+        "chunk_id": "USPSTF_2019__p6-6__c0071",
+        "score": 6.668775,
+        "document_id": "USPSTF_2019",
+        "page": 6,
+        "page_start": 6,
+        "page_end": 6,
+        "section_title": "Treatment",
+        "chunk_text": "• Studies examining the efficacy of screening and treatment in diverse populations (eg, older adults, women, and racial/ethnic groups) are needed to inform the need for specific recommendations in subpopulations of Americans.\nRecommendations of Others\nThe American College of Cardiology and the American Heart Association jointly recommend 1-time screening for AAA with physical examination and ultrasonography in men aged 65 to 75 years who have ever smoked or in men 60 years or older who are the sibling or offspring of a person with AAA. These organizations do not recommend screening for AAA in men who have never smoked or in women.46 The Society for Vascular Surgery recommends 1-time ultrasonography screening for AAA in all men and women aged 65 to75yearswithahistoryoftobaccouse,men55yearsorolderwith a family history of AAA, and women 65 years or older who have smoked or have a family history of AAA.47 The American College of"
+      },
+      {
+        "rank": 4,
+        "chunk_id": "USPSTF_2019__p6-6__c0072",
+        "score": 6.577821,
+        "document_id": "USPSTF_2019",
+        "page": 6,
+        "page_start": 6,
+        "page_end": 6,
+        "section_title": "Treatment",
+        "chunk_text": "These organizations do not recommend screening for AAA in men who have never smoked or in women.46 The Society for Vascular Surgery recommends 1-time ultrasonography screening for AAA in all men and women aged 65 to75yearswithahistoryoftobaccouse,men55yearsorolderwith a family history of AAA, and women 65 years or older who have smoked or have a family history of AAA.47 The American College of\nPreventiveMedicinerecommends1-timescreeninginmenaged65 to 75 years who have ever smoked; it does not recommend routine screening in women.48\nClinical Review & Education US Preventive Services Task Force\nUSPSTF Recommendation: Screening for Abdominal Aortic Aneurysm\n2216\nJAMA\nDecember 10, 2019\nVolume 322, Number 22\n(Reprinted) jama.com"
+      },
+      {
+        "rank": 5,
+        "chunk_id": "USPSTF_2019__p1-1__c0003",
+        "score": 6.334426,
+        "document_id": "USPSTF_2019",
+        "page": 1,
+        "page_start": 1,
+        "page_end": 1,
+        "section_title": "Screening for Abdominal Aortic Aneurysm",
+        "chunk_text": "AAA in men aged 65 to 75 years who have never smoked is of small net benefit. The USPSTF concludes that the evidence is insufficient to determine the net benefit of screening for AAA in women aged 65 to 75 years who have ever smoked or have a family history of AAA. The\nUSPSTF concludes with moderate certainty that the harms of screening for AAA in women aged 65 to 75 years who have never smoked and have no family history of AAA outweigh the benefits.\nRECOMMENDATIONS The USPSTF recommends 1-time screening for AAA with ultrasonography in men aged 65 to 75 years who have ever smoked. (B recommendation)"
+      },
+      {
+        "rank": 6,
+        "chunk_id": "USPSTF_2019__p2-2__c0015",
+        "score": 6.329814,
+        "document_id": "USPSTF_2019",
+        "page": 2,
+        "page_start": 2,
+        "page_end": 2,
+        "section_title": "Summary of Recommendations",
+        "chunk_text": "The USPSTF concludes that the evidence is insufficient to determine the net benefit of screening for AAA in women aged 65 to\n75 years who have ever smoked or have a family history of AAA\n(Figure and Table).\nTheUSPSTFconcludeswithmoderatecertaintythattheharms ofscreeningforAAAinwomenaged65to75yearswhohavenever smoked and have no family history of AAA outweigh the benefits\n(Figure and Table).\nFor more details on the methods the USPSTF uses to determine the net benefit, see the USPSTF Procedure Manual.12\nPractice Considerations\nPatient Population Under Consideration\nBased on the scope of the evidence review, this recommendation applies to asymptomatic adults 50 years or older. However, the randomized trial evidence focuses almost entirely on men aged 65 to 75 years. In this Recommendation Statement, the recommendations are stratified by “men” and “women,” although the net benefit estimates are driven by biologic sex (ie, male/female) rather than gender identity."
+      },
+      {
+        "rank": 7,
+        "chunk_id": "USPSTF_2019__p4-4__c0036",
+        "score": 6.248712,
+        "document_id": "USPSTF_2019",
+        "page": 4,
+        "page_start": 4,
+        "page_end": 4,
+        "section_title": "Treatment",
+        "chunk_text": "2014 USPSTF recommendation.35 It is consistent with the 2014\nUSPSTFrecommendation,whichwasaBrecommendationfor1-time screeningforAAAwithultrasonographyinasymptomaticmenaged\n65 to 75 years who have ever smoked, a C recommendation for selectivescreeninginmenaged65to75yearswhohaveneversmoked, a D recommendation against routine screening in asymptomatic womenwhohaveneversmoked,andanIstatementforwomenaged\n65 to 75 years who have ever smoked.\nSupporting Evidence\nScope of Review\nThe USPSTF commissioned a systematic evidence review to update its 2014 recommendation on screening for AAA. The USPSTF examined evidence regarding the effectiveness of 1-time and repeated screening for AAA, the associated harms of screening, and\nTable. Summary of USPSTF Rationalea\nRationale\nMen\nWomen\nEver Smoked\nNever Smoked\nEver Smoked or Family History\nNever Smoked and No Family\nHistory\nDetection\nThere is adequate evidence that ultrasonography is a safe and accurate screening test for AAA"
+      },
+      {
+        "rank": 8,
+        "chunk_id": "USPSTF_2019__p3-3__c0029",
+        "score": 6.166515,
+        "document_id": "USPSTF_2019",
+        "page": 3,
+        "page_start": 3,
+        "page_end": 3,
+        "section_title": "Treatment",
+        "chunk_text": "Evidence is insufficient to assess the balance of benefits and harms of screening for AAA with ultrasonography in women aged 65 to 75 years who have ever smoked or have a family history of AAA.\nAssess risk. Risk factors for AAA include older age, male sex, smoking, and having a first-degree relative with an AAA.\nThe recommendation varies based on a patient’s sex, age, and smoking history. “Ever smoker” is commonly defined as smoking 100 or more cigarettes.\n1.\nScreen. Abdominal duplex ultrasonography is the standard approach for AAA screening. a. Screen men aged 65 to 75 years who have ever smoked. b. Selectively offer screening to men aged 65 to 75 years who have never smoked. Evidence shows that the overall benefit for screening all men in this group is small. To determine whether this service is appropriate, patients and clinicians should consider the patient’s medical history, family history, other risk factors, and personal values.\n2.\nAAA indicates abdominal aortic aneurysm; USPSTF, US Preventive Services Task Force."
+      },
+      {
+        "rank": 9,
+        "chunk_id": "USPSTF_2019__p2-2__c0016",
+        "score": 6.144552,
+        "document_id": "USPSTF_2019",
+        "page": 2,
+        "page_start": 2,
+        "page_end": 2,
+        "section_title": "Summary of Recommendations",
+        "chunk_text": "In this Recommendation Statement, the recommendations are stratified by “men” and “women,” although the net benefit estimates are driven by biologic sex (ie, male/female) rather than gender identity. Persons should consider their sex at birth to determine which recommendation best applies to them.\nAssessment of Risk\nImportant risk factors for AAA include older age, male sex, smoking, and having a first-degree relative with an AAA.13-16\nOther risk factors include a history of other vascular aneurysms, coronary artery disease, cerebrovascular disease, atherosclerosis, hypercholesterolemia, and hypertension.17-19 Factors associated with a reduced risk include African American race, Hispanic ethnicity, Asian ethnicity, and diabetes.13,20-24 Risk factors for AAA rupture include older age, female sex, smoking, and elevated blood pressure.1 Clinicians should consider the presence of comorbid conditions and not offering screening if patients are unable to undergo surgical intervention or have a reduced life expectancy.\nSmoking Status"
+      },
+      {
+        "rank": 10,
+        "chunk_id": "USPSTF_2019__p2-2__c0019",
+        "score": 5.816223,
+        "document_id": "USPSTF_2019",
+        "page": 2,
+        "page_start": 2,
+        "page_end": 2,
+        "section_title": "Summary of Recommendations",
+        "chunk_text": "The USPSTF recommends that clinicians selectively offer screening for AAA with ultrasonography in men aged 65 to 75 years who have never smoked rather than routinely screening all men in this group. Evidence indicates that the net benefit of screening all men in this group is small. In determining whether this service is appropriate in individual cases, patients and clinicians should consider the balance of benefits and harms on the basis of evidence relevant to the patient’s medical history, family history, other risk factors, and personal values.\nB recommendation\nC recommendation\nThe USPSTF recommends against routine screening for AAA with ultrasonography in women who have never smoked and have no family history of AAA.\nD recommendation\nSee the Figure for a more detailed summary of the recommendation for clinicians. See the “Practice\nConsiderations” section for more information on each of these populations. USPSTF indicates US\nPreventive Services Task Force.\nClinical Review & Education US Preventive Services Task Force\nUSPSTF Recommendation: Screening for Abdominal Aortic Aneurysm\n2212\nJAMA\nDecember 10, 2019\nVolume 322, Number 22"
+      }
+    ],
+    "10": [
+      {
+        "rank": 1,
+        "chunk_id": "NICE_NG156__p41-41__c0125",
+        "score": 7.43934,
+        "document_id": "NICE_NG156",
+        "page": 41,
+        "page_start": 41,
+        "page_end": 41,
+        "section_title": "Repairing unruptured aneurysms",
+        "chunk_text": "EVAR grafts and procedures are much more expensive than standard EVAR, so the difference in cost between EVAR and open surgical repair is likely to be even greater than for infrarenal AAAs. In addition, using standard EVAR stent grafts for complex AAA usually violates the manufacturer's 'instructions for use'.\nAlthough there is currently no evidence that complex EVAR has better outcomes than open surgical repair, people with complex AAAs have higher perioperative mortality rates than people with infrarenal AAAs. Because of this, an increased perioperative survival benefit may be more important for them, and may justify the use of complex EVAR. This would differentiate complex EVAR from standard EVAR, which clearly does not provide enough short-term benefits to outweigh the worse long-term outcomes or the increased cost (when compared with open surgical repair).\nOpen surgical repair is contraindicated for some people with an unruptured AAA because of anaesthetic risks and/or medical comorbidities."
+      },
+      {
+        "rank": 2,
+        "chunk_id": "NICE_NG156__p43-43__c0131",
+        "score": 6.858981,
+        "document_id": "NICE_NG156",
+        "page": 43,
+        "page_start": 43,
+        "page_end": 43,
+        "section_title": "EVAR and complex EVAR for specific subgroups of people",
+        "chunk_text": "surgical repair: All vascular surgeons should be competent to perform open surgical repair of AAAs, and the Intercollegiate Surgical Curriculum Programme's Vascular surgery curriculum puts more emphasis on open surgical repair than on EVAR. This means that future surgeons should be well prepared to provide open surgical repair with a low incidence of morbidity and mortality.\n• Potential shortage of beds in the NHS: As people who have open surgical repair spend more time in hospital immediately after the procedure, there may be a small, short-term increase in waiting times for AAA repair. However, an analysis comparing waiting times showed that open surgical repair would still provide greater benefit than\nEVAR for a lower cost even with a substantial increase in waiting times for open surgical repair.\n• The possibility that reducing the number of EVAR procedures performed for unruptured aneurysms will make it difficult to provide EVAR for ruptured aneurysms:\nThere are a number of ways this implementation issue might be addressed:\n－ vascular services could be centralised further (for example by establishing aortic units)"
+      },
+      {
+        "rank": 3,
+        "chunk_id": "NICE_NG156__p46-46__c0142",
+        "score": 6.505349,
+        "document_id": "NICE_NG156",
+        "page": 46,
+        "page_start": 46,
+        "page_end": 46,
+        "section_title": "EVAR and complex EVAR for specific subgroups of people",
+        "chunk_text": "How the recommendations might affect practice\nThe recommendations will have little impact on current practice, as both standard EVAR and open surgical repair are currently offered to people with ruptured infrarenal AAAs. In relation to complex EVAR, the recommendation not to use it outside of RCTs will limit the use of a technically complex and expensive procedure in people for whom open surgery is a safe and suitable option.\nBecause the guideline recommends that fewer EVAR procedures should be performed for unruptured aneurysms (see the section on repairing unruptured aneurysms), surgical teams may have less opportunity to develop the skills they need to provide EVAR in emergency cases. The committee were mindful of this issue, but were convinced by the\nAbdominal aortic aneurysm: diagnosis and management (NG156)\n© NICE 2025. All rights reserved. Subject to Notice of rights (https://www.nice.org.uk/terms-andconditions#notice-of-rights).\nPage 46 of"
+      },
+      {
+        "rank": 4,
+        "chunk_id": "NICE_NG156__p42-42__c0129",
+        "score": 6.242828,
+        "document_id": "NICE_NG156",
+        "page": 42,
+        "page_start": 42,
+        "page_end": 42,
+        "section_title": "EVAR and complex EVAR for specific subgroups of people",
+        "chunk_text": "They show that, while outcomes from EVAR have improved over the last 15 years, outcomes from open surgical repair have also improved by roughly the same amount. This means the difference in outcomes between the two has remained fairly constant.\nRegistries like the National Vascular Registry can provide a useful snapshot of current practice, and the analyses that informed NICE's decision-making made use of data from them. However, they are not designed to evaluate the comparative benefits and harms of different surgical approaches, such as EVAR and open surgical repair. Therefore, they cannot be considered a reasonable alternative to RCT data. In addition, an analysis using the registry data showed that EVAR still did not provide greater long-term benefits than open surgical repair, and that it still has higher net costs.\nImplementation challenges\nNICE acknowledged the need to rebalance practice towards open repair and identified the possible implementation challenges.\n• Possible increased perioperative mortality with open surgical repair: Improvements in practice since the RCTs were published have led to better standards for open surgical repair and EVAR alike."
+      },
+      {
+        "rank": 5,
+        "chunk_id": "NICE_NG156__p40-40__c0123",
+        "score": 6.154878,
+        "document_id": "NICE_NG156",
+        "page": 40,
+        "page_start": 40,
+        "page_end": 40,
+        "section_title": "Repairing unruptured aneurysms",
+        "chunk_text": "EVAR to people who could reasonably have open surgical repair.\nOpen surgical repair is contraindicated for some people with an unruptured AAA because of anaesthetic risks and/or medical comorbidities. For these people, the risk of their AAA rupturing if no repair is attempted has to be balanced against:\n• the perioperative risks and long-term complications of EVAR\n• the uncertainty around whether they will benefit from EVAR\n• the large costs of EVAR.\nWith all this in mind, it is clear that practice needs to be rebalanced. Conservative management is a better option than EVAR for many people. However, NICE also acknowledged stakeholder comments highlighting the importance of individualised care.\nFor some people, EVAR may be appropriate. Clinicians should discuss the risks of EVAR and conservative management with people with AAAs, taking into account the uncertainty that EVAR will provide a benefit.\nPeople who are not offered repair may be anxious about having an AAA but not receiving treatment for it."
+      },
+      {
+        "rank": 6,
+        "chunk_id": "NICE_NG156__p40-40__c0122",
+        "score": 6.109096,
+        "document_id": "NICE_NG156",
+        "page": 40,
+        "page_start": 40,
+        "page_end": 40,
+        "section_title": "Repairing unruptured aneurysms",
+        "chunk_text": "• has higher net costs and lower net benefits than open surgical repair or\n• is substantially above the range NICE normally considers to be a cost-effective use of\nNHS resources.\nThere is a small group of people who have abdominal copathology or other considerations that mean open surgical repair is unsuitable. Examples of copathologies include people who have internal scar-tissue from previous abdominal surgery (a so-called hostile abdomen), people who have a single, fused kidney that is wrapped around the aorta\n('horseshoe kidney'), and people who have a stoma. Although there was no evidence on this population, EVAR is a potential option for these people, as the risks of open surgical repair may be much higher for them. This recommendation should not be used to extend\nEVAR to people who could reasonably have open surgical repair.\nOpen surgical repair is contraindicated for some people with an unruptured AAA because of anaesthetic risks and/or medical comorbidities."
+      },
+      {
+        "rank": 7,
+        "chunk_id": "SVS_2018__p27-27__c0028",
+        "score": 5.873384,
+        "document_id": "SVS_2018",
+        "page": 27,
+        "page_start": 27,
+        "page_end": 27,
+        "section_title": "Open surgical repair (OSR)",
+        "chunk_text": "Open surgical repair (OSR)\nRecommendation\nLevel of recommendation\nQuality of evidence\nWe suggest concomitant surgical treatment of other visceral arterial disease at the time of OSR in symptomatic patients who are not candidates for catheter-based intervention.\n2\nB\nWe suggest concomitant surgical repair of an AAA and coexistent cholecystitis or an intra-abdominal tumor in patients who are not candidates for EVAR or staged intervention.\n2\nC"
+      },
+      {
+        "rank": 8,
+        "chunk_id": "NICE_NG156__p41-41__c0126",
+        "score": 5.811415,
+        "document_id": "NICE_NG156",
+        "page": 41,
+        "page_start": 41,
+        "page_end": 41,
+        "section_title": "Repairing unruptured aneurysms",
+        "chunk_text": "This would differentiate complex EVAR from standard EVAR, which clearly does not provide enough short-term benefits to outweigh the worse long-term outcomes or the increased cost (when compared with open surgical repair).\nOpen surgical repair is contraindicated for some people with an unruptured AAA because of anaesthetic risks and/or medical comorbidities. For these people, the risk of their AAA rupturing if no repair is attempted has to be balanced against:\n• the perioperative risks and long-term complications of complex EVAR\n• the uncertainty around whether they will benefit from complex EVAR\n• the large costs of complex EVAR.\nWith all this in mind, it is clear that conservative management is a better option than complex EVAR for many people. However, NICE also acknowledged stakeholder comments highlighting the importance of individualised care. For some people, complex EVAR may be appropriate. Clinicians should discuss the risks of complex EVAR and conservative management with people with AAAs, taking into account the uncertainty that complex\nEVAR will provide a benefit."
+      },
+      {
+        "rank": 9,
+        "chunk_id": "USPSTF_2019__p4-4__c0034",
+        "score": 5.291826,
+        "document_id": "USPSTF_2019",
+        "page": 4,
+        "page_start": 4,
+        "page_end": 4,
+        "section_title": "Treatment",
+        "chunk_text": "(1.37%) after EVAR procedures (OR, 1.67 [95% CI, 1.38-2.04]) and open repair (5.37% vs 2.82%; OR, 1.76 [95% CI, 1.35-2.30]).1,34\nWomen also experience higher rates of other harms, such as major surgicalcomplicationsandhospitalreadmission,afterelectiveopen repair or EVAR compared with men.1\nCurrent Practice\nEvidence is insufficient to accurately characterize current practice patterns related to screening for AAA in women.\nThe standard of care for elective repair is that patients with an\nAAA of 5.5 cm or larger in diameter should be referred for surgical intervention with either open repair or EVAR.1 This recommendation is based on RCTs conducted in men."
+      },
+      {
+        "rank": 10,
+        "chunk_id": "NICE_NG156__p25-25__c0086",
+        "score": 4.668746,
+        "document_id": "NICE_NG156",
+        "page": 25,
+        "page_start": 25,
+        "page_end": 25,
+        "section_title": "1 Monitoring frequencies and repair thresholds",
+        "chunk_text": "What is the effectiveness and cost effectiveness of complex endovascular aneurysm repair (EVAR) versus open surgical repair in people for whom open surgical repair is suitable for:\n• elective repair of an unruptured AAA or\nAbdominal aortic aneurysm: diagnosis and management (NG156)\n© NICE 2025. All rights reserved. Subject to Notice of rights (https://www.nice.org.uk/terms-andconditions#notice-of-rights).\nPage 25 of"
+      }
+    ]
+  }
+}

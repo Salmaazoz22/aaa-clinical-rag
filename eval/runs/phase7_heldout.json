@@ -1,0 +1,1344 @@
+{
+  "gold_standard_id": "aaa-heldout-generalization-2026-08-17",
+  "heldout_gold_sha256": "67112d0901337591c3e2d1c7f49bc532f800e5835084f6afeb9fa8b5ea8f1c82",
+  "frozen_threshold": 0.03512,
+  "threshold_source": "Phase 6 P25 of margin_1_10 over the ORIGINAL 10 questions; frozen, not recomputed",
+  "candidate_depth": 30,
+  "eval_depth": 10,
+  "embedding_model": "abhinand/MedEmbed-base-v0.1",
+  "embedding_revision": "7a90c50263f620dff743eb9794b89a42bfc5d765",
+  "reranker": "ncbi/MedCPT-Cross-Encoder",
+  "reranker_revision": "71caf65d4927987813984f54c284405a13fcca49",
+  "n_questions": 18,
+  "topics": {
+    "1": "Endoleak management",
+    "2": "Post-EVAR imaging follow-up",
+    "3": "Antibiotic prophylaxis for repair",
+    "4": "Statin and antiplatelet therapy",
+    "5": "Permissive hypotension in rupture",
+    "6": "Abdominal compartment syndrome",
+    "7": "Preoperative cardiac assessment",
+    "8": "Contrast nephropathy and renal protection",
+    "9": "Mycotic aneurysm",
+    "10": "Iliac artery aneurysm surveillance",
+    "11": "Internal iliac artery preservation",
+    "12": "Complex AAA repair choice",
+    "13": "Venous thromboembolism prophylaxis",
+    "14": "Anaesthesia and analgesia",
+    "15": "Aortic diameter measurement method",
+    "16": "Fluoroquinolones",
+    "17": "Centre caseload and volume",
+    "18": "Rapid aneurysm growth"
+  },
+  "questions": {
+    "1": "How should type 1 and type 3 endoleaks be managed after EVAR?",
+    "2": "What imaging follow-up is recommended after endovascular aneurysm repair?",
+    "3": "Is antibiotic prophylaxis recommended before abdominal aortic aneurysm repair?",
+    "4": "Should patients with an abdominal aortic aneurysm receive statin and antiplatelet therapy?",
+    "5": "What blood pressure strategy is recommended during transfer of a suspected ruptured aneurysm?",
+    "6": "How should abdominal compartment syndrome be detected after repair of a ruptured aneurysm?",
+    "7": "What cardiac assessment is needed before aneurysm repair?",
+    "8": "How should renal function be protected in patients receiving contrast for endovascular repair?",
+    "9": "How is a mycotic abdominal aortic aneurysm treated?",
+    "10": "How often should iliac artery aneurysms be imaged during surveillance?",
+    "11": "Should internal iliac artery flow be preserved during aneurysm repair?",
+    "12": "How should repair be chosen for a complex abdominal aortic aneurysm?",
+    "13": "What thromboprophylaxis is recommended for patients undergoing aneurysm repair?",
+    "14": "What analgesia is recommended for people having open surgical repair?",
+    "15": "How should the aortic diameter be measured and reported on ultrasound?",
+    "16": "Are fluoroquinolone antibiotics contraindicated in patients with a small aneurysm?",
+    "17": "What minimum annual caseload should a centre performing aneurysm repair have?",
+    "18": "What should be done if a small aneurysm shows rapid growth?"
+  },
+  "confidence": {
+    "1": {
+      "confidence_top1": 0.7948699593544006,
+      "margin_1_2": 0.0037637948989868164,
+      "margin_1_5": 0.019521713256835938,
+      "margin_1_10": 0.030096590518951416,
+      "spread_10": 0.030096590518951416
+    },
+    "2": {
+      "confidence_top1": 0.8040775060653687,
+      "margin_1_2": 0.0005501508712768555,
+      "margin_1_5": 0.03366994857788086,
+      "margin_1_10": 0.046975016593933105,
+      "spread_10": 0.046975016593933105
+    },
+    "3": {
+      "confidence_top1": 0.8540194034576416,
+      "margin_1_2": 0.015367746353149414,
+      "margin_1_5": 0.058521270751953125,
+      "margin_1_10": 0.10010296106338501,
+      "spread_10": 0.10010296106338501
+    },
+    "4": {
+      "confidence_top1": 0.8041671514511108,
+      "margin_1_2": 0.017139554023742676,
+      "margin_1_5": 0.045774102210998535,
+      "margin_1_10": 0.06624287366867065,
+      "spread_10": 0.06624287366867065
+    },
+    "5": {
+      "confidence_top1": 0.7627944350242615,
+      "margin_1_2": 0.01487797498703003,
+      "margin_1_5": 0.01862412691116333,
+      "margin_1_10": 0.03610318899154663,
+      "spread_10": 0.03610318899154663
+    },
+    "6": {
+      "confidence_top1": 0.8203948736190796,
+      "margin_1_2": 0.006409764289855957,
+      "margin_1_5": 0.054285645484924316,
+      "margin_1_10": 0.09834408760070801,
+      "spread_10": 0.09834408760070801
+    },
+    "7": {
+      "confidence_top1": 0.7391475439071655,
+      "margin_1_2": 0.01128298044204712,
+      "margin_1_5": 0.019910216331481934,
+      "margin_1_10": 0.03346383571624756,
+      "spread_10": 0.03346383571624756
+    },
+    "8": {
+      "confidence_top1": 0.7994441390037537,
+      "margin_1_2": 0.02069956064224243,
+      "margin_1_5": 0.03997749090194702,
+      "margin_1_10": 0.058290064334869385,
+      "spread_10": 0.058290064334869385
+    },
+    "9": {
+      "confidence_top1": 0.8115435838699341,
+      "margin_1_2": 0.006565213203430176,
+      "margin_1_5": 0.0422554612159729,
+      "margin_1_10": 0.06817626953125,
+      "spread_10": 0.06817626953125
+    },
+    "10": {
+      "confidence_top1": 0.8318805694580078,
+      "margin_1_2": 0.04990953207015991,
+      "margin_1_5": 0.06295156478881836,
+      "margin_1_10": 0.09249955415725708,
+      "spread_10": 0.09249955415725708
+    },
+    "11": {
+      "confidence_top1": 0.7889094352722168,
+      "margin_1_2": 0.01727616786956787,
+      "margin_1_5": 0.04185473918914795,
+      "margin_1_10": 0.05692017078399658,
+      "spread_10": 0.05692017078399658
+    },
+    "12": {
+      "confidence_top1": 0.8274927139282227,
+      "margin_1_2": 0.001278519630432129,
+      "margin_1_5": 0.03214561939239502,
+      "margin_1_10": 0.05943042039871216,
+      "spread_10": 0.05943042039871216
+    },
+    "13": {
+      "confidence_top1": 0.8412219285964966,
+      "margin_1_2": 0.06947702169418335,
+      "margin_1_5": 0.08095228672027588,
+      "margin_1_10": 0.11080288887023926,
+      "spread_10": 0.11080288887023926
+    },
+    "14": {
+      "confidence_top1": 0.7190331220626831,
+      "margin_1_2": 0.005610227584838867,
+      "margin_1_5": 0.024640202522277832,
+      "margin_1_10": 0.045401036739349365,
+      "spread_10": 0.045401036739349365
+    },
+    "15": {
+      "confidence_top1": 0.8004481792449951,
+      "margin_1_2": 0.013660728931427002,
+      "margin_1_5": 0.032929182052612305,
+      "margin_1_10": 0.052739739418029785,
+      "spread_10": 0.052739739418029785
+    },
+    "16": {
+      "confidence_top1": 0.8516898155212402,
+      "margin_1_2": 0.03410029411315918,
+      "margin_1_5": 0.11355012655258179,
+      "margin_1_10": 0.14851737022399902,
+      "spread_10": 0.14851737022399902
+    },
+    "17": {
+      "confidence_top1": 0.7747726440429688,
+      "margin_1_2": 0.010639071464538574,
+      "margin_1_5": 0.038112521171569824,
+      "margin_1_10": 0.0541989803314209,
+      "spread_10": 0.0541989803314209
+    },
+    "18": {
+      "confidence_top1": 0.7958214282989502,
+      "margin_1_2": 0.014028072357177734,
+      "margin_1_5": 0.054123640060424805,
+      "margin_1_10": 0.07915139198303223,
+      "spread_10": 0.07915139198303223
+    }
+  },
+  "policy_a_fired": {
+    "1": true,
+    "2": false,
+    "3": false,
+    "4": false,
+    "5": false,
+    "6": false,
+    "7": true,
+    "8": false,
+    "9": false,
+    "10": false,
+    "11": false,
+    "12": false,
+    "13": false,
+    "14": false,
+    "15": false,
+    "16": false,
+    "17": false,
+    "18": false
+  },
+  "configs": {
+    "A_medembed_dense": {
+      "metrics": {
+        "n_queries": 18,
+        "P@1": 0.5556,
+        "P@3": 0.3704,
+        "P@5": 0.3444,
+        "MRR": 0.6972,
+        "Recall@5": 0.6667,
+        "Recall@10": 0.8241,
+        "Relevant_Top1": 10,
+        "Answering@5": 16
+      },
+      "per_query": [
+        {
+          "query_id": 1,
+          "topic": "Endoleak management",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 0.5,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p66-66__c0852",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 2,
+          "topic": "Post-EVAR imaging follow-up",
+          "first_relevant_rank": 2,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 0.6666666666666666,
+          "recall_at_10": 0.6666666666666666,
+          "top1_chunk": "ESVS_2024__p68-68__c0874",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 3,
+          "topic": "Antibiotic prophylaxis for repair",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p33-33__c0430",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 4,
+          "topic": "Statin and antiplatelet therapy",
+          "first_relevant_rank": 4,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p33-33__c0428",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 5,
+          "topic": "Permissive hypotension in rupture",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 0.6666666666666666,
+          "recall_at_10": 0.6666666666666666,
+          "top1_chunk": "ESVS_2024__p49-49__c0633",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 6,
+          "topic": "Abdominal compartment syndrome",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 0.5,
+          "recall_at_10": 0.5,
+          "top1_chunk": "NICE_NG156__p21-21__c0076",
+          "top1_doc": "NICE_NG156"
+        },
+        {
+          "query_id": 7,
+          "topic": "Preoperative cardiac assessment",
+          "first_relevant_rank": 2,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 0.5,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p29-29__c0377",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 8,
+          "topic": "Contrast nephropathy and renal protection",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 0.5,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p80-80__c0999",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 9,
+          "topic": "Mycotic aneurysm",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p86-86__c1068",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 10,
+          "topic": "Iliac artery aneurysm surveillance",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p83-83__c1034",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 11,
+          "topic": "Internal iliac artery preservation",
+          "first_relevant_rank": 10,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.0,
+          "recall_at_5": 0.0,
+          "recall_at_10": 0.5,
+          "top1_chunk": "ESVS_2024__p84-84__c1054",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 12,
+          "topic": "Complex AAA repair choice",
+          "first_relevant_rank": 6,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.0,
+          "recall_at_5": 0.0,
+          "recall_at_10": 0.5,
+          "top1_chunk": "ESVS_2024__p7-7__c0110",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 13,
+          "topic": "Venous thromboembolism prophylaxis",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "SVS_2018__p39-39__c0039",
+          "top1_doc": "SVS_2018"
+        },
+        {
+          "query_id": 14,
+          "topic": "Anaesthesia and analgesia",
+          "first_relevant_rank": 3,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 0.6666666666666666,
+          "recall_at_10": 1.0,
+          "top1_chunk": "SVS_2018__p32-32__c0033",
+          "top1_doc": "SVS_2018"
+        },
+        {
+          "query_id": 15,
+          "topic": "Aortic diameter measurement method",
+          "first_relevant_rank": 5,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 0.5,
+          "recall_at_10": 0.5,
+          "top1_chunk": "ESVS_2024__p17-17__c0246",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 16,
+          "topic": "Fluoroquinolones",
+          "first_relevant_rank": 2,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p8-8__c0126",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 17,
+          "topic": "Centre caseload and volume",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 0.5,
+          "recall_at_10": 0.5,
+          "top1_chunk": "ESVS_2024__p15-15__c0222",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 18,
+          "topic": "Rapid aneurysm growth",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p27-27__c0352",
+          "top1_doc": "ESVS_2024"
+        }
+      ]
+    },
+    "B_full_medcpt": {
+      "metrics": {
+        "n_queries": 18,
+        "P@1": 0.5556,
+        "P@3": 0.4815,
+        "P@5": 0.3889,
+        "MRR": 0.7315,
+        "Recall@5": 0.6852,
+        "Recall@10": 0.8519,
+        "Relevant_Top1": 10,
+        "Answering@5": 17
+      },
+      "per_query": [
+        {
+          "query_id": 1,
+          "topic": "Endoleak management",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "NICE_NG156__p22-22__c0079",
+          "top1_doc": "NICE_NG156"
+        },
+        {
+          "query_id": 2,
+          "topic": "Post-EVAR imaging follow-up",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 0.3333333333333333,
+          "recall_at_10": 0.6666666666666666,
+          "top1_chunk": "ESVS_2024__p71-71__c0904",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 3,
+          "topic": "Antibiotic prophylaxis for repair",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 0.5,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p33-33__c0430",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 4,
+          "topic": "Statin and antiplatelet therapy",
+          "first_relevant_rank": 3,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 0.5,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p8-8__c0131",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 5,
+          "topic": "Permissive hypotension in rupture",
+          "first_relevant_rank": 2,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 0.6666666666666666,
+          "recall_at_10": 1.0,
+          "top1_chunk": "NICE_NG156__p35-35__c0110",
+          "top1_doc": "NICE_NG156"
+        },
+        {
+          "query_id": 6,
+          "topic": "Abdominal compartment syndrome",
+          "first_relevant_rank": 2,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 0.5,
+          "recall_at_10": 0.5,
+          "top1_chunk": "NICE_NG156__p48-48__c0146",
+          "top1_doc": "NICE_NG156"
+        },
+        {
+          "query_id": 7,
+          "topic": "Preoperative cardiac assessment",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "SVS_2018__p12-12__c0010",
+          "top1_doc": "SVS_2018"
+        },
+        {
+          "query_id": 8,
+          "topic": "Contrast nephropathy and renal protection",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 0.5,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p80-80__c0999",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 9,
+          "topic": "Mycotic aneurysm",
+          "first_relevant_rank": 3,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p87-87__c1084",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 10,
+          "topic": "Iliac artery aneurysm surveillance",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p83-83__c1034",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 11,
+          "topic": "Internal iliac artery preservation",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 0.5,
+          "recall_at_10": 1.0,
+          "top1_chunk": "SVS_2018__p23-23__c0023",
+          "top1_doc": "SVS_2018"
+        },
+        {
+          "query_id": 12,
+          "topic": "Complex AAA repair choice",
+          "first_relevant_rank": null,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.0,
+          "recall_at_5": 0.0,
+          "recall_at_10": 0.0,
+          "top1_chunk": "NICE_NG156__p41-41__c0127",
+          "top1_doc": "NICE_NG156"
+        },
+        {
+          "query_id": 13,
+          "topic": "Venous thromboembolism prophylaxis",
+          "first_relevant_rank": 2,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p35-35__c0454",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 14,
+          "topic": "Anaesthesia and analgesia",
+          "first_relevant_rank": 2,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 0.3333333333333333,
+          "recall_at_10": 0.6666666666666666,
+          "top1_chunk": "NICE_NG156__p44-44__c0135",
+          "top1_doc": "NICE_NG156"
+        },
+        {
+          "query_id": 15,
+          "topic": "Aortic diameter measurement method",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "NICE_NG156__p9-9__c0045",
+          "top1_doc": "NICE_NG156"
+        },
+        {
+          "query_id": 16,
+          "topic": "Fluoroquinolones",
+          "first_relevant_rank": 2,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p8-8__c0126",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 17,
+          "topic": "Centre caseload and volume",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 0.5,
+          "recall_at_10": 0.5,
+          "top1_chunk": "ESVS_2024__p15-15__c0222",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 18,
+          "topic": "Rapid aneurysm growth",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p27-27__c0352",
+          "top1_doc": "ESVS_2024"
+        }
+      ]
+    },
+    "C_selective_policy_a": {
+      "metrics": {
+        "n_queries": 18,
+        "P@1": 0.6111,
+        "P@3": 0.3889,
+        "P@5": 0.3778,
+        "MRR": 0.725,
+        "Recall@5": 0.7222,
+        "Recall@10": 0.8241,
+        "Relevant_Top1": 11,
+        "Answering@5": 16
+      },
+      "per_query": [
+        {
+          "query_id": 1,
+          "topic": "Endoleak management",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "NICE_NG156__p22-22__c0079",
+          "top1_doc": "NICE_NG156"
+        },
+        {
+          "query_id": 2,
+          "topic": "Post-EVAR imaging follow-up",
+          "first_relevant_rank": 2,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 0.6666666666666666,
+          "recall_at_10": 0.6666666666666666,
+          "top1_chunk": "ESVS_2024__p68-68__c0874",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 3,
+          "topic": "Antibiotic prophylaxis for repair",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p33-33__c0430",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 4,
+          "topic": "Statin and antiplatelet therapy",
+          "first_relevant_rank": 4,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p33-33__c0428",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 5,
+          "topic": "Permissive hypotension in rupture",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 0.6666666666666666,
+          "recall_at_10": 0.6666666666666666,
+          "top1_chunk": "ESVS_2024__p49-49__c0633",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 6,
+          "topic": "Abdominal compartment syndrome",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 0.5,
+          "recall_at_10": 0.5,
+          "top1_chunk": "NICE_NG156__p21-21__c0076",
+          "top1_doc": "NICE_NG156"
+        },
+        {
+          "query_id": 7,
+          "topic": "Preoperative cardiac assessment",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "SVS_2018__p12-12__c0010",
+          "top1_doc": "SVS_2018"
+        },
+        {
+          "query_id": 8,
+          "topic": "Contrast nephropathy and renal protection",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 0.5,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p80-80__c0999",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 9,
+          "topic": "Mycotic aneurysm",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p86-86__c1068",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 10,
+          "topic": "Iliac artery aneurysm surveillance",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p83-83__c1034",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 11,
+          "topic": "Internal iliac artery preservation",
+          "first_relevant_rank": 10,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.0,
+          "recall_at_5": 0.0,
+          "recall_at_10": 0.5,
+          "top1_chunk": "ESVS_2024__p84-84__c1054",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 12,
+          "topic": "Complex AAA repair choice",
+          "first_relevant_rank": 6,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.0,
+          "recall_at_5": 0.0,
+          "recall_at_10": 0.5,
+          "top1_chunk": "ESVS_2024__p7-7__c0110",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 13,
+          "topic": "Venous thromboembolism prophylaxis",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "SVS_2018__p39-39__c0039",
+          "top1_doc": "SVS_2018"
+        },
+        {
+          "query_id": 14,
+          "topic": "Anaesthesia and analgesia",
+          "first_relevant_rank": 3,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.4,
+          "recall_at_5": 0.6666666666666666,
+          "recall_at_10": 1.0,
+          "top1_chunk": "SVS_2018__p32-32__c0033",
+          "top1_doc": "SVS_2018"
+        },
+        {
+          "query_id": 15,
+          "topic": "Aortic diameter measurement method",
+          "first_relevant_rank": 5,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 0.5,
+          "recall_at_10": 0.5,
+          "top1_chunk": "ESVS_2024__p17-17__c0246",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 16,
+          "topic": "Fluoroquinolones",
+          "first_relevant_rank": 2,
+          "relevant_top1": false,
+          "p_at_1": 0.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p8-8__c0126",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 17,
+          "topic": "Centre caseload and volume",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.6,
+          "recall_at_5": 0.5,
+          "recall_at_10": 0.5,
+          "top1_chunk": "ESVS_2024__p15-15__c0222",
+          "top1_doc": "ESVS_2024"
+        },
+        {
+          "query_id": 18,
+          "topic": "Rapid aneurysm growth",
+          "first_relevant_rank": 1,
+          "relevant_top1": true,
+          "p_at_1": 1.0,
+          "p_at_5": 0.2,
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "top1_chunk": "ESVS_2024__p27-27__c0352",
+          "top1_doc": "ESVS_2024"
+        }
+      ]
+    }
+  },
+  "top1_safety": {
+    "dense_correct_top1": [
+      1,
+      3,
+      5,
+      6,
+      8,
+      9,
+      10,
+      13,
+      17,
+      18
+    ],
+    "selective": {
+      "reranked_among_correct": [
+        1
+      ],
+      "preserved": [
+        1,
+        3,
+        5,
+        6,
+        8,
+        9,
+        10,
+        13,
+        17,
+        18
+      ],
+      "lost": [],
+      "lost_and_was_reranked": [],
+      "gained": [
+        7
+      ]
+    },
+    "full_rerank": {
+      "preserved": [
+        1,
+        3,
+        8,
+        10,
+        17,
+        18
+      ],
+      "lost": [
+        5,
+        6,
+        9,
+        13
+      ],
+      "gained": [
+        2,
+        7,
+        11,
+        15
+      ]
+    }
+  },
+  "q4_like_analysis": [
+    {
+      "query_id": 1,
+      "topic": "Endoleak management",
+      "dense_relevant_ranks_in_top30": [
+        1,
+        6,
+        13,
+        19,
+        29
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": true,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 1
+    },
+    {
+      "query_id": 2,
+      "topic": "Post-EVAR imaging follow-up",
+      "dense_relevant_ranks_in_top30": [
+        2,
+        3,
+        4,
+        6,
+        9,
+        10,
+        13,
+        26
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 2
+    },
+    {
+      "query_id": 3,
+      "topic": "Antibiotic prophylaxis for repair",
+      "dense_relevant_ranks_in_top30": [
+        1,
+        3,
+        4,
+        10
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 1
+    },
+    {
+      "query_id": 4,
+      "topic": "Statin and antiplatelet therapy",
+      "dense_relevant_ranks_in_top30": [
+        4,
+        5,
+        6,
+        7,
+        10,
+        13,
+        16,
+        24
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 4
+    },
+    {
+      "query_id": 5,
+      "topic": "Permissive hypotension in rupture",
+      "dense_relevant_ranks_in_top30": [
+        1,
+        2,
+        8,
+        9,
+        10,
+        15
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 1
+    },
+    {
+      "query_id": 6,
+      "topic": "Abdominal compartment syndrome",
+      "dense_relevant_ranks_in_top30": [
+        1
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 1
+    },
+    {
+      "query_id": 7,
+      "topic": "Preoperative cardiac assessment",
+      "dense_relevant_ranks_in_top30": [
+        2,
+        6,
+        9,
+        15
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": true,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 1
+    },
+    {
+      "query_id": 8,
+      "topic": "Contrast nephropathy and renal protection",
+      "dense_relevant_ranks_in_top30": [
+        1,
+        2,
+        6,
+        10,
+        26
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 1
+    },
+    {
+      "query_id": 9,
+      "topic": "Mycotic aneurysm",
+      "dense_relevant_ranks_in_top30": [
+        1,
+        4,
+        5,
+        7,
+        11,
+        15,
+        25
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 1
+    },
+    {
+      "query_id": 10,
+      "topic": "Iliac artery aneurysm surveillance",
+      "dense_relevant_ranks_in_top30": [
+        1
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 1
+    },
+    {
+      "query_id": 11,
+      "topic": "Internal iliac artery preservation",
+      "dense_relevant_ranks_in_top30": [
+        10,
+        11
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 10
+    },
+    {
+      "query_id": 12,
+      "topic": "Complex AAA repair choice",
+      "dense_relevant_ranks_in_top30": [
+        6
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 6
+    },
+    {
+      "query_id": 13,
+      "topic": "Venous thromboembolism prophylaxis",
+      "dense_relevant_ranks_in_top30": [
+        1,
+        4
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 1
+    },
+    {
+      "query_id": 14,
+      "topic": "Anaesthesia and analgesia",
+      "dense_relevant_ranks_in_top30": [
+        3,
+        5,
+        6,
+        8,
+        16,
+        22,
+        27
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 3
+    },
+    {
+      "query_id": 15,
+      "topic": "Aortic diameter measurement method",
+      "dense_relevant_ranks_in_top30": [
+        5,
+        8,
+        10,
+        16,
+        23,
+        26,
+        29
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 5
+    },
+    {
+      "query_id": 16,
+      "topic": "Fluoroquinolones",
+      "dense_relevant_ranks_in_top30": [
+        2,
+        3,
+        5,
+        6,
+        8,
+        14
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 2
+    },
+    {
+      "query_id": 17,
+      "topic": "Centre caseload and volume",
+      "dense_relevant_ranks_in_top30": [
+        1,
+        3,
+        4,
+        12
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 1
+    },
+    {
+      "query_id": 18,
+      "topic": "Rapid aneurysm growth",
+      "dense_relevant_ranks_in_top30": [
+        1,
+        10
+      ],
+      "structural_pattern": false,
+      "policy_a_fired": false,
+      "rescued_into_top10": false,
+      "selective_first_relevant": 1
+    }
+  ],
+  "threshold_proximity": [
+    {
+      "query_id": 1,
+      "topic": "Endoleak management",
+      "margin_1_10": 0.030096590518951416,
+      "distance_from_threshold": -0.005023409481048582,
+      "fired": true
+    },
+    {
+      "query_id": 7,
+      "topic": "Preoperative cardiac assessment",
+      "margin_1_10": 0.03346383571624756,
+      "distance_from_threshold": -0.0016561642837524398,
+      "fired": true
+    },
+    {
+      "query_id": 5,
+      "topic": "Permissive hypotension in rupture",
+      "margin_1_10": 0.03610318899154663,
+      "distance_from_threshold": 0.0009831889915466324,
+      "fired": false
+    },
+    {
+      "query_id": 14,
+      "topic": "Anaesthesia and analgesia",
+      "margin_1_10": 0.045401036739349365,
+      "distance_from_threshold": 0.010281036739349367,
+      "fired": false
+    },
+    {
+      "query_id": 2,
+      "topic": "Post-EVAR imaging follow-up",
+      "margin_1_10": 0.046975016593933105,
+      "distance_from_threshold": 0.011855016593933107,
+      "fired": false
+    },
+    {
+      "query_id": 15,
+      "topic": "Aortic diameter measurement method",
+      "margin_1_10": 0.052739739418029785,
+      "distance_from_threshold": 0.017619739418029787,
+      "fired": false
+    },
+    {
+      "query_id": 17,
+      "topic": "Centre caseload and volume",
+      "margin_1_10": 0.0541989803314209,
+      "distance_from_threshold": 0.0190789803314209,
+      "fired": false
+    },
+    {
+      "query_id": 11,
+      "topic": "Internal iliac artery preservation",
+      "margin_1_10": 0.05692017078399658,
+      "distance_from_threshold": 0.021800170783996584,
+      "fired": false
+    },
+    {
+      "query_id": 8,
+      "topic": "Contrast nephropathy and renal protection",
+      "margin_1_10": 0.058290064334869385,
+      "distance_from_threshold": 0.023170064334869386,
+      "fired": false
+    },
+    {
+      "query_id": 12,
+      "topic": "Complex AAA repair choice",
+      "margin_1_10": 0.05943042039871216,
+      "distance_from_threshold": 0.02431042039871216,
+      "fired": false
+    },
+    {
+      "query_id": 4,
+      "topic": "Statin and antiplatelet therapy",
+      "margin_1_10": 0.06624287366867065,
+      "distance_from_threshold": 0.031122873668670656,
+      "fired": false
+    },
+    {
+      "query_id": 9,
+      "topic": "Mycotic aneurysm",
+      "margin_1_10": 0.06817626953125,
+      "distance_from_threshold": 0.03305626953125,
+      "fired": false
+    },
+    {
+      "query_id": 18,
+      "topic": "Rapid aneurysm growth",
+      "margin_1_10": 0.07915139198303223,
+      "distance_from_threshold": 0.04403139198303223,
+      "fired": false
+    },
+    {
+      "query_id": 10,
+      "topic": "Iliac artery aneurysm surveillance",
+      "margin_1_10": 0.09249955415725708,
+      "distance_from_threshold": 0.05737955415725708,
+      "fired": false
+    },
+    {
+      "query_id": 6,
+      "topic": "Abdominal compartment syndrome",
+      "margin_1_10": 0.09834408760070801,
+      "distance_from_threshold": 0.06322408760070801,
+      "fired": false
+    },
+    {
+      "query_id": 3,
+      "topic": "Antibiotic prophylaxis for repair",
+      "margin_1_10": 0.10010296106338501,
+      "distance_from_threshold": 0.06498296106338501,
+      "fired": false
+    },
+    {
+      "query_id": 13,
+      "topic": "Venous thromboembolism prophylaxis",
+      "margin_1_10": 0.11080288887023926,
+      "distance_from_threshold": 0.07568288887023926,
+      "fired": false
+    },
+    {
+      "query_id": 16,
+      "topic": "Fluoroquinolones",
+      "margin_1_10": 0.14851737022399902,
+      "distance_from_threshold": 0.11339737022399902,
+      "fired": false
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "status": "PASS",
+  "processing_datetime_utc": "2026-08-16T20:45:05.317616+00:00",
+  "documents": {
+    "discovered": 4,
+    "processed": 4,
+    "failed": 0,
+    "excluded": 0,
+    "failed_details": [],
+    "excluded_details": []
+  },
+  "pages": {
+    "total": 249,
+    "ok": 243,
+    "low_text": 5,
+    "image_only": 0,
+    "ocr_required": 0,
+    "corrupted": 1
+  },
+  "numeric_preservation": {
+    "raw_numeric_tokens": 14788,
+    "clean_numeric_tokens": 14658,
+    "missing_numeric_tokens": 130,
+    "loss_ratio": 0.008790911549905328,
+    "critical_losses": []
+  },
+  "recommendations": {
+    "total": 233,
+    "with_grades": 4,
+    "with_evidence_levels": 104,
+    "with_source_excerpts": 233,
+    "missing_traceability": 0,
+    "traceability": "PASS"
+  },
+  "hyphenation_tests": [
+    {
+      "name": "letter hyphenation joined",
+      "raw": "coun-\ntries",
+      "expect_contains": "countries",
+      "forbid": "coun-tries",
+      "clean": "countries",
+      "pass": true
+    },
+    {
+      "name": "decimal range preserved",
+      "raw": "0.98-\n1.00",
+      "expect_contains": "0.98-1.00",
+      "forbid": "0.981.00",
+      "clean": "0.98-\n1.00",
+      "pass": true
+    },
+    {
+      "name": "en-dash range preserved",
+      "raw": "0.98–1.00",
+      "expect_contains": "0.98–1.00",
+      "forbid": "0.981.00",
+      "clean": "0.98–1.00",
+      "pass": true
+    },
+    {
+      "name": "page range preserved",
+      "raw": "301-304",
+      "expect_contains": "301-304",
+      "forbid": "301304",
+      "clean": "301-304",
+      "pass": true
+    },
+    {
+      "name": "measurement preserved",
+      "raw": "5.5 cm",
+      "expect_contains": "5.5 cm",
+      "forbid": "55 cm",
+      "clean": "5.5 cm",
+      "pass": true
+    },
+    {
+      "name": "age range preserved",
+      "raw": "65-75 years",
+      "expect_contains": "65-75 years",
+      "forbid": "6575",
+      "clean": "65-75 years",
+      "pass": true
+    }
+  ],
+  "ocr_available": false,
+  "errors": [],
+  "warnings": [],
+  "output_validation": "PASS"
+}

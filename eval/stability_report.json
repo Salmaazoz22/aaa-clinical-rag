@@ -1,0 +1,246 @@
+{
+  "generated_by": "eval/run_stability_checks.py",
+  "scope": "Verifies the RESEARCH pipeline: determinism, reproducibility, token safety, robustness to malformed input, latency and footprint. It does not verify a production service, because none exists in this repository.",
+  "summary": {
+    "pass": 14,
+    "fail": 1,
+    "not_run": 1
+  },
+  "production_ready": false,
+  "production_readiness_statement": "NOT production ready, and not claimed to be. The retrieval core is deterministic, reproducible and token-safe, but the repository ships no service, no API, no logging, no abstention threshold for out-of-scope queries, no authentication and no monitoring. It is a reproducible research pipeline, which is what it was built to be.",
+  "checks": [
+    {
+      "check": "Chunking is deterministic: two rebuilds from the same inputs agree",
+      "category": "reproducibility",
+      "status": "pass",
+      "detail": {
+        "chunks_run_1": 1760,
+        "chunks_run_2": 1760,
+        "identical": true,
+        "note": "Determinism of the chunker itself, independent of the committed artifact."
+      },
+      "seconds": 58.2
+    },
+    {
+      "check": "Committed chunks.json still reproduces from the CURRENT code",
+      "category": "reproducibility",
+      "status": "pass",
+      "detail": {
+        "chunks": 1760,
+        "mismatches": 0
+      },
+      "seconds": 0.05
+    },
+    {
+      "check": "Chunk IDs unique and deterministic in form",
+      "category": "reproducibility",
+      "status": "pass",
+      "detail": {
+        "total": 1760,
+        "unique": 1760,
+        "malformed": []
+      },
+      "seconds": 0.05
+    },
+    {
+      "check": "Embedding model revision is pinned",
+      "category": "reproducibility",
+      "status": "pass",
+      "detail": {
+        "model": "abhinand/MedEmbed-base-v0.1",
+        "index_meta_revision": "7a90c50263f620dff743eb9794b89a42bfc5d765",
+        "code_pinned_revision": "7a90c50263f620dff743eb9794b89a42bfc5d765"
+      },
+      "seconds": 0.0
+    },
+    {
+      "check": "Index integrity: vectors align with metadata and are L2-normalised",
+      "category": "reproducibility",
+      "status": "pass",
+      "detail": {
+        "vectors": [
+          991,
+          768
+        ],
+        "metadata_records": 991,
+        "dtype": "float32",
+        "l2_norm_min": 0.99999988,
+        "l2_norm_max": 1.00000012
+      },
+      "seconds": 0.03
+    },
+    {
+      "check": "Index reproducibility: re-embedding a sample reproduces stored vectors",
+      "category": "reproducibility",
+      "status": "pass",
+      "detail": {
+        "sampled_chunks": 64,
+        "max_abs_difference": 1.3783574104309082e-07,
+        "tolerance": 0.0001
+      },
+      "seconds": 40.87
+    },
+    {
+      "check": "Token safety: no indexed chunk exceeds the encoder window",
+      "category": "correctness",
+      "status": "pass",
+      "detail": {
+        "token_limit": 512,
+        "max_token_count": 512,
+        "chunks_over_limit": 0,
+        "stored_vs_recomputed_mismatches": 0
+      },
+      "seconds": 2.01
+    },
+    {
+      "check": "Fail-loud token validator rejects an oversized chunk",
+      "category": "correctness",
+      "status": "pass",
+      "detail": "raised ValueError as required: SYNTHETIC__p1-1__c0001 has 1536 tokens, over the 512-token limit of abhinand/MedEmbed-base-v0.1; re-run chunki",
+      "seconds": 0.0
+    },
+    {
+      "check": "Malformed and adversarial queries do not crash retrieval",
+      "category": "robustness",
+      "status": "pass",
+      "detail": {
+        "cases": {
+          "empty_string": {
+            "ok": true,
+            "hits": 5,
+            "top1_score": 0.5608
+          },
+          "whitespace_only": {
+            "ok": true,
+            "hits": 5,
+            "top1_score": 0.5608
+          },
+          "single_character": {
+            "ok": true,
+            "hits": 5,
+            "top1_score": 0.6918
+          },
+          "very_long_query": {
+            "ok": true,
+            "hits": 5,
+            "top1_score": 0.7722
+          },
+          "non_ascii": {
+            "ok": true,
+            "hits": 5,
+            "top1_score": 0.714
+          },
+          "punctuation_only": {
+            "ok": true,
+            "hits": 5,
+            "top1_score": 0.5336
+          },
+          "sql_like": {
+            "ok": true,
+            "hits": 5,
+            "top1_score": 0.5667
+          },
+          "duplicate_of_real_query": {
+            "ok": true,
+            "hits": 5,
+            "top1_score": 0.8385
+          }
+        },
+        "failed": [],
+        "note": "No case raised. NOTE: an empty or punctuation-only query still returns 10 chunks with low similarity -- there is NO abstention threshold. See deployment_readiness.md."
+      },
+      "seconds": 5.47
+    },
+    {
+      "check": "Query determinism: the same query returns the same ranking",
+      "category": "robustness",
+      "status": "pass",
+      "detail": {
+        "identical_rankings": true,
+        "distinct_top1_scores": 1
+      },
+      "seconds": 3.54
+    },
+    {
+      "check": "Retrieval latency",
+      "category": "performance",
+      "status": "pass",
+      "detail": {
+        "queries_timed": 10,
+        "mean_seconds": 0.0719,
+        "median_seconds": 0.0716,
+        "p90_seconds": 0.0789,
+        "max_seconds": 0.0893,
+        "hardware": "CPU only (torch CPU build); no GPU used",
+        "note": "Dominated by query encoding, not by the 1,330-vector dot product."
+      },
+      "seconds": 3.17
+    },
+    {
+      "check": "Index footprint on disk and in memory",
+      "category": "performance",
+      "status": "pass",
+      "detail": {
+        "vectors_file_bytes": 3044480,
+        "chunk_metadata_file_bytes": 2058057,
+        "vectors_in_memory_bytes": 3044352,
+        "shape": [
+          991,
+          768
+        ],
+        "index_type": "in-process NumPy matrix, exhaustive cosine (no ANN service)"
+      },
+      "seconds": 0.01
+    },
+    {
+      "check": "Test suite",
+      "category": "correctness",
+      "status": "pass",
+      "detail": {
+        "returncode": 0,
+        "summary": "29 passed in 95.35s (0:01:35)"
+      },
+      "seconds": 99.78
+    },
+    {
+      "check": "Critical artifact checksums recorded",
+      "category": "reproducibility",
+      "status": "pass",
+      "detail": {
+        "eval/gold_standard.json": "0b8a443b69960bc5ac20311f0010926a2f131bbb5531ccf369f321f59ed2e5c1",
+        "eval/gold_standard_heldout.json": "67112d0901337591c3e2d1c7f49bc532f800e5835084f6afeb9fa8b5ea8f1c82",
+        "eval/gold_standard_final20.json": "36af11b88f7fd908fd474e904c41b567ef798b6608575f5302f3dee80f2e2579",
+        "data/chunks/chunks.json": "fe1b618cea1618738bb380d26725a66df0d029dcf934c2e8eaf95744653378cc",
+        "data/embeddings/embeddings.npy": "7e18ccd016438274f1e6508c051d713e6dc2def27b5a5dd0336990c102a9d8da",
+        "data/embeddings/embedded_chunks.json": "d725b1a9f66955f8289a2629115ad19a993c678e7f031bc2c3f8d86e929f4fc5",
+        "data/embeddings/index_meta.json": "31c475d5b7ab8479d6b349744a4b943aa8fb57eb4ccee1bd0ab6bb0bcde02995",
+        "data/processed/pages.json": "e402e4070056f5c354798b6e0bdd9202737f7d588a2322b12f5bb346b2d52a06",
+        "data/processed/recommendations.json": "f90122607bf393722b33e077d8999ea308543c737ac78170354718ba37aed941",
+        "notebooks/clinical_chunking.py": "4823175d885044b251c229b70f9ada22a0591d36f6e312215be611d706ec587b",
+        "notebooks/clinical_preprocess.py": "1e6c69aef5b91e3dfcb2604cbaa32782145cf1d1a1431a72d5a1dce11f1fd07d",
+        "notebooks/clinical_rag.py": "db1f13cda825a0fdf3fac17265bad21a117c2654c3347befa9a59d6499b3f292"
+      },
+      "seconds": 0.04
+    },
+    {
+      "check": "Structured logging / observability in the retrieval path",
+      "category": "operability",
+      "status": "fail",
+      "detail": {
+        "logging_module_used": false,
+        "note": "clinical_rag.retrieve emits no logs, no timings and no request ids. Acceptable for a notebook-driven research pipeline; NOT acceptable for a service. Listed as a deployment gap, not a research defect."
+      },
+      "seconds": 0.0
+    },
+    {
+      "check": "Clean-checkout reproducibility from source PDFs",
+      "category": "reproducibility",
+      "status": "not_run",
+      "detail": {
+        "reason": "Not verified in this session. Doing so requires deleting data/processed, data/chunks and data/embeddings and re-running notebooks 01-03 from the four source PDFs, which would destroy the artifacts every preserved evaluation is scored against.",
+        "what_was_verified_instead": "Chunking determinism from data/processed (check 1) and index reproducibility by re-embedding (check 5). The unverified link is PDF -> data/processed."
+      },
+      "seconds": 0.0
+    }
+  ]
+}

@@ -1,0 +1,1483 @@
+{
+  "schema_version": "1.0",
+  "gold_standard_id": "aaa-final20-2026-08-17",
+  "frozen": true,
+  "status": "FROZEN. Authored and validated against source guideline text BEFORE any retrieval was run against it.",
+  "purpose": "A clean pre-registered test set. Both earlier sets have now been used to evaluate the Experiment 12 chunking variants, so neither is untouched with respect to that decision. final20 is the only set never seen by any configuration at authoring time.",
+  "relation_to_other_sets": "eval/gold_standard.json (original 10) and eval/gold_standard_heldout.json (held-out 18) are UNCHANGED. The three sets use different questions and different answer passages and must never be pooled or averaged.",
+  "provenance": {
+    "built_from": "data/processed/pages.json and data/processed/recommendations.json (guideline text only)",
+    "method": "Topics were selected from the extracted recommendation inventory of all four guidelines to cover numeric/threshold, multi-fact, negative-recommendation, paraphrase, multi-document and deliberately difficult question types. Each answer passage was located by reading the source page text and pre-registered by document + page range + section reference.",
+    "independence": "No retrieval ranking, similarity score, BM25 score, reranker score, chunk id or previous retrieval output was consulted when choosing topics, writing questions, or assigning relevance. The labels cannot have been fitted to any retriever's output.",
+    "validation": "Every pre-registered passage was checked against the SOURCE page text with the frozen normalisation and the query's own required_facts groups; see validation_report."
+  },
+  "relevance_rule": {
+    "description": "A retrieved chunk counts as RELEVANT to a query if and only if BOTH conditions hold.",
+    "condition_1_provenance": "chunk.document_id equals answer_passage.document_id AND the chunk page span [page_start, page_end] overlaps the passage page span [page_start, page_end]. Overlap test: chunk.page_start <= passage.page_end AND chunk.page_end >= passage.page_start.",
+    "condition_2_facts": "The normalised chunk text satisfies at least `min_groups` of the query's required_facts groups. A group is satisfied if ANY of its regex alternatives matches.",
+    "multiple_passages": "A query may have several acceptable answer passages; matching any one of them satisfies condition 1. No specific chunk_id is ever required.",
+    "text_normalisation": [
+      "map PDF ligatures: fi-ligature -> 'fi', fl-ligature -> 'fl'",
+      "map curly quotes/apostrophes to ASCII",
+      "map the en-dash/minus/'>=' glyph variants used by ESVS to ASCII space",
+      "lowercase",
+      "collapse all runs of whitespace to a single space"
+    ],
+    "regex_flags": "re.IGNORECASE, applied to the normalised text"
+  },
+  "metrics": [
+    "P@1",
+    "P@3",
+    "P@5",
+    "MRR",
+    "Recall@5",
+    "Recall@10",
+    "Relevant_Top1",
+    "Answering@5"
+  ],
+  "queries": [
+    {
+      "query_id": 1,
+      "query": "At what maximum diameter is elective repair recommended for a man with an asymptomatic fusiform abdominal aortic aneurysm?",
+      "topic": "elective repair diameter threshold, men",
+      "question_kinds": [
+        "numeric_threshold",
+        "paraphrase",
+        "guideline_specific"
+      ],
+      "authoring_note": "Deliberate paraphrase of original Q2 to test wording robustness; scored against its own pre-registered passages.",
+      "answer_passages": [
+        {
+          "document_id": "SVS_2018",
+          "page_start": 19,
+          "page_end": 19,
+          "section_ref": "Indications for repair",
+          "why": "Elective repair recommended at >= 5.5 cm in low/acceptable-risk patients with a fusiform AAA."
+        },
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 27,
+          "page_end": 27,
+          "section_ref": "Recommendation 20",
+          "why": "Men with an asymptomatic AAA < 55 mm are not recommended for elective repair."
+        },
+        {
+          "document_id": "NICE_NG156",
+          "page_start": 16,
+          "page_end": 16,
+          "section_ref": "1.5.1 Repairing unruptured aneurysms",
+          "why": "Consider repair if asymptomatic and larger than 5.5 cm."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "repair",
+            "any_of": [
+              "repair"
+            ]
+          },
+          {
+            "name": "threshold_value",
+            "any_of": [
+              "5\\.5\\s*cm",
+              "55\\s*mm",
+              "5\\.5"
+            ]
+          },
+          {
+            "name": "elective_or_indication",
+            "any_of": [
+              "elective",
+              "indication",
+              "threshold",
+              "consider",
+              "recommend"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 2,
+      "query": "How often should imaging surveillance be repeated for an aneurysm measuring 4.0 to 4.9 cm?",
+      "topic": "surveillance interval, 4.0-4.9 cm",
+      "question_kinds": [
+        "numeric_threshold",
+        "guideline_specific"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "SVS_2018",
+          "page_start": 16,
+          "page_end": 16,
+          "section_ref": "Surveillance intervals",
+          "why": "Surveillance imaging at 12-month intervals for an AAA of 4.0 to 4.9 cm."
+        },
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 22,
+          "page_end": 22,
+          "section_ref": "Recommendation 13",
+          "why": "Imaging surveillance intervals by diameter band for men."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "surveillance",
+            "any_of": [
+              "surveillance",
+              "rescreen",
+              "imaging follow",
+              "monitor"
+            ]
+          },
+          {
+            "name": "band_4x",
+            "any_of": [
+              "4\\.0\\s*(to|and|e)\\s*4\\.9",
+              "40\\s*e\\s*49\\s*mm",
+              "4\\.0",
+              "40\\s*49"
+            ]
+          },
+          {
+            "name": "interval",
+            "any_of": [
+              "12 month",
+              "12-month",
+              "twelve month",
+              "annual",
+              "every year",
+              "yearly",
+              "one year",
+              "1 year"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 3,
+      "query": "What surveillance interval is advised for an aneurysm between 3.0 and 3.9 cm?",
+      "topic": "surveillance interval, 3.0-3.9 cm",
+      "question_kinds": [
+        "numeric_threshold",
+        "guideline_specific"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "SVS_2018",
+          "page_start": 16,
+          "page_end": 16,
+          "section_ref": "Surveillance intervals",
+          "why": "Surveillance imaging at 3-year intervals for an AAA between 3.0 and 3.9 cm."
+        },
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 22,
+          "page_end": 22,
+          "section_ref": "Recommendation 13",
+          "why": "Every three years for AAA in the 30-39 mm band."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "surveillance",
+            "any_of": [
+              "surveillance",
+              "rescreen",
+              "imaging",
+              "monitor"
+            ]
+          },
+          {
+            "name": "band_3x",
+            "any_of": [
+              "3\\.0\\s*(to|and|e)\\s*3\\.9",
+              "30\\s*e\\s*39\\s*mm",
+              "3\\.0",
+              "30\\s*39"
+            ]
+          },
+          {
+            "name": "interval",
+            "any_of": [
+              "3 year",
+              "3-year",
+              "three year",
+              "36 month",
+              "every three"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 4,
+      "query": "At what aneurysm diameter should elective repair be considered in a woman?",
+      "topic": "repair threshold, women",
+      "question_kinds": [
+        "numeric_threshold",
+        "guideline_specific",
+        "multi_document"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 28,
+          "page_end": 28,
+          "section_ref": "Recommendation 23",
+          "why": "Women with an AAA >= 50 mm may be considered for elective repair."
+        },
+        {
+          "document_id": "SVS_2018",
+          "page_start": 19,
+          "page_end": 19,
+          "section_ref": "Indications for repair",
+          "why": "Repair suggested in women with AAA between 5.0 cm and 5.4 cm."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "women",
+            "any_of": [
+              "women",
+              "woman",
+              "female"
+            ]
+          },
+          {
+            "name": "threshold_value",
+            "any_of": [
+              "50\\s*mm",
+              "5\\.0\\s*cm",
+              "5\\.0",
+              "5\\.4"
+            ]
+          },
+          {
+            "name": "repair",
+            "any_of": [
+              "repair",
+              "considered for elective"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 5,
+      "query": "What rate of aneurysm growth makes repair appropriate for an aneurysm larger than 4 cm?",
+      "topic": "growth-rate criterion for repair",
+      "question_kinds": [
+        "numeric_threshold",
+        "guideline_specific"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "NICE_NG156",
+          "page_start": 16,
+          "page_end": 16,
+          "section_ref": "1.5.1 Repairing unruptured aneurysms",
+          "why": "Consider repair if asymptomatic, larger than 4.0 cm and grown by more than 1 cm in 1 year."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "growth",
+            "any_of": [
+              "grown",
+              "growth",
+              "grow",
+              "enlarg",
+              "expansion"
+            ]
+          },
+          {
+            "name": "rate_value",
+            "any_of": [
+              "1\\s*cm\\s*in\\s*1\\s*year",
+              "more than 1 cm",
+              "10\\s*mm",
+              "1 cm"
+            ]
+          },
+          {
+            "name": "repair",
+            "any_of": [
+              "repair"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 6,
+      "query": "How should a type 2 endoleak be managed after endovascular aneurysm repair?",
+      "topic": "type 2 endoleak management",
+      "question_kinds": [
+        "guideline_specific",
+        "difficult"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "NICE_NG156",
+          "page_start": 22,
+          "page_end": 22,
+          "section_ref": "1.8.2 Managing endoleaks after EVAR",
+          "why": "Consider intervention for type 2 endoleaks in people who have AAA expansion following EVAR."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "endoleak",
+            "any_of": [
+              "endoleak"
+            ]
+          },
+          {
+            "name": "type_2",
+            "any_of": [
+              "type 2",
+              "type ii"
+            ]
+          },
+          {
+            "name": "action",
+            "any_of": [
+              "intervention",
+              "consider",
+              "expansion",
+              "treat"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 7,
+      "query": "For a patient with a ruptured aneurysm and suitable anatomy, is endovascular or open repair preferred?",
+      "topic": "ruptured AAA, EVAR vs open",
+      "question_kinds": [
+        "paraphrase",
+        "guideline_specific",
+        "multi_document"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 54,
+          "page_end": 54,
+          "section_ref": "Recommendation 80",
+          "why": "For a ruptured AAA with suitable anatomy, endovascular repair is recommended as first line treatment."
+        },
+        {
+          "document_id": "NICE_NG156",
+          "page_start": 19,
+          "page_end": 20,
+          "section_ref": "1.6.1 - 1.6.2 Repairing ruptured aneurysms",
+          "why": "Consider EVAR or open surgical repair; open surgical repair if standard EVAR unsuitable."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "ruptured",
+            "any_of": [
+              "ruptured",
+              "rupture"
+            ]
+          },
+          {
+            "name": "endovascular",
+            "any_of": [
+              "endovascular",
+              "evar"
+            ]
+          },
+          {
+            "name": "preference",
+            "any_of": [
+              "first line",
+              "preferred",
+              "recommended",
+              "consider",
+              "open surgical repair",
+              "suitable anatomy"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 8,
+      "query": "Should people with a small abdominal aortic aneurysm restrict exercise or sexual activity?",
+      "topic": "activity restriction in small AAA",
+      "question_kinds": [
+        "guideline_specific",
+        "difficult",
+        "negative_recommendation"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 25,
+          "page_end": 25,
+          "section_ref": "Recommendation 19",
+          "why": "Restricting exercise or sexual activity in patients with small AAA is not indicated."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "activity",
+            "any_of": [
+              "exercise",
+              "sexual activity",
+              "physical activity"
+            ]
+          },
+          {
+            "name": "restriction",
+            "any_of": [
+              "restrict",
+              "not indicated",
+              "no need",
+              "avoid"
+            ]
+          },
+          {
+            "name": "small_aaa",
+            "any_of": [
+              "small abdominal aortic aneurysm",
+              "small aaa",
+              "small aneurysm"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 9,
+      "query": "What is the first-line treatment for an aortic graft or stent-graft infection?",
+      "topic": "aortic graft infection",
+      "question_kinds": [
+        "guideline_specific",
+        "difficult"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 62,
+          "page_end": 62,
+          "section_ref": "Recommendation 90",
+          "why": "Radical treatment with complete graft or stent graft explantation as first line treatment."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "graft_infection",
+            "any_of": [
+              "graft infection",
+              "stent graft infection",
+              "aortic graft or stent graft infection"
+            ]
+          },
+          {
+            "name": "treatment",
+            "any_of": [
+              "explantation",
+              "radical",
+              "removal",
+              "excision"
+            ]
+          },
+          {
+            "name": "first_line",
+            "any_of": [
+              "first line",
+              "recommended",
+              "considered"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 10,
+      "query": "How should a patient with an aortic prosthesis and gastrointestinal bleeding be assessed?",
+      "topic": "graft-enteric fistula",
+      "question_kinds": [
+        "guideline_specific",
+        "difficult"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 63,
+          "page_end": 63,
+          "section_ref": "Recommendation 97",
+          "why": "For an aortic prosthesis with gastrointestinal bleeding, prompt assessment to identify a possible graft enteric fistula is recommended."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "gi_bleeding",
+            "any_of": [
+              "gastrointestinal bleeding",
+              "gastrointestinal haemorrhage",
+              "gi bleeding"
+            ]
+          },
+          {
+            "name": "fistula",
+            "any_of": [
+              "fistula"
+            ]
+          },
+          {
+            "name": "assessment",
+            "any_of": [
+              "prompt",
+              "assessment",
+              "identify",
+              "recommended"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 11,
+      "query": "Which imaging test should be used when an endoleak is suspected?",
+      "topic": "imaging for suspected endoleak",
+      "question_kinds": [
+        "guideline_specific",
+        "multi_fact"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "NICE_NG156",
+          "page_start": 21,
+          "page_end": 21,
+          "section_ref": "1.7.4 - 1.7.5 Monitoring for complications after EVAR",
+          "why": "Use contrast-enhanced CT angiography if an endoleak is suspected; if contraindicated use contrast-enhanced ultrasound; do not exclude endoleak on negative colour duplex alone."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "endoleak",
+            "any_of": [
+              "endoleak"
+            ]
+          },
+          {
+            "name": "modality",
+            "any_of": [
+              "ct angiography",
+              "computed tomography",
+              "contrast enhanced ultrasound",
+              "duplex"
+            ]
+          },
+          {
+            "name": "suspicion_or_rule",
+            "any_of": [
+              "suspected",
+              "contraindicated",
+              "do not exclude",
+              "use"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 12,
+      "query": "Which anaesthetic technique is suggested for endovascular repair of a ruptured aneurysm?",
+      "topic": "anaesthesia for ruptured EVAR",
+      "question_kinds": [
+        "guideline_specific",
+        "difficult"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "NICE_NG156",
+          "page_start": 20,
+          "page_end": 20,
+          "section_ref": "1.6.4 Repairing ruptured aneurysms",
+          "why": "Consider using local infiltrative anaesthesia alone for people having EVAR of a ruptured AAA."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "anaesthesia",
+            "any_of": [
+              "anaesthe",
+              "anesthe"
+            ]
+          },
+          {
+            "name": "local",
+            "any_of": [
+              "local infiltrative",
+              "local anaesthe",
+              "local"
+            ]
+          },
+          {
+            "name": "ruptured_evar",
+            "any_of": [
+              "ruptured",
+              "evar",
+              "endovascular"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 13,
+      "query": "Is cerebrospinal fluid drainage recommended during repair of a complex abdominal aortic aneurysm?",
+      "topic": "CSF drainage in complex AAA repair",
+      "question_kinds": [
+        "guideline_specific",
+        "difficult"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 81,
+          "page_end": 81,
+          "section_ref": "Recommendation 128",
+          "why": "For open or endovascular repair of a complex AAA, a policy of reactive (rescue) cerebrospinal fluid drainage may be considered."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "csf",
+            "any_of": [
+              "cerebrospinal fluid",
+              "csf"
+            ]
+          },
+          {
+            "name": "drainage",
+            "any_of": [
+              "drainage",
+              "drain"
+            ]
+          },
+          {
+            "name": "complex_repair",
+            "any_of": [
+              "complex abdominal aortic aneurysm",
+              "complex aaa",
+              "reactive",
+              "rescue"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 14,
+      "query": "What cardiovascular risk factor management should every patient with an abdominal aortic aneurysm receive?",
+      "topic": "cardiovascular risk factor management",
+      "question_kinds": [
+        "multi_fact",
+        "multi_document"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 23,
+          "page_end": 23,
+          "section_ref": "Recommendation 16",
+          "why": "All patients with an AAA should receive cardiovascular risk factor management: smoking cessation, blood pressure control, statin and antiplatelet therapy."
+        },
+        {
+          "document_id": "NICE_NG156",
+          "page_start": 15,
+          "page_end": 15,
+          "section_ref": "1.4.6 Predicting and improving surgical outcomes",
+          "why": "Offer information, support and interventions for secondary prevention of cardiovascular disease."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 3,
+        "groups": [
+          {
+            "name": "risk_management",
+            "any_of": [
+              "cardiovascular risk",
+              "risk factor management",
+              "secondary prevention"
+            ]
+          },
+          {
+            "name": "smoking",
+            "any_of": [
+              "smoking cessation",
+              "stop smoking",
+              "smok",
+              "tobacco"
+            ]
+          },
+          {
+            "name": "bp_or_lipid",
+            "any_of": [
+              "blood pressure",
+              "statin",
+              "hypertension",
+              "lipid"
+            ]
+          },
+          {
+            "name": "antiplatelet",
+            "any_of": [
+              "antiplatelet",
+              "aspirin",
+              "antithrombotic"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 15,
+      "query": "What information should be given to a person newly diagnosed with an aneurysm of any size?",
+      "topic": "patient information at diagnosis",
+      "question_kinds": [
+        "multi_fact",
+        "guideline_specific"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "NICE_NG156",
+          "page_start": 9,
+          "page_end": 10,
+          "section_ref": "1.1.13 - 1.1.15 Information for people with AAA",
+          "why": "Give people with AAA of any size information explaining what an AAA is, that most do not cause problems, and check understanding, allowing time for reflection and discussion."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "information",
+            "any_of": [
+              "information",
+              "explain",
+              "understand"
+            ]
+          },
+          {
+            "name": "any_size",
+            "any_of": [
+              "any size",
+              "aaa of any size"
+            ]
+          },
+          {
+            "name": "content",
+            "any_of": [
+              "what an aaa is",
+              "do not cause",
+              "rupture",
+              "options",
+              "reflection",
+              "discussion"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 16,
+      "query": "Should relatives of a patient with an aneurysm be screened, and at what age?",
+      "topic": "screening first-degree relatives",
+      "question_kinds": [
+        "guideline_specific",
+        "numeric_threshold"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "SVS_2018",
+          "page_start": 15,
+          "page_end": 15,
+          "section_ref": "Screening recommendations",
+          "why": "Ultrasound screening suggested in first-degree relatives, performed between 65 and 75 years of age."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "relatives",
+            "any_of": [
+              "first degree relative",
+              "first-degree relative",
+              "relatives",
+              "family history",
+              "sibling"
+            ]
+          },
+          {
+            "name": "screening",
+            "any_of": [
+              "screening",
+              "screen"
+            ]
+          },
+          {
+            "name": "age_band",
+            "any_of": [
+              "65\\s*(to|and|e)\\s*75",
+              "65\\s*75",
+              "older than 75",
+              "65"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 17,
+      "query": "When measuring an inflammatory aneurysm to decide about repair, should the peri-aortic inflammation be included, and at what diameter is repair considered?",
+      "topic": "inflammatory AAA measurement and threshold",
+      "question_kinds": [
+        "multi_fact",
+        "numeric_threshold",
+        "difficult"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 88,
+          "page_end": 88,
+          "section_ref": "Recommendation 145",
+          "why": "Peri-aortic inflammation or wall oedema should not be included when measuring the diameter of an inflammatory AAA."
+        },
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 89,
+          "page_end": 89,
+          "section_ref": "Recommendation 147",
+          "why": "Repair considered at an aneurysm diameter of >= 55 mm, endovascular in preference."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "inflammatory",
+            "any_of": [
+              "inflammatory"
+            ]
+          },
+          {
+            "name": "measurement_or_threshold",
+            "any_of": [
+              "should not be included",
+              "wall oedema",
+              "peri aortic",
+              "periaortic",
+              "55\\s*mm",
+              "diameter"
+            ]
+          },
+          {
+            "name": "repair",
+            "any_of": [
+              "repair"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 18,
+      "query": "What evaluation is advised for a patient whose aneurysm presents before the age of 60 or with a family history of aneurysmal disease?",
+      "topic": "genetic evaluation of early-onset/familial AAA",
+      "question_kinds": [
+        "guideline_specific",
+        "difficult"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 93,
+          "page_end": 93,
+          "section_ref": "Recommendation 154",
+          "why": "Patients with an AAA with a suspected underlying genetic cause, such as early onset (< 60 years) or positive family history of aneurysmal disease."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "genetic",
+            "any_of": [
+              "genetic",
+              "heritable",
+              "connective tissue"
+            ]
+          },
+          {
+            "name": "trigger",
+            "any_of": [
+              "<\\s*60",
+              "60 years",
+              "early onset",
+              "family history"
+            ]
+          },
+          {
+            "name": "action",
+            "any_of": [
+              "referral",
+              "refer",
+              "testing",
+              "evaluation",
+              "considered",
+              "recommended"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 19,
+      "query": "Should beta blockers be started before aneurysm repair?",
+      "topic": "preoperative beta blockers",
+      "question_kinds": [
+        "difficult",
+        "negative_recommendation",
+        "multi_document"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "NICE_NG156",
+          "page_start": 15,
+          "page_end": 15,
+          "section_ref": "1.4.7 Predicting and improving surgical outcomes",
+          "why": "Do not routinely offer preoperative beta blockers to people having AAA repair."
+        },
+        {
+          "document_id": "SVS_2018",
+          "page_start": 13,
+          "page_end": 13,
+          "section_ref": "Preoperative medical management",
+          "why": "Continuation of beta blocker therapy during the perioperative period if part of an established regimen."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "beta_blocker",
+            "any_of": [
+              "beta blocker",
+              "beta-blocker",
+              "betablocker"
+            ]
+          },
+          {
+            "name": "timing",
+            "any_of": [
+              "preoperative",
+              "pre-operative",
+              "perioperative",
+              "before"
+            ]
+          },
+          {
+            "name": "direction",
+            "any_of": [
+              "do not",
+              "not routinely",
+              "continuation",
+              "continue",
+              "suggest",
+              "recommend"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "query_id": 20,
+      "query": "What should be done if a patient develops new or worsening lower limb ischaemia after aneurysm repair?",
+      "topic": "limb ischaemia after repair",
+      "question_kinds": [
+        "guideline_specific",
+        "difficult"
+      ],
+      "authoring_note": "",
+      "answer_passages": [
+        {
+          "document_id": "ESVS_2024",
+          "page_start": 60,
+          "page_end": 60,
+          "section_ref": "Recommendation 87",
+          "why": "Patients with new onset or worsening lower limb ischaemia after AAA repair are recommended immediate evaluation of graft related problems."
+        }
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {
+            "name": "limb_ischaemia",
+            "any_of": [
+              "limb ischaemia",
+              "limb ischemia",
+              "lower limb"
+            ]
+          },
+          {
+            "name": "timing",
+            "any_of": [
+              "new onset",
+              "worsening",
+              "post operative",
+              "postoperative",
+              "after"
+            ]
+          },
+          {
+            "name": "action",
+            "any_of": [
+              "immediate",
+              "evaluation",
+              "graft related",
+              "recommended"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "validation_report": [
+    {
+      "query_id": 1,
+      "document_id": "SVS_2018",
+      "pages": "19-19",
+      "page_text_chars": 877,
+      "groups_fired_on_source_page": [
+        "repair",
+        "threshold_value",
+        "elective_or_indication"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 1,
+      "document_id": "ESVS_2024",
+      "pages": "27-27",
+      "page_text_chars": 4062,
+      "groups_fired_on_source_page": [
+        "repair",
+        "threshold_value",
+        "elective_or_indication"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 1,
+      "document_id": "NICE_NG156",
+      "pages": "16-16",
+      "page_text_chars": 1536,
+      "groups_fired_on_source_page": [
+        "repair",
+        "threshold_value",
+        "elective_or_indication"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 2,
+      "document_id": "SVS_2018",
+      "pages": "16-16",
+      "page_text_chars": 753,
+      "groups_fired_on_source_page": [
+        "surveillance",
+        "band_4x",
+        "interval"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 2,
+      "document_id": "ESVS_2024",
+      "pages": "22-22",
+      "page_text_chars": 5241,
+      "groups_fired_on_source_page": [
+        "surveillance",
+        "band_4x",
+        "interval"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 3,
+      "document_id": "SVS_2018",
+      "pages": "16-16",
+      "page_text_chars": 753,
+      "groups_fired_on_source_page": [
+        "surveillance",
+        "band_3x",
+        "interval"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 3,
+      "document_id": "ESVS_2024",
+      "pages": "22-22",
+      "page_text_chars": 5241,
+      "groups_fired_on_source_page": [
+        "surveillance",
+        "band_3x",
+        "interval"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 4,
+      "document_id": "ESVS_2024",
+      "pages": "28-28",
+      "page_text_chars": 4724,
+      "groups_fired_on_source_page": [
+        "women",
+        "threshold_value",
+        "repair"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 4,
+      "document_id": "SVS_2018",
+      "pages": "19-19",
+      "page_text_chars": 877,
+      "groups_fired_on_source_page": [
+        "women",
+        "threshold_value",
+        "repair"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 5,
+      "document_id": "NICE_NG156",
+      "pages": "16-16",
+      "page_text_chars": 1536,
+      "groups_fired_on_source_page": [
+        "growth",
+        "rate_value",
+        "repair"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 6,
+      "document_id": "NICE_NG156",
+      "pages": "22-22",
+      "page_text_chars": 1592,
+      "groups_fired_on_source_page": [
+        "endoleak",
+        "type_2",
+        "action"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 7,
+      "document_id": "ESVS_2024",
+      "pages": "54-54",
+      "page_text_chars": 4665,
+      "groups_fired_on_source_page": [
+        "ruptured",
+        "endovascular",
+        "preference"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 7,
+      "document_id": "NICE_NG156",
+      "pages": "19-20",
+      "page_text_chars": 3305,
+      "groups_fired_on_source_page": [
+        "ruptured",
+        "endovascular",
+        "preference"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 8,
+      "document_id": "ESVS_2024",
+      "pages": "25-25",
+      "page_text_chars": 5630,
+      "groups_fired_on_source_page": [
+        "activity",
+        "restriction",
+        "small_aaa"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 9,
+      "document_id": "ESVS_2024",
+      "pages": "62-62",
+      "page_text_chars": 3882,
+      "groups_fired_on_source_page": [
+        "graft_infection",
+        "treatment",
+        "first_line"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 10,
+      "document_id": "ESVS_2024",
+      "pages": "63-63",
+      "page_text_chars": 4850,
+      "groups_fired_on_source_page": [
+        "gi_bleeding",
+        "fistula",
+        "assessment"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 11,
+      "document_id": "NICE_NG156",
+      "pages": "21-21",
+      "page_text_chars": 1569,
+      "groups_fired_on_source_page": [
+        "endoleak",
+        "modality",
+        "suspicion_or_rule"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 12,
+      "document_id": "NICE_NG156",
+      "pages": "20-20",
+      "page_text_chars": 1676,
+      "groups_fired_on_source_page": [
+        "anaesthesia",
+        "local",
+        "ruptured_evar"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 13,
+      "document_id": "ESVS_2024",
+      "pages": "81-81",
+      "page_text_chars": 5344,
+      "groups_fired_on_source_page": [
+        "csf",
+        "drainage",
+        "complex_repair"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 14,
+      "document_id": "ESVS_2024",
+      "pages": "23-23",
+      "page_text_chars": 5652,
+      "groups_fired_on_source_page": [
+        "risk_management",
+        "smoking",
+        "bp_or_lipid",
+        "antiplatelet"
+      ],
+      "min_groups": 3,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 14,
+      "document_id": "NICE_NG156",
+      "pages": "15-15",
+      "page_text_chars": 1605,
+      "groups_fired_on_source_page": [
+        "risk_management",
+        "smoking",
+        "bp_or_lipid"
+      ],
+      "min_groups": 3,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 15,
+      "document_id": "NICE_NG156",
+      "pages": "9-10",
+      "page_text_chars": 3837,
+      "groups_fired_on_source_page": [
+        "information",
+        "any_size",
+        "content"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 16,
+      "document_id": "SVS_2018",
+      "pages": "15-15",
+      "page_text_chars": 1025,
+      "groups_fired_on_source_page": [
+        "relatives",
+        "screening",
+        "age_band"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 17,
+      "document_id": "ESVS_2024",
+      "pages": "88-88",
+      "page_text_chars": 5617,
+      "groups_fired_on_source_page": [
+        "inflammatory",
+        "measurement_or_threshold",
+        "repair"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 17,
+      "document_id": "ESVS_2024",
+      "pages": "89-89",
+      "page_text_chars": 4377,
+      "groups_fired_on_source_page": [
+        "inflammatory",
+        "measurement_or_threshold",
+        "repair"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 18,
+      "document_id": "ESVS_2024",
+      "pages": "93-93",
+      "page_text_chars": 4286,
+      "groups_fired_on_source_page": [
+        "genetic",
+        "trigger",
+        "action"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 19,
+      "document_id": "NICE_NG156",
+      "pages": "15-15",
+      "page_text_chars": 1605,
+      "groups_fired_on_source_page": [
+        "beta_blocker",
+        "timing",
+        "direction"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 19,
+      "document_id": "SVS_2018",
+      "pages": "13-13",
+      "page_text_chars": 1453,
+      "groups_fired_on_source_page": [
+        "beta_blocker",
+        "timing",
+        "direction"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    },
+    {
+      "query_id": 20,
+      "document_id": "ESVS_2024",
+      "pages": "60-60",
+      "page_text_chars": 4725,
+      "groups_fired_on_source_page": [
+        "limb_ischaemia",
+        "timing",
+        "action"
+      ],
+      "min_groups": 2,
+      "source_page_supports_passage": true
+    }
+  ]
+}

@@ -1,0 +1,310 @@
+{
+  "method": "Rankings replayed verbatim from eval/final_evidence.json; each chunk re-judged with page_end forced to page_start. No retrieval was re-run.",
+  "why": "The frozen relevance rule requires the chunk page span to overlap the answer passage page span. Experiment 12 V4 showed that widening page metadata alone, with identical retrieval, is worth about +0.10 P@1. This removes that term entirely.",
+  "caveat": "Strict lower bound: chunks that genuinely span pages are penalised. Tight for near-single-page chunkers, very loose for multi-page ones.",
+  "datasets": {
+    "original10": {
+      "baseline_production": {
+        "as_scored": {
+          "P@1": 0.5,
+          "P@3": 0.3333,
+          "P@5": 0.4,
+          "MRR": 0.6194,
+          "Recall@5": 0.3567,
+          "Recall@10": 0.4683,
+          "Relevant_Top1": 5,
+          "Answering@5": 8
+        },
+        "start_page_only": {
+          "P@1": 0.5,
+          "P@3": 0.3333,
+          "P@5": 0.4,
+          "MRR": 0.6194,
+          "Recall@5": 0.3567,
+          "Recall@10": 0.4683,
+          "Relevant_Top1": 5,
+          "Answering@5": 8
+        },
+        "delta": {
+          "P@1": 0.0,
+          "P@3": 0.0,
+          "P@5": 0.0,
+          "MRR": 0.0,
+          "Recall@5": 0.0,
+          "Recall@10": 0.0,
+          "Relevant_Top1": 0,
+          "Answering@5": 0
+        },
+        "pct_retrieved_chunks_multipage": 0.0
+      },
+      "V1_atomic_pagesafe": {
+        "as_scored": {
+          "P@1": 0.6,
+          "P@3": 0.4333,
+          "P@5": 0.4,
+          "MRR": 0.775,
+          "Recall@5": 0.415,
+          "Recall@10": 0.5583,
+          "Relevant_Top1": 6,
+          "Answering@5": 10
+        },
+        "start_page_only": {
+          "P@1": 0.6,
+          "P@3": 0.4333,
+          "P@5": 0.4,
+          "MRR": 0.775,
+          "Recall@5": 0.415,
+          "Recall@10": 0.5583,
+          "Relevant_Top1": 6,
+          "Answering@5": 10
+        },
+        "delta": {
+          "P@1": 0.0,
+          "P@3": 0.0,
+          "P@5": 0.0,
+          "MRR": 0.0,
+          "Recall@5": 0.0,
+          "Recall@10": 0.0,
+          "Relevant_Top1": 0,
+          "Answering@5": 0
+        },
+        "pct_retrieved_chunks_multipage": 8.0
+      },
+      "V2_atomic_pure": {
+        "as_scored": {
+          "P@1": 0.7,
+          "P@3": 0.5333,
+          "P@5": 0.42,
+          "MRR": 0.82,
+          "Recall@5": 0.345,
+          "Recall@10": 0.6183,
+          "Relevant_Top1": 7,
+          "Answering@5": 10
+        },
+        "start_page_only": {
+          "P@1": 0.4,
+          "P@3": 0.3333,
+          "P@5": 0.26,
+          "MRR": 0.6268,
+          "Recall@5": 0.215,
+          "Recall@10": 0.325,
+          "Relevant_Top1": 4,
+          "Answering@5": 8
+        },
+        "delta": {
+          "P@1": -0.3,
+          "P@3": -0.2,
+          "P@5": -0.16,
+          "MRR": -0.1932,
+          "Recall@5": -0.13,
+          "Recall@10": -0.2933,
+          "Relevant_Top1": -3,
+          "Answering@5": -2
+        },
+        "pct_retrieved_chunks_multipage": 81.0
+      }
+    },
+    "heldout18": {
+      "baseline_production": {
+        "as_scored": {
+          "P@1": 0.5556,
+          "P@3": 0.3704,
+          "P@5": 0.3444,
+          "MRR": 0.6972,
+          "Recall@5": 0.6667,
+          "Recall@10": 0.8241,
+          "Relevant_Top1": 10,
+          "Answering@5": 16
+        },
+        "start_page_only": {
+          "P@1": 0.5556,
+          "P@3": 0.3704,
+          "P@5": 0.3444,
+          "MRR": 0.6972,
+          "Recall@5": 0.6667,
+          "Recall@10": 0.8241,
+          "Relevant_Top1": 10,
+          "Answering@5": 16
+        },
+        "delta": {
+          "P@1": 0.0,
+          "P@3": 0.0,
+          "P@5": 0.0,
+          "MRR": 0.0,
+          "Recall@5": 0.0,
+          "Recall@10": 0.0,
+          "Relevant_Top1": 0,
+          "Answering@5": 0
+        },
+        "pct_retrieved_chunks_multipage": 1.7
+      },
+      "V1_atomic_pagesafe": {
+        "as_scored": {
+          "P@1": 0.7222,
+          "P@3": 0.5556,
+          "P@5": 0.4444,
+          "MRR": 0.8148,
+          "Recall@5": 0.7685,
+          "Recall@10": 0.8981,
+          "Relevant_Top1": 13,
+          "Answering@5": 17
+        },
+        "start_page_only": {
+          "P@1": 0.7222,
+          "P@3": 0.537,
+          "P@5": 0.4333,
+          "MRR": 0.8148,
+          "Recall@5": 0.7685,
+          "Recall@10": 0.8981,
+          "Relevant_Top1": 13,
+          "Answering@5": 17
+        },
+        "delta": {
+          "P@1": 0.0,
+          "P@3": -0.0186,
+          "P@5": -0.0111,
+          "MRR": 0.0,
+          "Recall@5": 0.0,
+          "Recall@10": 0.0,
+          "Relevant_Top1": 0,
+          "Answering@5": 0
+        },
+        "pct_retrieved_chunks_multipage": 19.4
+      },
+      "V2_atomic_pure": {
+        "as_scored": {
+          "P@1": 0.7222,
+          "P@3": 0.6296,
+          "P@5": 0.5222,
+          "MRR": 0.8241,
+          "Recall@5": 0.8519,
+          "Recall@10": 0.8796,
+          "Relevant_Top1": 13,
+          "Answering@5": 17
+        },
+        "start_page_only": {
+          "P@1": 0.6667,
+          "P@3": 0.4074,
+          "P@5": 0.3333,
+          "MRR": 0.7611,
+          "Recall@5": 0.6019,
+          "Recall@10": 0.7037,
+          "Relevant_Top1": 12,
+          "Answering@5": 16
+        },
+        "delta": {
+          "P@1": -0.0555,
+          "P@3": -0.2222,
+          "P@5": -0.1889,
+          "MRR": -0.063,
+          "Recall@5": -0.25,
+          "Recall@10": -0.1759,
+          "Relevant_Top1": -1,
+          "Answering@5": -1
+        },
+        "pct_retrieved_chunks_multipage": 63.9
+      }
+    },
+    "final20": {
+      "baseline_production": {
+        "as_scored": {
+          "P@1": 0.4,
+          "P@3": 0.3167,
+          "P@5": 0.25,
+          "MRR": 0.5312,
+          "Recall@5": 0.5417,
+          "Recall@10": 0.6083,
+          "Relevant_Top1": 8,
+          "Answering@5": 14
+        },
+        "start_page_only": {
+          "P@1": 0.4,
+          "P@3": 0.3167,
+          "P@5": 0.25,
+          "MRR": 0.5312,
+          "Recall@5": 0.5417,
+          "Recall@10": 0.6083,
+          "Relevant_Top1": 8,
+          "Answering@5": 14
+        },
+        "delta": {
+          "P@1": 0.0,
+          "P@3": 0.0,
+          "P@5": 0.0,
+          "MRR": 0.0,
+          "Recall@5": 0.0,
+          "Recall@10": 0.0,
+          "Relevant_Top1": 0,
+          "Answering@5": 0
+        },
+        "pct_retrieved_chunks_multipage": 0.5
+      },
+      "V1_atomic_pagesafe": {
+        "as_scored": {
+          "P@1": 0.55,
+          "P@3": 0.3333,
+          "P@5": 0.3,
+          "MRR": 0.6642,
+          "Recall@5": 0.6667,
+          "Recall@10": 0.7833,
+          "Relevant_Top1": 11,
+          "Answering@5": 16
+        },
+        "start_page_only": {
+          "P@1": 0.55,
+          "P@3": 0.3167,
+          "P@5": 0.29,
+          "MRR": 0.6517,
+          "Recall@5": 0.6667,
+          "Recall@10": 0.7583,
+          "Relevant_Top1": 11,
+          "Answering@5": 16
+        },
+        "delta": {
+          "P@1": 0.0,
+          "P@3": -0.0166,
+          "P@5": -0.01,
+          "MRR": -0.0125,
+          "Recall@5": 0.0,
+          "Recall@10": -0.025,
+          "Relevant_Top1": 0,
+          "Answering@5": 0
+        },
+        "pct_retrieved_chunks_multipage": 17.5
+      },
+      "V2_atomic_pure": {
+        "as_scored": {
+          "P@1": 0.55,
+          "P@3": 0.3833,
+          "P@5": 0.33,
+          "MRR": 0.6919,
+          "Recall@5": 0.6417,
+          "Recall@10": 0.7833,
+          "Relevant_Top1": 11,
+          "Answering@5": 17
+        },
+        "start_page_only": {
+          "P@1": 0.55,
+          "P@3": 0.3167,
+          "P@5": 0.25,
+          "MRR": 0.631,
+          "Recall@5": 0.5917,
+          "Recall@10": 0.6833,
+          "Relevant_Top1": 11,
+          "Answering@5": 15
+        },
+        "delta": {
+          "P@1": 0.0,
+          "P@3": -0.0666,
+          "P@5": -0.08,
+          "MRR": -0.0609,
+          "Recall@5": -0.05,
+          "Recall@10": -0.1,
+          "Relevant_Top1": 0,
+          "Answering@5": -2
+        },
+        "pct_retrieved_chunks_multipage": 74.0
+      }
+    }
+  }
+}

@@ -1,0 +1,419 @@
+{
+  "schema_version": "1.0",
+  "artifact_id": "project-b-mechanism-audit-2026-08-17",
+  "purpose": "Mechanism-by-mechanism audit of the separate Project B reference implementation against this project (Project A), recording what was transferred, what was refused, and on what evidence.",
+  "project_b_location": "aaa-clinical-ragnour/ (separate project; directory was named aaa-clinical-rag/ when the audit was performed and was renamed externally during handoff). Own src/, scripts/, data/, requirements.txt.",
+  "project_b_status": "READ-ONLY REFERENCE. No Project B file, artifact, output or evaluation result was modified, deleted or re-run by this audit.",
+  "project_b_inspected_files": [
+    "src/chunk.py",
+    "src/retrieve.py",
+    "src/config.py",
+    "src/embed.py",
+    "src/extract.py",
+    "src/identify.py",
+    "scripts/01_extract.py",
+    "scripts/02_chunk_and_embed.py",
+    "scripts/03_evaluate.py",
+    "scripts/verify_retrieval.py",
+    "data/chunks/chunks.json",
+    "data/embeddings/index_meta.json",
+    "data/processed/retrieval_report.json"
+  ],
+  "measured_project_b_facts": {
+    "note": "Read-only measurements taken from Project B's own committed artifacts during this audit. Nothing was re-run to obtain a better number.",
+    "documents": 3,
+    "documents_list": [
+      "USPSTF_2019",
+      "NICE_NG156",
+      "ESVS_2024"
+    ],
+    "total_chunks": 530,
+    "indexed_chunks": 452,
+    "excluded_from_index": 78,
+    "chunk_types": {
+      "recommendation": 217,
+      "narrative": 291,
+      "table": 22
+    },
+    "chunks_with_recommendation_id": 217,
+    "chunks_with_recommendation_grade": 161,
+    "distinct_section_titles": 186,
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "embedding_dim": 384,
+    "encoder_token_window": 256,
+    "indexed_token_median": 137,
+    "indexed_token_mean": 336,
+    "indexed_token_max": 23079,
+    "indexed_chunks_over_token_window": 143,
+    "percent_indexed_over_token_window": 31.6,
+    "tokens_silently_dropped_at_encode_time": 83516,
+    "has_frozen_gold_standard": false,
+    "has_pk_mrr_recall_harness": false,
+    "only_evaluation_artifacts": [
+      "data/processed/retrieval_report.json (records what ranked #1; carries no notion of correctness)",
+      "scripts/verify_retrieval.py (pass/fail regex checks)"
+    ]
+  },
+  "measured_project_a_facts": {
+    "documents": 4,
+    "documents_list": [
+      "USPSTF_2019",
+      "NICE_NG156",
+      "ESVS_2024",
+      "SVS_2018"
+    ],
+    "pages": 249,
+    "total_chunks": 2116,
+    "indexed_chunks": 1330,
+    "chunk_types_by_content_label": {
+      "clinical": 1330,
+      "reference": 661,
+      "toc": 103,
+      "boilerplate": 14,
+      "title_only": 8
+    },
+    "single_page_chunks": 2109,
+    "chunks_with_recommendation_id": 182,
+    "distinct_recommendation_ids_on_chunks": 35,
+    "distinct_recommendation_ids_available": 57,
+    "section_source_all_chunks": {
+      "detected": 578,
+      "inherited": 1008,
+      "unknown": 530
+    },
+    "embedding_model": "abhinand/MedEmbed-base-v0.1",
+    "embedding_revision": "7a90c50263f620dff743eb9794b89a42bfc5d765",
+    "embedding_dim": 768,
+    "encoder_token_window": 512,
+    "indexed_token_median": 206,
+    "indexed_token_max": 254,
+    "indexed_chunks_over_token_window": 0,
+    "has_frozen_gold_standard": true,
+    "gold_standards": [
+      "eval/gold_standard.json (10 questions, frozen)",
+      "eval/gold_standard_heldout.json (18 questions, frozen, written before any retrieval was run)"
+    ]
+  },
+  "mechanisms": [
+    {
+      "mechanism": "Chunk boundary policy",
+      "project_b_implementation": "Boundaries come from document structure. src/chunk.py builds one document-level string with \\x00PAGE:n\\x00 sentinels, locates structural anchors (numbered recommendation IDs, 'Recommendation N' headings, numbered section headings, a per-document header list), and cuts the document at those anchors. Pages are irrelevant to where a chunk starts or ends.",
+      "current_implementation": "Boundaries come from pagination. clinical_chunking.build_chunks accumulates pages into a buffer and flushes on section change, on TARGET_CHARS (900), or on MAX_CHARS (2400). Because a full guideline page already exceeds TARGET_CHARS, the buffer flushes at essentially every page end: 2,109 of 2,116 chunks are single-page.",
+      "difference": "Structure-driven cuts versus pagination-driven cuts. Project B's chunk starts where a clinical unit starts; Project A's chunk starts where a page starts. Project A's chunker has no representation of a recommendation boundary at all.",
+      "generalizable": true,
+      "overfitting_risk": "Low for the anchor patterns themselves ('Recommendation N', 'd.d.d', numbered headings describe guideline typesetting, not any question). Medium for Project B's hardcoded USPSTF_HEADERS / NICE_HEADERS lists, which enumerate the specific section titles of the specific PDFs in its corpus; those were NOT transferred.",
+      "changes_embedded_text": true,
+      "expected_retrieval_effect": "Plausibly positive. This project's frozen relevance rule requires a chunk to satisfy pre-registered fact groups AND overlap the answer passage's page range; a chunk that holds a complete recommendation can satisfy fact groups that a page-severed chunk splits in half.",
+      "requires_reembedding": true,
+      "decision": "test",
+      "tested_as": "eval/experimental_atomic_chunking.py, variants V1_atomic_pagesafe and V2_atomic_pure",
+      "evidence": "see eval/runs/exp12_atomic_chunking.json"
+    },
+    {
+      "mechanism": "Atomic recommendation chunking",
+      "project_b_implementation": "A recommendation span becomes exactly one chunk and is never sub-split: in _chunk_nice and _chunk_graded_recommendations, `pieces = [body_text] if (is_table or is_rec) else _split_narrative(body_text)`. 217 of 530 chunks are recommendation-typed and carry a recommendation_id.",
+      "current_implementation": "No atomic unit exists. Recommendations are recovered only as post-hoc metadata by attach_recommendation_metadata, which matches an 80-character excerpt prefix or a bare ID substring against whatever text the page buffer happened to emit. 182 chunks carry a recommendation_id, covering 35 of the 57 distinct IDs available in recommendations.json.",
+      "difference": "Project B makes the recommendation the unit of retrieval. Project A makes the page the unit of retrieval and tries to label it afterwards.",
+      "generalizable": true,
+      "overfitting_risk": "Low as a mechanism. The real risk is metric inflation rather than overfitting: atomic chunks are longer, and a longer chunk satisfies more of the evaluator's fact groups regardless of whether retrieval genuinely improved. A size-matched control (V3) was run for exactly this reason.",
+      "changes_embedded_text": true,
+      "expected_retrieval_effect": "Positive on Recall@k and Answering@5 if the gain is structural; indistinguishable from the size control if it is not.",
+      "requires_reembedding": true,
+      "decision": "test",
+      "tested_as": "eval/experimental_atomic_chunking.py; V3_size_control isolates chunk size from chunk structure",
+      "evidence": "see eval/runs/exp12_atomic_chunking.json"
+    },
+    {
+      "mechanism": "Section-title detection",
+      "project_b_implementation": "Case-insensitive exact match of each line against a hardcoded per-document list of canonical titles (USPSTF_HEADERS, 26 entries; NICE_HEADERS, 16 entries), plus regex detection of numbered ESVS headings with a table-of-contents page cutoff (_ESVS_TOC_MAX_PAGE = 10). The canonical title from the list is always what gets stored, so casing in the PDF cannot break downstream matching. 186 distinct titles; only 6 chunks end up with section_source 'unknown'.",
+      "current_implementation": "clinical_preprocess.headings_on_page detects headings generically (markdown, numbered, ALL-CAPS shape, a known-headings set, first-line heuristics) and update_section_state inherits the last detected heading forward for at most 5 pages. Across all 2,116 chunks: 578 detected, 1,008 inherited, 530 unknown. Inheritance imports artifacts -- Experiment 3 measured 133 chunks titled with the ESVS running header 'ABDOMINAL AORTIC ANEURYSM', 117 titled 'Table 1-continued', and one titled with a citation.",
+      "difference": "Project B gets near-total, artifact-free coverage by enumerating the titles of the documents it knows about. Project A gets generic coverage that survives a new document, at the cost of roughly 30% artifact titles.",
+      "generalizable": false,
+      "overfitting_risk": "Medium-high, but to the CORPUS rather than to the questions. Project B's header lists must be hand-extended for every new guideline; adding a fifth PDF to Project A requires no code change. This is a maintainability trade, not evaluation leakage.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "None by construction. Experiment 3 established that section_title is metadata only -- build_embeddings encodes chunk_text alone. The single path to retrieval is classify_chunk_content's reference detection, which moved exactly one chunk (1,330 -> 1,331) and cost Q1 one rank.",
+      "requires_reembedding": false,
+      "decision": "reject",
+      "rationale": "Rejected as a retrieval mechanism because it cannot move retrieval metrics by construction, and rejected as an implementation because hardcoded per-document title lists do not survive a new document. The generalizable half -- rejecting table-of-contents rows and citation-shaped lines as headings -- was kept and is used to filter anchors in the Experiment 12 chunker."
+    },
+    {
+      "mechanism": "Heading-aware splitting and table-of-contents rejection",
+      "project_b_implementation": "Numbered headings are accepted as anchors only past a fixed page cutoff (_ESVS_TOC_MAX_PAGE = 10), and _clean_esvs_section_title strips dot leaders and trailing page numbers from a title.",
+      "current_implementation": "No heading-anchored splitting. Table-of-contents material is caught after the fact by classify_chunk_content's dot-leader density test (>= 0.10 of compacted characters) and excluded from the index -- 103 chunks labelled 'toc'.",
+      "difference": "Project B prevents contents rows from becoming anchors; Project A lets them become chunks and then declines to index them.",
+      "generalizable": true,
+      "overfitting_risk": "Low, provided the page-number cutoff is replaced by a content test. A fixed 'pages 1-10 are contents' rule is a property of one PDF, not of guidelines in general.",
+      "changes_embedded_text": true,
+      "expected_retrieval_effect": "Small and indirect: it prevents the anchor set from being polluted, which matters only once anchors drive boundaries.",
+      "requires_reembedding": true,
+      "decision": "adopt",
+      "rationale": "Adopted in generalised form inside the Experiment 12 chunker: a heading-shaped line is refused as an anchor when it carries dot leaders or matches a citation shape. The page-number cutoff was replaced by that content test, so it does not depend on any document's pagination."
+    },
+    {
+      "mechanism": "Token-based chunk limits",
+      "project_b_implementation": "None enforced. MAX_CHUNK_CHARS = 1800 is applied only to narrative sub-splitting; recommendation and table spans bypass it entirely. Measured consequence on Project B's own committed index: 143 of 452 indexed chunks (31.6%) exceed the 256-token window of its own encoder, the largest chunk is 23,079 tokens, and 83,516 tokens are silently discarded by SentenceTransformer at encode time.",
+      "current_implementation": "Token budget enforced against the embedding model's real tokenizer. TARGET_TOKENS = 220 with a hard ceiling of model_token_limit() - 2; build_embeddings raises rather than encoding an oversized chunk; embeddable_chunks refuses one too. Measured: max 254 tokens, 0 chunks over the limit.",
+      "difference": "Project B sizes by characters and silently truncates; Project A sizes by tokens and refuses to truncate.",
+      "generalizable": true,
+      "overfitting_risk": "None. This is a correctness property.",
+      "changes_embedded_text": true,
+      "expected_retrieval_effect": "Strongly negative if Project B's behaviour were adopted: roughly a third of its indexed vectors do not represent the text stored alongside them, so those chunks are retrievable on content they do not encode.",
+      "requires_reembedding": true,
+      "decision": "reject",
+      "rationale": "This is the one place where the current project is unambiguously better and Project B is defective. Project A's token enforcement is retained unchanged; the Experiment 12 chunker keeps recommendations atomic only up to the real 510-token content budget and splits beyond it rather than truncating."
+    },
+    {
+      "mechanism": "Overlap strategy",
+      "project_b_implementation": "Fixed 200-character overlap carried into the next narrative chunk (`current = current[-overlap:] + \"\\n\\n\" + para`). No overlap at all for recommendation or table spans. Overlap is measured in characters and can be a large fraction of a short chunk.",
+      "current_implementation": "OVERLAP_TOKENS = 40, measured in tokens, snapped backwards to a safe split point, and capped at half the piece just emitted so a short chunk cannot be mostly duplicated by its successor.",
+      "difference": "Character overlap with no proportional cap versus token overlap with a proportional cap.",
+      "generalizable": true,
+      "overfitting_risk": "None.",
+      "changes_embedded_text": true,
+      "expected_retrieval_effect": "Adopting Project B's version would raise near-duplicate chunk counts and waste index capacity.",
+      "requires_reembedding": true,
+      "decision": "reject",
+      "rationale": "Current implementation is strictly better specified. Project B's zero-overlap-for-recommendations behaviour is the correct half and is implied automatically by atomic chunking, which the Experiment 12 chunker already does."
+    },
+    {
+      "mechanism": "Page provenance",
+      "project_b_implementation": "Page sentinels are embedded in the document string and every chunk's page_start / page_end is resolved from the character offsets of its own span (_page_at_offset). Provenance is derived, so it is exact for a chunk that spans pages.",
+      "current_implementation": "The flush loop stamps one page range across every piece it emits. Experiment 1 recorded the failure mode directly: bridging page boundaries widened page_start-page_end on 64 chunks that in fact came wholly from a single page.",
+      "difference": "Derived-from-offset provenance versus stamped-by-loop provenance.",
+      "generalizable": true,
+      "overfitting_risk": "None. But note that page range is an INPUT to this project's frozen relevance rule (a chunk must overlap the answer passage's page span), so a change that widens page ranges makes relevance easier to satisfy. Provenance changes must therefore be reported alongside chunk-size changes, never silently.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "No effect on ranking. Effect on measured relevance is possible and must be disclosed.",
+      "requires_reembedding": false,
+      "decision": "adopt",
+      "rationale": "Adopted inside the Experiment 12 chunker, which resolves page_start/page_end from sentinel offsets. This removes the Experiment 1 side effect that helped argue against page bridging."
+    },
+    {
+      "mechanism": "Excluding non-clinical material from the index",
+      "project_b_implementation": "A curated set of section titles (EXCLUDED_FROM_INDEX_SECTIONS: references, acknowledgements, context, terms used, article information, ...) plus one substring rule, plus a NICE copyright-footer detector. Chunks are still written to chunks.json but embed.py drops them. 78 of 530 chunks excluded.",
+      "current_implementation": "classify_chunk_content labels every chunk clinical / reference / toc / boilerplate / title_only from its CONTENT (citation density, dot-leader density, alphanumeric density, boilerplate phrases), consulting the section title only as one signal, and with an explicit escape hatch so a genuine graded recommendation is never demoted because it inherited a 'REFERENCES' heading. 786 of 2,116 chunks excluded.",
+      "difference": "Title allow-list versus content classifier. Both projects independently identified the same defect -- references outranking recommendations -- and fixed it; Project A's fix does not depend on knowing a document's section names.",
+      "generalizable": true,
+      "overfitting_risk": "Project B's title list is corpus-specific and silently indexes a references section whose heading is spelled differently.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "Already realised in both projects.",
+      "requires_reembedding": false,
+      "decision": "reject",
+      "rationale": "Nothing to transfer: the current implementation already covers this and is the more general of the two. Reused unchanged by the Experiment 12 chunker so that index-eligibility is not a second variable."
+    },
+    {
+      "mechanism": "Content-based document identification",
+      "project_b_implementation": "src/identify.py matches signature strings against the first two pages of extracted text rather than against the filename, and the registry entry it returns selects which extraction regexes may run on that document -- which is what stops NICE's 'd.d.d' pattern from matching DOIs inside USPSTF's references.",
+      "current_implementation": "Documents are identified during preprocessing and recorded in data/processed/document_metadata.json; per-document regexes are likewise scoped by document_id.",
+      "difference": "Equivalent in effect. Project B's version is unusually clearly written and its rationale is worth quoting in the write-up.",
+      "generalizable": true,
+      "overfitting_risk": "None.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "None.",
+      "requires_reembedding": false,
+      "decision": "reject",
+      "rationale": "No transfer needed; the property already holds here."
+    },
+    {
+      "mechanism": "Numeric-safe splitting and hyphenation repair",
+      "project_b_implementation": "Line-break hyphenation is joined only between two letters, so '0.98-\\n1.00' and '301-\\n304' survive. Split points are paragraph boundaries only; there is no protection against a split landing inside '5.5 cm'.",
+      "current_implementation": "_safe_split_points explicitly protects numeric spans (values, ranges, and %/cm/mm/years units) from being cut, and validate_chunks has a dedicated GLUED_RANGE_RE check for the specific corruption '0.981.00'.",
+      "difference": "Project A protects numbers at split time; Project B only at cleaning time.",
+      "generalizable": true,
+      "overfitting_risk": "None.",
+      "changes_embedded_text": true,
+      "expected_retrieval_effect": "Adopting Project B's weaker rule risks severing clinical thresholds ('5.5 cm'), which are exactly what several questions ask for.",
+      "requires_reembedding": true,
+      "decision": "reject",
+      "rationale": "Current implementation is stronger. Retained unchanged in the Experiment 12 chunker, which calls the baseline split_text for all sub-splitting."
+    },
+    {
+      "mechanism": "Table handling",
+      "project_b_implementation": "A span containing a line matching '^\\s*Table\\s+\\d' is typed 'table' and emitted whole, never sub-split -- the direct cause of 20 of the 143 over-window chunks.",
+      "current_implementation": "table_text is appended to the page text only when table_is_redundant says it does not merely restate the body (5-gram containment at a 0.6 threshold, with a space-insensitive fallback for tables that lost their spacing), then sized like any other text.",
+      "difference": "Project B preserves table integrity at the cost of truncation; Project A prevents duplicated content and truncation but can split a table.",
+      "generalizable": true,
+      "overfitting_risk": "None.",
+      "changes_embedded_text": true,
+      "expected_retrieval_effect": "Keeping a table whole is only a benefit if it fits the encoder window; at 23,079 tokens it is not preserved, it is beheaded.",
+      "requires_reembedding": true,
+      "decision": "reject",
+      "rationale": "Keep the current de-duplication and sizing. The defensible half of Project B's idea -- do not split a unit that fits -- is already what atomic chunking under a real token budget does."
+    },
+    {
+      "mechanism": "Recommendation grade / class metadata",
+      "project_b_implementation": "Grades are parsed at chunk time from the span itself: a USPSTF '(B recommendation)' / 'I statement' regex, and a multi-line ESVS 'Class ... Level ...' regex. 161 of 530 chunks carry a grade.",
+      "current_implementation": "Grades come from a separate extraction pass (data/processed/recommendations.json, 233 records) and are attached to a chunk only if an 80-character excerpt prefix or a bare ID substring is found in it. 182 of 2,116 chunks carry one, covering 35 of 57 distinct IDs.",
+      "difference": "Parse-in-place versus match-back. Match-back loses whatever the page buffer happened to split apart, which is why 22 of 57 recommendation IDs never reach a chunk.",
+      "generalizable": true,
+      "overfitting_risk": "Low.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "None on ranking -- this metadata is not embedded. It is a provenance and citation-quality improvement.",
+      "requires_reembedding": false,
+      "decision": "adopt",
+      "rationale": "Partially adopted: the Experiment 12 chunker falls back to the anchor's own recommendation ID when match-back finds nothing, which raises ID coverage without touching the embedded text. Reported as provenance, not as a retrieval result."
+    },
+    {
+      "mechanism": "Embedding model choice and pinning",
+      "project_b_implementation": "all-MiniLM-L6-v2, unpinned, with a silent TF-IDF+SVD fallback when the hub is unreachable. The fallback re-fits a vectoriser over the whole corpus at query time and is written into index_meta.model_name, so a run can change retrieval backend without the caller noticing.",
+      "current_implementation": "MedEmbed-base-v0.1 pinned by commit (7a90c50...), chosen by Experiment 7 over MiniLM and BGE-base on the frozen gold standard. model_token_limit is read from the model's own sentence_bert_config.json rather than the tokenizer's model_max_length.",
+      "difference": "Pinned biomedical encoder versus unpinned general encoder with a silent backend swap.",
+      "generalizable": true,
+      "overfitting_risk": "A silent fallback makes results non-reproducible, which is a worse failure than a bad number.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "Adopting Project B's setup would regress: MiniLM is this project's superseded baseline (P@1 0.5000 / MRR 0.5625 versus MedEmbed 0.5000 / 0.6194 on the same frozen gold).",
+      "requires_reembedding": true,
+      "decision": "reject",
+      "rationale": "Current implementation is better and already evidence-backed."
+    },
+    {
+      "mechanism": "Query expansion",
+      "project_b_implementation": "_QUERY_EXPANSIONS: nine regex -> literal-text rules that append answer terms to the query before encoding. E.g. a query matching /risk factors associated/ has ' important risk factors include older age male sex smoking family history' appended -- which is a paraphrase of the gold passage's own sentence.",
+      "current_implementation": "None. The query is encoded exactly as the user typed it.",
+      "difference": "Project B rewrites the question into its own answer. Every one of the nine patterns matches one of Project B's ten evaluation questions and nothing else.",
+      "generalizable": false,
+      "overfitting_risk": "Maximal. On any question the patterns do not match, _expand_query returns the query unchanged, so the mechanism contributes exactly zero.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "Large apparent gain on the ten questions it was written for; identically zero on anything else.",
+      "requires_reembedding": false,
+      "decision": "reject",
+      "rationale": "This is the overfitting the brief warns about, in its purest form: the improvement is stored in the rules, not learned by the system."
+    },
+    {
+      "mechanism": "Intent detection with per-intent score adjustments",
+      "project_b_implementation": "_INTENT_PATTERNS defines ten intents ('screening', 'diameter', 'surveillance', 'evar_indications', 'risk_factors', 'imaging', 'rupture', 'smoking', 'women_screening', 'open_vs_evar') -- exactly one per evaluation question, several keyed to that question's wording ('risk factors associated', 'women regarding.*screening', 'differences between open'). _intent_adjustment then adds up to +0.35 or subtracts up to -0.25 from the cosine score based on hand-written content regexes.",
+      "current_implementation": "None. Retrieval is cosine similarity; the optional cross-encoder in notebooks/clinical_rerank.py sees only (query, chunk_text) and has no query-specific branch.",
+      "difference": "Project B's ranking function contains one branch per evaluation question.",
+      "generalizable": false,
+      "overfitting_risk": "Maximal, and structurally so: on an unseen question _detect_intents returns the empty set and every bonus is skipped.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "The reported jump from P@1 0.40 to 0.90 on its own ten questions, versus roughly zero on held-out questions where the intent machinery never fires.",
+      "requires_reembedding": false,
+      "decision": "reject",
+      "rationale": "Refused. The lesson -- that a reranker's gain must be demonstrated on questions it was not written against -- is kept; the mechanism is not."
+    },
+    {
+      "mechanism": "Recommendation-ID and passage-literal score boosts",
+      "project_b_implementation": "Hardcoded identity boosts, e.g. recommendation_id == '11' with 'ultrasound screening' in the text gets +0.22; ids '22'/'23' get +0.12 on a diameter query; id '15' gets +0.15 on a surveillance query; id '7' gets +0.15 on an imaging query; id '17' gets +0.18 on a smoking query; the literal string 'important risk factors for aaa include' gets +0.35.",
+      "current_implementation": "None.",
+      "difference": "Project B names the specific answer chunks it wants to win, by ID and by literal sentence.",
+      "generalizable": false,
+      "overfitting_risk": "Maximal. These are answer keys compiled into the ranking function.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "Guarantees the intended chunk on the intended question and nothing elsewhere.",
+      "requires_reembedding": false,
+      "decision": "reject",
+      "rationale": "Refused outright. Note this also explains Project B's reported scores above 1.0 (up to 1.2533 in its retrieval_report.json): those are cosine plus bonuses, not similarities, so they are not comparable to any cosine number in this project."
+    },
+    {
+      "mechanism": "Anchor injection into the candidate pool",
+      "project_b_implementation": "_anchor_indices scans the ENTIRE corpus and force-adds specific chunks to the rerank pool regardless of their cosine rank -- e.g. for the 'risk_factors' intent, every chunk whose section is 'Assessment of Risk' and any chunk containing the literal 'important risk factors for aaa include'.",
+      "current_implementation": "None. The candidate pool is the top-k by cosine, full stop.",
+      "difference": "Project B can retrieve a chunk that dense retrieval never surfaced, because the code was told where the answer is.",
+      "generalizable": false,
+      "overfitting_risk": "Maximal, and it defeats measurement: recall is no longer a property of the retriever.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "Repairs exactly the queries it was written for.",
+      "requires_reembedding": false,
+      "decision": "reject",
+      "rationale": "Refused."
+    },
+    {
+      "mechanism": "Keyword-overlap bonus with a curated stopword list",
+      "project_b_implementation": "_keyword_overlap contributes 0.06 * (share of query content words present in the chunk). Its stopword set removes 'aneurysm', 'aortic', 'abdominal', 'aaa', 'small', 'recommendations', 'strategy', 'factors', 'modality', 'differences', 'regarding', 'associated' -- i.e. precisely the words that recur across its ten evaluation questions.",
+      "current_implementation": "None. No lexical channel: BM25 was tested here in Experiment 8 and rejected on evidence (P@1 0.10), and hybrid dense+BM25 in Experiment 9 beat nothing.",
+      "difference": "A generic lexical signal would be defensible; this one is tuned by a stopword list assembled from the evaluation questions.",
+      "generalizable": false,
+      "overfitting_risk": "High. The weight is small (0.06) but the stopword curation is question-derived.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "Small on its own questions, unknown and untested elsewhere.",
+      "requires_reembedding": false,
+      "decision": "reject",
+      "rationale": "Refused. The general form of this idea was already tested here properly (Experiments 8 and 9) and did not survive the frozen evaluation."
+    },
+    {
+      "mechanism": "Evaluation design",
+      "project_b_implementation": "No frozen gold standard, no P@k / MRR / Recall@k. Quality is asserted by scripts/verify_retrieval.py, whose GOLD_RANK1 and GOLD_RANK1_AVOID regexes are the SAME literal strings as the bonus and penalty patterns inside src/retrieve.py's _intent_adjustment. Examples: the Q1 gold pattern 'ultrasound screening for the early detection|1-time screening for.*aaa|recommends.*screening for aaa' is the +0.18 screening bonus; the Q1 avoid pattern 'prior to abdominal aortic aneurysm repair' is the -0.18 screening penalty; the Q4 avoid pattern 'post.?oper|undergone endovascular|endoleak|within 30 d' is the -0.22 EVAR penalty; the Q5 gold pattern 'important risk factors for aaa include' is the +0.35 risk-factor bonus.",
+      "current_implementation": "Two frozen gold standards with SHA-256 pinning, a retriever-agnostic evaluator (eval/evaluate.py knows nothing about the retriever, the model, or chunk identity), pre-registered answer passages, and a held-out set of 18 questions written before any retrieval was run against them.",
+      "difference": "Project B's checker and Project B's ranker share their hardcoded strings, so the ranker passes the checker by construction. That is evaluation leakage visible in the source, independent of any metric.",
+      "generalizable": false,
+      "overfitting_risk": "This IS the overfitting mechanism -- the scoring rules and the success criteria were authored together.",
+      "changes_embedded_text": false,
+      "expected_retrieval_effect": "Not measurable. A passing verify_retrieval.py run carries no information about retrieval quality.",
+      "requires_reembedding": false,
+      "decision": "reject",
+      "rationale": "This is the single most important finding of the audit, and it is verifiable by reading two files side by side rather than by trusting any reported number."
+    }
+  ],
+  "previously_recorded_project_b_evidence": {
+    "status": "PROVIDED BY THE USER, NOT REPRODUCED FROM PROJECT B'S ARTIFACTS.",
+    "note": "Project B's repository contains no metric harness and no gold standard, so these figures cannot be regenerated from what is committed there. They are recorded here as given and were not re-run, in line with the instruction not to re-execute Project B for a better number. The source-level leakage documented under 'Evaluation design' above is independent of them and is directly verifiable.",
+    "original_10_questions": {
+      "raw_cosine": {
+        "P@1": 0.4,
+        "MRR": 0.492,
+        "Recall@10": 0.7
+      },
+      "with_intent_reranker": {
+        "P@1": 0.9,
+        "MRR": 0.917,
+        "Recall@10": 1.0
+      }
+    },
+    "held_out_questions": {
+      "delta_P@1": 0.0,
+      "delta_MRR": 0.003
+    },
+    "interpretation": "A +0.50 P@1 swing where the machinery fires and no swing where it does not is the signature of rules that store the answers, not of a retriever that generalises."
+  },
+  "leakage_analysis": {
+    "method": "Project B's _detect_intents and _expand_query were imported directly from aaa-clinical-rag/src/retrieve.py (read-only, without executing its package imports) and run against both question sets. The literal-sharing count compares scripts/verify_retrieval.py's GOLD_RANK1 / GOLD_RANK1_AVOID patterns against the text of src/retrieve.py.",
+    "intent_rules_fired": {
+      "project_b_own_10_questions": "10 / 10",
+      "this_project_heldout_18_questions": "1 / 18"
+    },
+    "query_expansion_fired": {
+      "project_b_own_10_questions": "9 / 10",
+      "this_project_heldout_18_questions": "2 / 18"
+    },
+    "checker_patterns_sharing_a_literal_with_the_ranker": "9 / 10",
+    "shared_literals_found": [
+      "ultrasound screening for the early detection",
+      "1-time screening for.*aaa",
+      "indication.*repair",
+      "important risk factors for aaa include",
+      "smoking cessation",
+      "women.*screen",
+      "prior to abdominal aortic aneurysm repair",
+      "undergone endovascular",
+      "^1\\.1\\.6\\s+offer"
+    ],
+    "the_one_held_out_firing_is_harmful": {
+      "question": "H2 -- What imaging follow-up is recommended after endovascular aneurysm repair?",
+      "intent_matched": "evar_indications",
+      "what_the_rule_does": "applies a -0.22 penalty to chunks matching 'post.?oper|undergone endovascular|after endovascular.*repair|endoleak|within 30 d|surveillance programme'",
+      "why_that_is_wrong": "That regex describes H2's correct answer. On the single held-out question where Project B's machinery activates, it would demote the right passage rather than promote it.",
+      "status": "Read from Project B's rules. NOT measured -- Project B was not re-run, and its index does not contain this project's fourth document."
+    }
+  },
+  "audit_conclusions": {
+    "transferred": [
+      "Structural anchor detection as a chunk-boundary source (recommendation IDs, 'Recommendation N', numbered section headings)",
+      "Atomic recommendation spans, bounded by this project's real token budget",
+      "Page provenance derived from sentinel offsets instead of stamped by the flush loop",
+      "Table-of-contents and citation rejection when deciding whether a line is a heading",
+      "Recommendation-ID fallback from the anchor itself, as provenance only"
+    ],
+    "refused": [
+      "Intent detection and per-intent score adjustments",
+      "Query expansion",
+      "Recommendation-ID and passage-literal boosts",
+      "Anchor injection into the candidate pool",
+      "Question-derived keyword-overlap stopword curation",
+      "Unbounded chunk sizes and the silent truncation they cause",
+      "Hardcoded per-document section-title lists",
+      "Unpinned models and silent retrieval-backend fallback"
+    ],
+    "method": "Every transferred mechanism was implemented in an isolated module (eval/experimental_atomic_chunking.py), scored by the unchanged frozen evaluator against both the original 10 and the held-out 18 questions, and compared against a size-matched control that has no structural anchors at all. Nothing in the production pipeline was modified to run the experiment."
+  }
+}

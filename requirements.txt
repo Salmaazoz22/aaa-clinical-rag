@@ -1,0 +1,9 @@
+pymupdf>=1.24
+pdfplumber>=0.11
+pandas>=2.0
+pyarrow>=14
+numpy>=1.26
+sentence-transformers>=3.0
+transformers>=4.40
+huggingface-hub>=0.23
+pytest>=8.0

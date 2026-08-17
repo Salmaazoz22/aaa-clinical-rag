@@ -1,0 +1,984 @@
+{
+  "original10": {
+    "gold_sha256": "0b8a443b69960bc5ac20311f0010926a2f131bbb5531ccf369f321f59ed2e5c1",
+    "n_questions": 10,
+    "questions": [
+      {
+        "query_id": 1,
+        "query": "What are the recommendations for screening for abdominal aortic aneurysm?",
+        "n_words": 10,
+        "n_answer_passages": 5,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018",
+          "USPSTF_2019"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 23,
+        "answerable_from_corpus": true,
+        "topic": null,
+        "question_kinds": null
+      },
+      {
+        "query_id": 2,
+        "query": "What AAA diameter is generally associated with consideration of elective repair?",
+        "n_words": 11,
+        "n_answer_passages": 3,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 22,
+        "answerable_from_corpus": true,
+        "topic": null,
+        "question_kinds": null
+      },
+      {
+        "query_id": 3,
+        "query": "What surveillance strategy is recommended for small abdominal aortic aneurysms?",
+        "n_words": 10,
+        "n_answer_passages": 3,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 11,
+        "answerable_from_corpus": true,
+        "topic": null,
+        "question_kinds": null
+      },
+      {
+        "query_id": 4,
+        "query": "What are the indications for endovascular aneurysm repair?",
+        "n_words": 8,
+        "n_answer_passages": 5,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 10,
+        "answerable_from_corpus": true,
+        "topic": null,
+        "question_kinds": null
+      },
+      {
+        "query_id": 5,
+        "query": "What are the risk factors associated with abdominal aortic aneurysm?",
+        "n_words": 10,
+        "n_answer_passages": 4,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "USPSTF_2019"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 9,
+        "answerable_from_corpus": true,
+        "topic": null,
+        "question_kinds": null
+      },
+      {
+        "query_id": 6,
+        "query": "What imaging modality is recommended for diagnosis or surveillance of AAA?",
+        "n_words": 11,
+        "n_answer_passages": 4,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 24,
+        "answerable_from_corpus": true,
+        "topic": null,
+        "question_kinds": null
+      },
+      {
+        "query_id": 7,
+        "query": "What factors influence the risk of AAA rupture?",
+        "n_words": 8,
+        "n_answer_passages": 5,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "USPSTF_2019"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 3,
+        "min_groups_required": 3,
+        "multi_fact": true,
+        "relevant_chunks_available_in_index": 22,
+        "answerable_from_corpus": true,
+        "topic": null,
+        "question_kinds": null
+      },
+      {
+        "query_id": 8,
+        "query": "What are the recommendations for smoking cessation in patients with AAA?",
+        "n_words": 11,
+        "n_answer_passages": 4,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 8,
+        "answerable_from_corpus": true,
+        "topic": null,
+        "question_kinds": null
+      },
+      {
+        "query_id": 9,
+        "query": "What are the recommendations for women regarding AAA screening?",
+        "n_words": 9,
+        "n_answer_passages": 5,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018",
+          "USPSTF_2019"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 19,
+        "answerable_from_corpus": true,
+        "topic": null,
+        "question_kinds": null
+      },
+      {
+        "query_id": 10,
+        "query": "What are the differences between open surgical repair and EVAR recommendations?",
+        "n_words": 11,
+        "n_answer_passages": 3,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 3,
+        "min_groups_required": 3,
+        "multi_fact": true,
+        "relevant_chunks_available_in_index": 7,
+        "answerable_from_corpus": true,
+        "topic": null,
+        "question_kinds": null
+      }
+    ],
+    "summary": {
+      "answerable_from_corpus": 10,
+      "multi_fact": 2,
+      "multi_document": 10,
+      "median_relevant_chunks_available": 19
+    }
+  },
+  "heldout18": {
+    "gold_sha256": "67112d0901337591c3e2d1c7f49bc532f800e5835084f6afeb9fa8b5ea8f1c82",
+    "n_questions": 18,
+    "questions": [
+      {
+        "query_id": 1,
+        "query": "How should type 1 and type 3 endoleaks be managed after EVAR?",
+        "n_words": 12,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 16,
+        "answerable_from_corpus": true,
+        "topic": "Endoleak management",
+        "question_kinds": null
+      },
+      {
+        "query_id": 2,
+        "query": "What imaging follow-up is recommended after endovascular aneurysm repair?",
+        "n_words": 9,
+        "n_answer_passages": 3,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 14,
+        "answerable_from_corpus": true,
+        "topic": "Post-EVAR imaging follow-up",
+        "question_kinds": null
+      },
+      {
+        "query_id": 3,
+        "query": "Is antibiotic prophylaxis recommended before abdominal aortic aneurysm repair?",
+        "n_words": 9,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 4,
+        "answerable_from_corpus": true,
+        "topic": "Antibiotic prophylaxis for repair",
+        "question_kinds": null
+      },
+      {
+        "query_id": 4,
+        "query": "Should patients with an abdominal aortic aneurysm receive statin and antiplatelet therapy?",
+        "n_words": 12,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 7,
+        "answerable_from_corpus": true,
+        "topic": "Statin and antiplatelet therapy",
+        "question_kinds": null
+      },
+      {
+        "query_id": 5,
+        "query": "What blood pressure strategy is recommended during transfer of a suspected ruptured aneurysm?",
+        "n_words": 13,
+        "n_answer_passages": 3,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 4,
+        "answerable_from_corpus": true,
+        "topic": "Permissive hypotension in rupture",
+        "question_kinds": null
+      },
+      {
+        "query_id": 6,
+        "query": "How should abdominal compartment syndrome be detected after repair of a ruptured aneurysm?",
+        "n_words": 13,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 5,
+        "answerable_from_corpus": true,
+        "topic": "Abdominal compartment syndrome",
+        "question_kinds": null
+      },
+      {
+        "query_id": 7,
+        "query": "What cardiac assessment is needed before aneurysm repair?",
+        "n_words": 8,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 10,
+        "answerable_from_corpus": true,
+        "topic": "Preoperative cardiac assessment",
+        "question_kinds": null
+      },
+      {
+        "query_id": 8,
+        "query": "How should renal function be protected in patients receiving contrast for endovascular repair?",
+        "n_words": 13,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 4,
+        "answerable_from_corpus": true,
+        "topic": "Contrast nephropathy and renal protection",
+        "question_kinds": null
+      },
+      {
+        "query_id": 9,
+        "query": "How is a mycotic abdominal aortic aneurysm treated?",
+        "n_words": 8,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 6,
+        "answerable_from_corpus": true,
+        "topic": "Mycotic aneurysm",
+        "question_kinds": null
+      },
+      {
+        "query_id": 10,
+        "query": "How often should iliac artery aneurysms be imaged during surveillance?",
+        "n_words": 10,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 3,
+        "answerable_from_corpus": true,
+        "topic": "Iliac artery aneurysm surveillance",
+        "question_kinds": null
+      },
+      {
+        "query_id": 11,
+        "query": "Should internal iliac artery flow be preserved during aneurysm repair?",
+        "n_words": 10,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 2,
+        "answerable_from_corpus": true,
+        "topic": "Internal iliac artery preservation",
+        "question_kinds": null
+      },
+      {
+        "query_id": 12,
+        "query": "How should repair be chosen for a complex abdominal aortic aneurysm?",
+        "n_words": 11,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 10,
+        "answerable_from_corpus": true,
+        "topic": "Complex AAA repair choice",
+        "question_kinds": null
+      },
+      {
+        "query_id": 13,
+        "query": "What thromboprophylaxis is recommended for patients undergoing aneurysm repair?",
+        "n_words": 9,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 5,
+        "answerable_from_corpus": true,
+        "topic": "Venous thromboembolism prophylaxis",
+        "question_kinds": null
+      },
+      {
+        "query_id": 14,
+        "query": "What analgesia is recommended for people having open surgical repair?",
+        "n_words": 10,
+        "n_answer_passages": 3,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 7,
+        "answerable_from_corpus": true,
+        "topic": "Anaesthesia and analgesia",
+        "question_kinds": null
+      },
+      {
+        "query_id": 15,
+        "query": "How should the aortic diameter be measured and reported on ultrasound?",
+        "n_words": 11,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 5,
+        "answerable_from_corpus": true,
+        "topic": "Aortic diameter measurement method",
+        "question_kinds": null
+      },
+      {
+        "query_id": 16,
+        "query": "Are fluoroquinolone antibiotics contraindicated in patients with a small aneurysm?",
+        "n_words": 10,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 3,
+        "answerable_from_corpus": true,
+        "topic": "Fluoroquinolones",
+        "question_kinds": null
+      },
+      {
+        "query_id": 17,
+        "query": "What minimum annual caseload should a centre performing aneurysm repair have?",
+        "n_words": 11,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 6,
+        "answerable_from_corpus": true,
+        "topic": "Centre caseload and volume",
+        "question_kinds": null
+      },
+      {
+        "query_id": 18,
+        "query": "What should be done if a small aneurysm shows rapid growth?",
+        "n_words": 11,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 2,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 2,
+        "answerable_from_corpus": true,
+        "topic": "Rapid aneurysm growth",
+        "question_kinds": null
+      }
+    ],
+    "summary": {
+      "answerable_from_corpus": 18,
+      "multi_fact": 0,
+      "multi_document": 12,
+      "median_relevant_chunks_available": 5
+    }
+  },
+  "final20": {
+    "gold_sha256": "36af11b88f7fd908fd474e904c41b567ef798b6608575f5302f3dee80f2e2579",
+    "n_questions": 20,
+    "questions": [
+      {
+        "query_id": 1,
+        "query": "At what maximum diameter is elective repair recommended for a man with an asymptomatic fusiform abdominal aortic aneurysm?",
+        "n_words": 18,
+        "n_answer_passages": 3,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 10,
+        "answerable_from_corpus": true,
+        "topic": "elective repair diameter threshold, men",
+        "question_kinds": [
+          "numeric_threshold",
+          "paraphrase",
+          "guideline_specific"
+        ]
+      },
+      {
+        "query_id": 2,
+        "query": "How often should imaging surveillance be repeated for an aneurysm measuring 4.0 to 4.9 cm?",
+        "n_words": 15,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 6,
+        "answerable_from_corpus": true,
+        "topic": "surveillance interval, 4.0-4.9 cm",
+        "question_kinds": [
+          "numeric_threshold",
+          "guideline_specific"
+        ]
+      },
+      {
+        "query_id": 3,
+        "query": "What surveillance interval is advised for an aneurysm between 3.0 and 3.9 cm?",
+        "n_words": 13,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 6,
+        "answerable_from_corpus": true,
+        "topic": "surveillance interval, 3.0-3.9 cm",
+        "question_kinds": [
+          "numeric_threshold",
+          "guideline_specific"
+        ]
+      },
+      {
+        "query_id": 4,
+        "query": "At what aneurysm diameter should elective repair be considered in a woman?",
+        "n_words": 12,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 6,
+        "answerable_from_corpus": true,
+        "topic": "repair threshold, women",
+        "question_kinds": [
+          "numeric_threshold",
+          "guideline_specific",
+          "multi_document"
+        ]
+      },
+      {
+        "query_id": 5,
+        "query": "What rate of aneurysm growth makes repair appropriate for an aneurysm larger than 4 cm?",
+        "n_words": 15,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "NICE_NG156"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 1,
+        "answerable_from_corpus": true,
+        "topic": "growth-rate criterion for repair",
+        "question_kinds": [
+          "numeric_threshold",
+          "guideline_specific"
+        ]
+      },
+      {
+        "query_id": 6,
+        "query": "How should a type 2 endoleak be managed after endovascular aneurysm repair?",
+        "n_words": 12,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "NICE_NG156"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 3,
+        "answerable_from_corpus": true,
+        "topic": "type 2 endoleak management",
+        "question_kinds": [
+          "guideline_specific",
+          "difficult"
+        ]
+      },
+      {
+        "query_id": 7,
+        "query": "For a patient with a ruptured aneurysm and suitable anatomy, is endovascular or open repair preferred?",
+        "n_words": 16,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 10,
+        "answerable_from_corpus": true,
+        "topic": "ruptured AAA, EVAR vs open",
+        "question_kinds": [
+          "paraphrase",
+          "guideline_specific",
+          "multi_document"
+        ]
+      },
+      {
+        "query_id": 8,
+        "query": "Should people with a small abdominal aortic aneurysm restrict exercise or sexual activity?",
+        "n_words": 13,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 4,
+        "answerable_from_corpus": true,
+        "topic": "activity restriction in small AAA",
+        "question_kinds": [
+          "guideline_specific",
+          "difficult",
+          "negative_recommendation"
+        ]
+      },
+      {
+        "query_id": 9,
+        "query": "What is the first-line treatment for an aortic graft or stent-graft infection?",
+        "n_words": 12,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 9,
+        "answerable_from_corpus": true,
+        "topic": "aortic graft infection",
+        "question_kinds": [
+          "guideline_specific",
+          "difficult"
+        ]
+      },
+      {
+        "query_id": 10,
+        "query": "How should a patient with an aortic prosthesis and gastrointestinal bleeding be assessed?",
+        "n_words": 13,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 3,
+        "answerable_from_corpus": true,
+        "topic": "graft-enteric fistula",
+        "question_kinds": [
+          "guideline_specific",
+          "difficult"
+        ]
+      },
+      {
+        "query_id": 11,
+        "query": "Which imaging test should be used when an endoleak is suspected?",
+        "n_words": 11,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "NICE_NG156"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 2,
+        "answerable_from_corpus": true,
+        "topic": "imaging for suspected endoleak",
+        "question_kinds": [
+          "guideline_specific",
+          "multi_fact"
+        ]
+      },
+      {
+        "query_id": 12,
+        "query": "Which anaesthetic technique is suggested for endovascular repair of a ruptured aneurysm?",
+        "n_words": 12,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "NICE_NG156"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 2,
+        "answerable_from_corpus": true,
+        "topic": "anaesthesia for ruptured EVAR",
+        "question_kinds": [
+          "guideline_specific",
+          "difficult"
+        ]
+      },
+      {
+        "query_id": 13,
+        "query": "Is cerebrospinal fluid drainage recommended during repair of a complex abdominal aortic aneurysm?",
+        "n_words": 13,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 3,
+        "answerable_from_corpus": true,
+        "topic": "CSF drainage in complex AAA repair",
+        "question_kinds": [
+          "guideline_specific",
+          "difficult"
+        ]
+      },
+      {
+        "query_id": 14,
+        "query": "What cardiovascular risk factor management should every patient with an abdominal aortic aneurysm receive?",
+        "n_words": 14,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024",
+          "NICE_NG156"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 4,
+        "min_groups_required": 3,
+        "multi_fact": true,
+        "relevant_chunks_available_in_index": 5,
+        "answerable_from_corpus": true,
+        "topic": "cardiovascular risk factor management",
+        "question_kinds": [
+          "multi_fact",
+          "multi_document"
+        ]
+      },
+      {
+        "query_id": 15,
+        "query": "What information should be given to a person newly diagnosed with an aneurysm of any size?",
+        "n_words": 16,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "NICE_NG156"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 4,
+        "answerable_from_corpus": true,
+        "topic": "patient information at diagnosis",
+        "question_kinds": [
+          "multi_fact",
+          "guideline_specific"
+        ]
+      },
+      {
+        "query_id": 16,
+        "query": "Should relatives of a patient with an aneurysm be screened, and at what age?",
+        "n_words": 14,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 1,
+        "answerable_from_corpus": true,
+        "topic": "screening first-degree relatives",
+        "question_kinds": [
+          "guideline_specific",
+          "numeric_threshold"
+        ]
+      },
+      {
+        "query_id": 17,
+        "query": "When measuring an inflammatory aneurysm to decide about repair, should the peri-aortic inflammation be included, and at what diameter is repair considered?",
+        "n_words": 22,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 8,
+        "answerable_from_corpus": true,
+        "topic": "inflammatory AAA measurement and threshold",
+        "question_kinds": [
+          "multi_fact",
+          "numeric_threshold",
+          "difficult"
+        ]
+      },
+      {
+        "query_id": 18,
+        "query": "What evaluation is advised for a patient whose aneurysm presents before the age of 60 or with a family history of aneurysmal disease?",
+        "n_words": 23,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 8,
+        "answerable_from_corpus": true,
+        "topic": "genetic evaluation of early-onset/familial AAA",
+        "question_kinds": [
+          "guideline_specific",
+          "difficult"
+        ]
+      },
+      {
+        "query_id": 19,
+        "query": "Should beta blockers be started before aneurysm repair?",
+        "n_words": 8,
+        "n_answer_passages": 2,
+        "documents_in_gold": [
+          "NICE_NG156",
+          "SVS_2018"
+        ],
+        "answerable_from_multiple_documents": true,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 1,
+        "answerable_from_corpus": true,
+        "topic": "preoperative beta blockers",
+        "question_kinds": [
+          "difficult",
+          "negative_recommendation",
+          "multi_document"
+        ]
+      },
+      {
+        "query_id": 20,
+        "query": "What should be done if a patient develops new or worsening lower limb ischaemia after aneurysm repair?",
+        "n_words": 17,
+        "n_answer_passages": 1,
+        "documents_in_gold": [
+          "ESVS_2024"
+        ],
+        "answerable_from_multiple_documents": false,
+        "required_fact_groups": 3,
+        "min_groups_required": 2,
+        "multi_fact": false,
+        "relevant_chunks_available_in_index": 5,
+        "answerable_from_corpus": true,
+        "topic": "limb ischaemia after repair",
+        "question_kinds": [
+          "guideline_specific",
+          "difficult"
+        ]
+      }
+    ],
+    "summary": {
+      "answerable_from_corpus": 20,
+      "multi_fact": 1,
+      "multi_document": 7,
+      "median_relevant_chunks_available": 5
+    }
+  },
+  "assessment_of_existing_sets": {
+    "status": "The original 10 and held-out 18 were audited WITHOUT modification. No question, answer passage or regex in either set was changed.",
+    "original10": [
+      "Several questions are broad ('What are the risk factors associated with AAA?'). Breadth is why they have many pre-registered answer passages, and it depresses P@5 because no single chunk can cover the whole answer.",
+      "Q4, Q5 and Q10 are comparative or list-shaped ('differences between open repair and EVAR'), which no single guideline passage states in one place. These are the three that no configuration answered in the top 10 before Experiment 12.",
+      "Q2 depends on wording: 'generally associated with consideration of elective repair' does not appear in any guideline; the underlying fact (5.5 cm / 55 mm) does.",
+      "All 10 are answerable from the corpus and all are clinically well-formed."
+    ],
+    "heldout18": [
+      "Narrower and more single-fact than the original 10, and measurably easier: dense Recall@10 0.8241 versus 0.4683. The two sets are NOT difficulty-matched and must not be pooled.",
+      "Several are procedural rather than diagnostic (thromboprophylaxis, analgesia, caseload), which suits a guideline corpus well and may overstate performance on harder clinical reasoning.",
+      "All 18 are answerable from the corpus."
+    ],
+    "final20_design": [
+      "Deliberately balanced across question kinds: numeric/threshold, multi-fact, negative-recommendation ('should X be restricted?'), paraphrase, multi-document and difficult/rare topics.",
+      "Includes two deliberate paraphrases of earlier topics (Q1 restates the elective-repair threshold, Q7 restates ruptured-AAA repair choice) to test wording robustness. They are scored only against their own pre-registered passages.",
+      "Includes negative recommendations, which dense retrieval typically handles poorly because the passage asserts what NOT to do.",
+      "Limitation shared with both earlier sets: gold labels were authored by the same agent that ran the experiments, though always before any retrieval was run."
+    ]
+  }
+}

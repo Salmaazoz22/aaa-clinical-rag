@@ -1,0 +1,225 @@
+{
+  "final_question_count": 20,
+  "original_question_count": 10,
+  "heldout_question_count": 10,
+  "heldout_pool_size": 18,
+  "heldout_selection_rule": "Deterministic, results-blind in its inputs: held-out questions sorted by (number of distinct guideline documents in their pre-registered gold passages, descending; then query_id ascending); the first 10 are selected. Uses gold metadata only -- no retrieval rank, similarity score, or evaluation metric is an input to the rule.",
+  "heldout_selected_ids": [
+    1,
+    2,
+    3,
+    5,
+    6,
+    7,
+    8,
+    11,
+    13,
+    14
+  ],
+  "production_retriever": "MedEmbed",
+  "production_model": "abhinand/MedEmbed-base-v0.1",
+  "production_revision": "7a90c50263f620dff743eb9794b89a42bfc5d765",
+  "production_changed": false,
+  "corpus": {
+    "guideline_pdfs": 4,
+    "pages": 249,
+    "total_chunks": 2116,
+    "indexed_chunks": 1330,
+    "embedding_dim": 768,
+    "max_chunk_tokens": 254,
+    "model_token_limit": 512
+  },
+  "experiments": {
+    "original_10_questions": {
+      "MiniLM_baseline": {
+        "n_queries": 10,
+        "P@1": 0.5,
+        "P@3": 0.3667,
+        "P@5": 0.28,
+        "MRR": 0.5625,
+        "Recall@5": 0.2217,
+        "Recall@10": 0.2667,
+        "Relevant_Top1": 5,
+        "Answering@5": 6
+      },
+      "MedEmbed_production": {
+        "n_queries": 10,
+        "P@1": 0.5,
+        "P@3": 0.3333,
+        "P@5": 0.4,
+        "MRR": 0.6194,
+        "Recall@5": 0.3567,
+        "Recall@10": 0.4683,
+        "Relevant_Top1": 5,
+        "Answering@5": 8
+      },
+      "BM25_keyword": {
+        "n_queries": 10,
+        "P@1": 0.1,
+        "P@3": 0.1,
+        "P@5": 0.12,
+        "MRR": 0.1922,
+        "Recall@5": 0.1083,
+        "Recall@10": 0.1983,
+        "Relevant_Top1": 1,
+        "Answering@5": 3
+      },
+      "Hybrid_A_75_25": {
+        "n_queries": 10,
+        "P@1": 0.5,
+        "P@3": 0.3333,
+        "P@5": 0.36,
+        "MRR": 0.6125,
+        "Recall@5": 0.3217,
+        "Recall@10": 0.485,
+        "Relevant_Top1": 5,
+        "Answering@5": 8
+      },
+      "Hybrid_B_50_50": {
+        "n_queries": 10,
+        "P@1": 0.5,
+        "P@3": 0.2667,
+        "P@5": 0.24,
+        "MRR": 0.5617,
+        "Recall@5": 0.2367,
+        "Recall@10": 0.4,
+        "Relevant_Top1": 5,
+        "Answering@5": 6
+      },
+      "Hybrid_C_25_75": {
+        "n_queries": 10,
+        "P@1": 0.3,
+        "P@3": 0.2333,
+        "P@5": 0.16,
+        "MRR": 0.4167,
+        "Recall@5": 0.1783,
+        "Recall@10": 0.2683,
+        "Relevant_Top1": 3,
+        "Answering@5": 5
+      },
+      "Full_MedCPT_rerank": {
+        "n_queries": 10,
+        "P@1": 0.4,
+        "P@3": 0.3667,
+        "P@5": 0.32,
+        "MRR": 0.5575,
+        "Recall@5": 0.2717,
+        "Recall@10": 0.4533,
+        "Relevant_Top1": 4,
+        "Answering@5": 8
+      },
+      "Selective_Policy_A": {
+        "n_queries": 10,
+        "P@1": 0.5,
+        "P@3": 0.4,
+        "P@5": 0.46,
+        "MRR": 0.6375,
+        "Recall@5": 0.4067,
+        "Recall@10": 0.5133,
+        "Relevant_Top1": 5,
+        "Answering@5": 8
+      },
+      "Selective_Policy_B": {
+        "n_queries": 10,
+        "P@1": 0.5,
+        "P@3": 0.3667,
+        "P@5": 0.44,
+        "MRR": 0.5908,
+        "Recall@5": 0.4067,
+        "Recall@10": 0.4933,
+        "Relevant_Top1": 5,
+        "Answering@5": 8
+      },
+      "Selective_Policy_C": {
+        "n_queries": 10,
+        "P@1": 0.5,
+        "P@3": 0.4,
+        "P@5": 0.46,
+        "MRR": 0.6208,
+        "Recall@5": 0.4067,
+        "Recall@10": 0.4933,
+        "Relevant_Top1": 5,
+        "Answering@5": 8
+      },
+      "BGE_base": {
+        "n_queries": 10,
+        "P@1": 0.4,
+        "P@3": 0.4,
+        "P@5": 0.4,
+        "MRR": 0.6167,
+        "Recall@5": 0.325,
+        "Recall@10": 0.4483,
+        "Relevant_Top1": 4,
+        "Answering@5": 10
+      },
+      "BGE_plus_msmarco_rerank": {
+        "n_queries": 10,
+        "P@1": 0.4,
+        "P@3": 0.3333,
+        "P@5": 0.3,
+        "MRR": 0.5294,
+        "Recall@5": 0.2767,
+        "Recall@10": 0.375,
+        "Relevant_Top1": 4,
+        "Answering@5": 7
+      }
+    },
+    "heldout_18_questions": {
+      "MedEmbed_dense": {
+        "n_queries": 18,
+        "P@1": 0.5556,
+        "P@3": 0.3704,
+        "P@5": 0.3444,
+        "MRR": 0.6972,
+        "Recall@5": 0.6667,
+        "Recall@10": 0.8241,
+        "Relevant_Top1": 10,
+        "Answering@5": 16
+      },
+      "Full_MedCPT_rerank": {
+        "n_queries": 18,
+        "P@1": 0.5556,
+        "P@3": 0.4815,
+        "P@5": 0.3889,
+        "MRR": 0.7315,
+        "Recall@5": 0.6852,
+        "Recall@10": 0.8519,
+        "Relevant_Top1": 10,
+        "Answering@5": 17
+      },
+      "Selective_Policy_A": {
+        "n_queries": 18,
+        "P@1": 0.6111,
+        "P@3": 0.3889,
+        "P@5": 0.3778,
+        "MRR": 0.725,
+        "Recall@5": 0.7222,
+        "Recall@10": 0.8241,
+        "Relevant_Top1": 11,
+        "Answering@5": 16
+      }
+    },
+    "note": "The original-10 and held-out-18 evaluations use different gold standards and different question difficulty. They are reported separately and must not be pooled."
+  },
+  "evidence_statistics": {
+    "questions": 20,
+    "relevant_in_top_1": 11,
+    "relevant_in_top_5": 17,
+    "relevant_in_top_10": 19,
+    "all_required_fact_groups_covered": 20,
+    "no_relevant_evidence_in_top_10": [
+      "Q4"
+    ]
+  },
+  "final_interpretation": "Production remains pure dense MedEmbed retrieval. BM25 was rejected (P@1 0.10). Hybrid retrieval was not adopted (no configuration beat MedEmbed on a primary metric). Full MedCPT reranking was rejected because it displaced correct top-1 answers on both the original set (3 lost) and the held-out set (4 lost). Selective Policy A improved several metrics on the original 10 and, on the held-out 18, preserved all 10 dense-correct top-1 answers while adding one, but Phase 7 was INCONCLUSIVE: the gain is a single question, the threshold is sensitive to a ~3% perturbation, and no held-out question reproduced the Q4 rescue pattern. Selective reranking is a promising experimental direction requiring further validation, not a proven or production-ready improvement.",
+  "limitations": [
+    "Small evaluation sets: 10 original + 18 held-out questions; no statistical significance is claimed.",
+    "Selective Policy A's threshold was derived from the original 10 queries (transductive) and only frozen afterwards.",
+    "Held-out Policy A gain is one question (P@1 +0.0556 = 1/18); a +0.0011 threshold change reverses it.",
+    "The Q4 structural pattern (relevant evidence outside top-10 but inside top-30) appeared in 0 of 18 held-out questions.",
+    "The held-out set is easier than the original (dense Recall@10 0.8241 vs 0.4683); the two sets are not difficulty-matched.",
+    "Gold labels were authored by the same agent that ran the experiments, though always before any retrieval was run.",
+    "Fact coverage is assessed by deterministic regex over the frozen gold patterns, not by semantic judgement.",
+    "This package evaluates RETRIEVAL only; no answer-generation or citation-faithfulness evaluation exists in the repository."
+  ]
+}

@@ -1,0 +1,804 @@
+{
+  "schema_version": "1.0",
+  "generated_by": "eval/build_experiment_history.py",
+  "note": "Metrics are read directly from the preserved artifacts in eval/runs/ and eval/final_evaluation_results.json. Where a metric was never recorded the value is the literal string below; it is never estimated.",
+  "unavailable_marker": "Not available in preserved artifact.",
+  "metric_keys": [
+    "P@1",
+    "P@3",
+    "P@5",
+    "MRR",
+    "Recall@5",
+    "Recall@10",
+    "Relevant_Top1",
+    "Answering@5"
+  ],
+  "gold_standards": {
+    "original10": {
+      "path": "eval/gold_standard.json",
+      "sha256": "0b8a443b69960bc5ac20311f0010926a2f131bbb5531ccf369f321f59ed2e5c1"
+    },
+    "heldout18": {
+      "path": "eval/gold_standard_heldout.json",
+      "sha256": "67112d0901337591c3e2d1c7f49bc532f800e5835084f6afeb9fa8b5ea8f1c82"
+    },
+    "final20": {
+      "path": "eval/gold_standard_final20.json",
+      "sha256": "36af11b88f7fd908fd474e904c41b567ef798b6608575f5302f3dee80f2e2579"
+    }
+  },
+  "datasets_never_pooled": "original10, heldout18 and final20 use different questions, different answer passages and different difficulty. They are reported separately and must never be averaged together.",
+  "experiments": [
+    {
+      "n": 1,
+      "name": "MiniLM baseline (all-MiniLM-L6-v2)",
+      "phase": "Phase 0",
+      "problem": "No evaluation harness existed; no baseline retrieval metrics of any kind.",
+      "hypothesis": "A frozen gold standard plus a retriever-agnostic evaluator will make every later change attributable.",
+      "intervention": "Built eval/gold_standard.json (10 questions, pre-registered answer passages) and eval/evaluate.py. Retrieval: dense cosine over all-MiniLM-L6-v2, 384-dim, 1,330 indexed chunks.",
+      "dataset": "original10",
+      "metrics": {
+        "original10": {
+          "P@1": 0.5,
+          "P@3": 0.3667,
+          "P@5": 0.28,
+          "MRR": 0.5625,
+          "Recall@5": 0.2217,
+          "Recall@10": 0.2667,
+          "Relevant_Top1": 5,
+          "Answering@5": 6
+        }
+      },
+      "evidence": "eval/runs/fresh_baseline_dense.json; docs/BASELINE_SNAPSHOT.md",
+      "result": "Baseline established. Rebuilding chunks and embeddings from unmodified code reproduced it exactly (max embedding delta 0.0).",
+      "failure_mode": "Q4, Q5 and Q10 return no relevant chunk anywhere in the top 10.",
+      "decision": "BASELINE",
+      "lesson_learned": "A frozen evaluator authored before any change is what makes every later claim checkable. Without it, Experiments 1-4 were blocked and correctly stayed blocked."
+    },
+    {
+      "n": 2,
+      "name": "Experiment 1 - page-spanning recommendations",
+      "phase": "Phase 1",
+      "problem": "2,109 of 2,116 chunks are single-page, so a recommendation cut by a page break is split across two chunks.",
+      "hypothesis": "Welding a genuinely severed clinical unit back together will improve retrieval of that unit.",
+      "intervention": "Bridged a page boundary only when all of: page ends without terminal punctuation, recommendation language in the last 300 chars, next page resumes mid-sentence, section unchanged. Selected 6 of 245 boundaries.",
+      "dataset": "original10",
+      "metrics": {
+        "original10": {
+          "P@1": 0.5,
+          "P@3": 0.3667,
+          "P@5": 0.28,
+          "MRR": 0.5611,
+          "Recall@5": 0.2217,
+          "Recall@10": 0.2667,
+          "Relevant_Top1": 5,
+          "Answering@5": 6
+        }
+      },
+      "evidence": "eval/runs/exp1_pagespan.json; docs/RETRIEVAL_OPTIMIZATION_EXPERIMENTS.md",
+      "result": "MRR fell 0.5625 -> 0.5611. No metric improved. Q1 regressed (first relevant rank 8 -> 9).",
+      "failure_mode": "Also widened page_start-page_end on 64 chunks that came wholly from one page, losing page precision for no gain.",
+      "decision": "REVERT",
+      "lesson_learned": "Fixing a real textual defect is not the same as improving retrieval. The defect was genuine (NICE 1.6.1 is severed mid-sentence) and the fix still did not help."
+    },
+    {
+      "n": 3,
+      "name": "Experiment 2 - header/footer cleaning",
+      "phase": "Phase 1",
+      "problem": "Repeated page furniture (running heads, copyright footers) is embedded as if it were content.",
+      "hypothesis": "Removing repeated furniture will raise the signal-to-noise ratio of each chunk.",
+      "intervention": "Frequency-based detection of repeated lines with a safety test, removing 255 line occurrences / 12,800 characters.",
+      "dataset": "original10",
+      "metrics": {
+        "original10": {
+          "P@1": 0.5,
+          "P@3": 0.3333,
+          "P@5": 0.28,
+          "MRR": 0.5625,
+          "Recall@5": 0.2217,
+          "Recall@10": 0.2917,
+          "Relevant_Top1": 5,
+          "Answering@5": 6
+        }
+      },
+      "evidence": "eval/runs/exp2_furniture.json",
+      "result": "P@1, P@5 and MRR unchanged; Recall@10 rose 0.2667 -> 0.2917. 2 queries improved, 1 regressed.",
+      "failure_mode": "A pure frequency test cannot distinguish a running header from a genuinely repeated clinical statement; the safety test was what kept it honest, and it limited the benefit.",
+      "decision": "REVERT",
+      "lesson_learned": "A change that moves one secondary metric and regresses a query is not an improvement."
+    },
+    {
+      "n": 4,
+      "name": "Experiment 3 - improved section-title detection",
+      "phase": "Phase 1",
+      "problem": "~30% of section titles were artifacts: 133 chunks titled with the ESVS running header, 117 'Table 1-continued', one a citation.",
+      "hypothesis": "More accurate section titles will improve retrieval.",
+      "intervention": "Preferred a heading found inside the chunk; rejected inherited titles failing a heading shape test (-> None rather than a guess).",
+      "dataset": "original10",
+      "metrics": {
+        "original10": {
+          "P@1": 0.5,
+          "P@3": 0.3667,
+          "P@5": 0.28,
+          "MRR": 0.5611,
+          "Recall@5": 0.2217,
+          "Recall@10": 0.2667,
+          "Relevant_Top1": 5,
+          "Answering@5": 6
+        }
+      },
+      "evidence": "eval/runs/exp3_sections.json",
+      "result": "Detected titles 451 -> 459 with the artifacts eliminated, but coverage fell 87.0% -> 56.1%. MRR fell 0.5625 -> 0.5611. Nothing improved.",
+      "failure_mode": "STRUCTURAL: section_title is never embedded. build_embeddings encodes chunk_text alone, so titles can only touch retrieval through classify_chunk_content. Exactly one chunk changed class.",
+      "decision": "REVERT",
+      "lesson_learned": "Establish whether a field is even on the retrieval path before optimising it. Section titles are a provenance and display asset, and must be judged as one."
+    },
+    {
+      "n": 5,
+      "name": "Experiment 4 - optional dense + cross-encoder reranker",
+      "phase": "Phase 1",
+      "problem": "Dense-only retrieval leaves Q4, Q5, Q10 unanswered.",
+      "hypothesis": "A cross-encoder reranking the dense top-N will recover queries dense retrieval ranks poorly.",
+      "intervention": "New opt-in module notebooks/clinical_rerank.py: dense top-30 -> cross-encoder/ms-marco-MiniLM-L-6-v2 -> top-10. No BM25, no query rules.",
+      "dataset": "original10",
+      "metrics": {
+        "original10 (30 candidates)": {
+          "P@1": 0.5,
+          "P@3": 0.3333,
+          "P@5": 0.24,
+          "MRR": 0.5736,
+          "Recall@5": 0.1817,
+          "Recall@10": 0.2917,
+          "Relevant_Top1": 5,
+          "Answering@5": 6
+        },
+        "original10 (20 candidates)": {
+          "P@1": 0.5,
+          "P@3": 0.3,
+          "P@5": 0.22,
+          "MRR": 0.55,
+          "Recall@5": 0.2067,
+          "Recall@10": 0.2717,
+          "Relevant_Top1": 5,
+          "Answering@5": 6
+        }
+      },
+      "evidence": "eval/runs/exp4_rerank_c30.json, exp4_rerank_c20.json",
+      "result": "At 30 candidates MRR +0.0111 and Recall@10 +0.0250, but P@3, P@5 and Recall@5 all fell. Swapped one correct top-1 (Q3) for another (Q9). At 20 candidates worse on every priority metric.",
+      "failure_mode": "Trades precision for a marginal MRR gain; a general-domain reranker does not understand clinical specificity.",
+      "decision": "KEEP AS OPT-IN, NOT DEFAULT",
+      "lesson_learned": "'It found something new' is not the same as 'it is better'. Count what a change costs as well as what it gains."
+    },
+    {
+      "n": 6,
+      "name": "Experiment 5 - BGE-base-en-v1.5",
+      "phase": "Phase 2",
+      "problem": "MiniLM's 256-token window and general-web training may under-serve clinical text.",
+      "hypothesis": "A stronger general-purpose encoder will retrieve better.",
+      "intervention": "Swapped the embedding model to BAAI/bge-base-en-v1.5 (768-dim). Chunking unchanged.",
+      "dataset": "original10",
+      "metrics": {
+        "original10": {
+          "P@1": 0.4,
+          "P@3": 0.4,
+          "P@5": 0.4,
+          "MRR": 0.6167,
+          "Recall@5": 0.325,
+          "Recall@10": 0.4483,
+          "Relevant_Top1": 4,
+          "Answering@5": 10
+        }
+      },
+      "evidence": "eval/runs/exp5_bge_base_en_v15.json",
+      "result": "Answering@5 rose 6/10 -> 10/10 and every recall metric improved, but P@1 fell 0.50 -> 0.40 and Relevant Top-1 5 -> 4.",
+      "failure_mode": "Gains concentrated in ranks 2-10 while the top-1 slot got worse.",
+      "decision": "NOT DEFAULT (validated optional config)",
+      "lesson_learned": "A model can be better on average and worse where it matters most. Decide which metric is the priority before running the experiment, not after."
+    },
+    {
+      "n": 7,
+      "name": "Experiment 6 - BGE-base + MS-MARCO cross-encoder",
+      "phase": "Phase 2",
+      "problem": "BGE-base recovered recall but lost top-1 precision.",
+      "hypothesis": "Reranking BGE's top-30 will restore top-1 precision while keeping its recall.",
+      "intervention": "BGE-base top-30 -> cross-encoder/ms-marco-MiniLM-L-6-v2 -> top-10.",
+      "dataset": "original10",
+      "metrics": {
+        "original10": {
+          "P@1": 0.4,
+          "P@3": 0.3333,
+          "P@5": 0.3,
+          "MRR": 0.5294,
+          "Recall@5": 0.2767,
+          "Recall@10": 0.375,
+          "Relevant_Top1": 4,
+          "Answering@5": 7
+        }
+      },
+      "evidence": "eval/runs/exp6_bge_plus_crossencoder.json",
+      "result": "Hypothesis refuted: MRR fell to 0.5294 and Recall@10 to 0.3750, below BGE alone on both.",
+      "failure_mode": "The reranker actively demoted correct passages; stacking two general-domain components compounded the domain mismatch.",
+      "decision": "DO NOT MAKE DEFAULT",
+      "lesson_learned": "Stacking two components that are each individually weak on the domain does not produce a strong one."
+    },
+    {
+      "n": 8,
+      "name": "Experiment 7 - MedEmbed-base-v0.1 (biomedical encoder)",
+      "phase": "Phase 2",
+      "problem": "Both general-domain encoders traded top-1 precision for recall.",
+      "hypothesis": "A biomedically pre-trained encoder will improve recall without sacrificing top-1.",
+      "intervention": "Swapped to abhinand/MedEmbed-base-v0.1, pinned at revision 7a90c50263f620dff743eb9794b89a42bfc5d765. 768-dim, 512-token window. Chunking unchanged.",
+      "dataset": "original10",
+      "metrics": {
+        "original10": {
+          "P@1": 0.5,
+          "P@3": 0.3333,
+          "P@5": 0.4,
+          "MRR": 0.6194,
+          "Recall@5": 0.3567,
+          "Recall@10": 0.4683,
+          "Relevant_Top1": 5,
+          "Answering@5": 8
+        }
+      },
+      "evidence": "eval/runs/exp7_medembed_base_v01.json, phase1_production_medembed.json",
+      "result": "First experiment to clear the bar: MRR 0.5625 -> 0.6194, Recall@5 0.2217 -> 0.3567, Recall@10 0.2667 -> 0.4683, Answering@5 6/10 -> 8/10, with P@1 and Relevant Top-1 held at 0.50 / 5.",
+      "failure_mode": "None. Q4 remained unanswered in the top 10.",
+      "decision": "ADOPTED - PRODUCTION DEFAULT",
+      "lesson_learned": "Domain-matched pre-training beat every architectural trick tried before it. Change the representation before adding machinery on top of a weak one."
+    },
+    {
+      "n": 9,
+      "name": "Q4 structural analysis",
+      "phase": "Phase 3",
+      "problem": "Q4 (indications for EVAR) returned no relevant chunk in the top 10 under every configuration tried.",
+      "hypothesis": "Q4's evidence is present in the corpus but ranked outside the evaluation depth, rather than missing.",
+      "intervention": "Inspected the dense top-30 for Q4 and located where relevant chunks actually rank.",
+      "dataset": "original10",
+      "metrics": {
+        "original10": "Not available in preserved artifact."
+      },
+      "evidence": "docs/RETRIEVAL_OPTIMIZATION_EXPERIMENTS.md; eval/runs/exp10_medembed_medcpt_rerank.json",
+      "result": "Relevant evidence for Q4 sits outside the top 10 but inside the top 30 - a retrieval-depth problem, not a corpus gap.",
+      "failure_mode": "Not a failure; a diagnosis. It motivated the reranking work in Phases 5-7.",
+      "decision": "DIAGNOSTIC - no change made",
+      "lesson_learned": "Distinguish 'the corpus does not contain the answer' from 'the retriever did not rank it'. These need completely different fixes."
+    },
+    {
+      "n": 10,
+      "name": "Experiment 8 - BM25 keyword retrieval",
+      "phase": "Phase 4",
+      "problem": "Dense retrieval may miss exact clinical terms and numeric thresholds.",
+      "hypothesis": "Lexical matching will retrieve exact terms ('5.5 cm', 'EVAR') that dense embeddings blur.",
+      "intervention": "Pure BM25 over the same 1,330 indexed chunks.",
+      "dataset": "original10",
+      "metrics": {
+        "original10": {
+          "P@1": 0.1,
+          "P@3": 0.1,
+          "P@5": 0.12,
+          "MRR": 0.1922,
+          "Recall@5": 0.1083,
+          "Recall@10": 0.1983,
+          "Relevant_Top1": 1,
+          "Answering@5": 3
+        }
+      },
+      "evidence": "eval/runs/exp8_bm25_keyword.json",
+      "result": "Decisively worse: P@1 0.10, MRR 0.1922, Recall@10 0.1983.",
+      "failure_mode": "Guideline questions and guideline text share little surface vocabulary; BM25 matched boilerplate and headings.",
+      "decision": "REJECT",
+      "lesson_learned": "A negative result with this margin is valuable: it closed off the entire lexical direction cheaply and justified rejecting Project B's keyword-overlap bonus later."
+    },
+    {
+      "n": 11,
+      "name": "Experiment 9A - hybrid dense 75 / BM25 25",
+      "phase": "Phase 4",
+      "problem": "BM25 alone failed, but a small lexical signal might still complement dense retrieval.",
+      "hypothesis": "A dense-dominant hybrid will add lexical precision without BM25's noise.",
+      "intervention": "Score fusion, 75% dense + 25% BM25.",
+      "dataset": "original10",
+      "metrics": {
+        "original10": {
+          "P@1": 0.5,
+          "P@3": 0.3333,
+          "P@5": 0.36,
+          "MRR": 0.6125,
+          "Recall@5": 0.3217,
+          "Recall@10": 0.485,
+          "Relevant_Top1": 5,
+          "Answering@5": 8
+        }
+      },
+      "evidence": "eval/runs/exp9_hybrid_a_75_25.json",
+      "result": "MRR 0.6125 vs MedEmbed's 0.6194; Recall@10 0.4850 vs 0.4683. No primary metric beaten.",
+      "failure_mode": "The lexical channel adds noise roughly as fast as signal.",
+      "decision": "REJECT",
+      "lesson_learned": "Weighting a bad signal down does not turn it into a good one."
+    },
+    {
+      "n": 12,
+      "name": "Experiment 9B - hybrid dense 50 / BM25 50",
+      "phase": "Phase 4",
+      "problem": "As above, at equal weight.",
+      "hypothesis": "An even blend will balance semantic and lexical matching.",
+      "intervention": "Score fusion, 50/50.",
+      "dataset": "original10",
+      "metrics": {
+        "original10": {
+          "P@1": 0.5,
+          "P@3": 0.2667,
+          "P@5": 0.24,
+          "MRR": 0.5617,
+          "Recall@5": 0.2367,
+          "Recall@10": 0.4,
+          "Relevant_Top1": 5,
+          "Answering@5": 6
+        }
+      },
+      "evidence": "eval/runs/exp9_hybrid_b_50_50.json",
+      "result": "MRR 0.5617, Recall@10 0.4000 - worse than dense alone.",
+      "failure_mode": "Degradation scales with the BM25 weight.",
+      "decision": "REJECT",
+      "lesson_learned": "The monotonic degradation across 9A/9B/9C is itself the evidence: this is a direction, not a tuning problem."
+    },
+    {
+      "n": 13,
+      "name": "Experiment 9C - hybrid dense 25 / BM25 75",
+      "phase": "Phase 4",
+      "problem": "As above, lexical-dominant.",
+      "hypothesis": "Confirms the direction of the trend.",
+      "intervention": "Score fusion, 25/75.",
+      "dataset": "original10",
+      "metrics": {
+        "original10": {
+          "P@1": 0.3,
+          "P@3": 0.2333,
+          "P@5": 0.16,
+          "MRR": 0.4167,
+          "Recall@5": 0.1783,
+          "Recall@10": 0.2683,
+          "Relevant_Top1": 3,
+          "Answering@5": 5
+        }
+      },
+      "evidence": "eval/runs/exp9_hybrid_c_25_75.json",
+      "result": "P@1 0.30, MRR 0.4167 - worst of the three.",
+      "failure_mode": "As expected from Experiment 8.",
+      "decision": "REJECT",
+      "lesson_learned": "Three points on a monotonic curve are worth more than one; they rule out the direction rather than one setting."
+    },
+    {
+      "n": 14,
+      "name": "Experiment 10 - full MedCPT cross-encoder reranking",
+      "phase": "Phase 5",
+      "problem": "Q4's evidence sits in the top 30 but outside the top 10.",
+      "hypothesis": "A biomedical cross-encoder (unlike the general MS-MARCO one) will promote it without damaging the rest.",
+      "intervention": "MedEmbed top-30 -> ncbi/MedCPT-Cross-Encoder (revision 71caf65d...) -> top-10, applied to EVERY query.",
+      "dataset": "original10 and heldout18",
+      "metrics": {
+        "original10": {
+          "P@1": 0.4,
+          "P@3": 0.3667,
+          "P@5": 0.32,
+          "MRR": 0.5575,
+          "Recall@5": 0.2717,
+          "Recall@10": 0.4533,
+          "Relevant_Top1": 4,
+          "Answering@5": 8
+        },
+        "heldout18": {
+          "P@1": 0.5556,
+          "P@3": 0.4815,
+          "P@5": 0.3889,
+          "MRR": 0.7315,
+          "Recall@5": 0.6852,
+          "Recall@10": 0.8519,
+          "Relevant_Top1": 10,
+          "Answering@5": 17
+        }
+      },
+      "evidence": "eval/runs/exp10_medembed_medcpt_rerank.json; eval/runs/phase7_heldout.json",
+      "result": "original10: P@1 fell 0.50 -> 0.40, MRR 0.6194 -> 0.5575, and 3 correct top-1 answers were lost. heldout18: P@3 and MRR improved but 4 correct top-1 answers were displaced.",
+      "failure_mode": "Reranking every query pays for its rescues by displacing answers dense retrieval already had right.",
+      "decision": "REJECT",
+      "lesson_learned": "A reranker must be judged on what it BREAKS, not only on what it fixes. Track preserved/lost/gained top-1, not just the mean."
+    },
+    {
+      "n": 15,
+      "name": "Experiment 11 - selective reranking, Policies A / B / C",
+      "phase": "Phase 6",
+      "problem": "Full reranking helps low-confidence queries and harms high-confidence ones.",
+      "hypothesis": "Reranking only when the dense retriever is unconfident will keep the rescues and avoid the damage.",
+      "intervention": "Confidence signal margin_1_10 (score gap between rank 1 and rank 10); rerank only when it falls below a threshold. Policy A threshold 0.035120 = P25 of margin_1_10 over the ORIGINAL 10 queries.",
+      "dataset": "original10",
+      "metrics": {
+        "original10 Policy A": {
+          "P@1": 0.5,
+          "P@3": 0.4,
+          "P@5": 0.46,
+          "MRR": 0.6375,
+          "Recall@5": 0.4067,
+          "Recall@10": 0.5133,
+          "Relevant_Top1": 5,
+          "Answering@5": 8
+        },
+        "original10 Policy B": {
+          "P@1": 0.5,
+          "P@3": 0.3667,
+          "P@5": 0.44,
+          "MRR": 0.5908,
+          "Recall@5": 0.4067,
+          "Recall@10": 0.4933,
+          "Relevant_Top1": 5,
+          "Answering@5": 8
+        },
+        "original10 Policy C": {
+          "P@1": 0.5,
+          "P@3": 0.4,
+          "P@5": 0.46,
+          "MRR": 0.6208,
+          "Recall@5": 0.4067,
+          "Recall@10": 0.4933,
+          "Relevant_Top1": 5,
+          "Answering@5": 8
+        }
+      },
+      "evidence": "eval/runs/exp11_selective_rerank_policy_A.json (and _B, _C)",
+      "result": "Policy A: MRR 0.6375, P@5 0.4600, Recall@5 0.4067, Recall@10 0.5133 - better than both dense-only and full reranking on the original 10.",
+      "failure_mode": "TRANSDUCTIVE: the threshold was derived from the same 10 queries it was then scored on. That establishes nothing about generalisation.",
+      "decision": "PROMISING - REQUIRES HELD-OUT VALIDATION",
+      "lesson_learned": "A threshold fitted on the evaluation set is not a result; it is a hypothesis. Say so before measuring it, not after."
+    },
+    {
+      "n": 16,
+      "name": "Phase 7 - held-out validation of Selective Policy A",
+      "phase": "Phase 7",
+      "problem": "Policy A's threshold was fitted on the original 10 questions.",
+      "hypothesis": "If the policy generalises, the FROZEN threshold will reproduce its benefit on questions it has never seen.",
+      "intervention": "Wrote and froze eval/gold_standard_heldout.json (18 questions, labelled before any retrieval). Applied threshold 0.035120 unchanged - not recomputed, no percentile retaken, no tuning.",
+      "dataset": "heldout18",
+      "metrics": {
+        "heldout18 dense": {
+          "P@1": 0.5556,
+          "P@3": 0.3704,
+          "P@5": 0.3444,
+          "MRR": 0.6972,
+          "Recall@5": 0.6667,
+          "Recall@10": 0.8241,
+          "Relevant_Top1": 10,
+          "Answering@5": 16
+        },
+        "heldout18 full MedCPT": {
+          "P@1": 0.5556,
+          "P@3": 0.4815,
+          "P@5": 0.3889,
+          "MRR": 0.7315,
+          "Recall@5": 0.6852,
+          "Recall@10": 0.8519,
+          "Relevant_Top1": 10,
+          "Answering@5": 17
+        },
+        "heldout18 Policy A": {
+          "P@1": 0.6111,
+          "P@3": 0.3889,
+          "P@5": 0.3778,
+          "MRR": 0.725,
+          "Recall@5": 0.7222,
+          "Recall@10": 0.8241,
+          "Relevant_Top1": 11,
+          "Answering@5": 16
+        }
+      },
+      "evidence": "eval/runs/phase7_heldout.json",
+      "result": "Policy A preserved all 10 dense-correct top-1 answers and added one (P@1 0.5556 -> 0.6111). But the gain is a single question, a ~3% threshold perturbation reverses it, and the Q4 rescue pattern appeared in 0 of 18 held-out questions.",
+      "failure_mode": "The mechanism that motivated the policy did not occur even once in the held-out set.",
+      "decision": "INCONCLUSIVE - EXPERIMENTAL, NOT PRODUCTION",
+      "lesson_learned": "A held-out test can come back 'not proven' rather than yes or no, and 'not proven' must be reported as such. This is the single most important precedent in the project."
+    },
+    {
+      "n": 17,
+      "name": "Project B audit (external reference implementation)",
+      "phase": "Phase 8",
+      "problem": "A separate project (aaa-clinical-rag/) reported P@1 0.90 / MRR 0.917 on its own 10 questions but ~zero improvement on held-out questions.",
+      "hypothesis": "Its chunking architecture may contain a transferable idea, while its retrieval machinery is overfit and must not be copied.",
+      "intervention": "Read-only audit of 19 mechanisms; measured its committed artifacts; imported its _detect_intents/_expand_query and ran them against both question sets.",
+      "dataset": "Project B artifacts and source (no dataset scored)",
+      "metrics": {
+        "n/a": "Not available in preserved artifact."
+      },
+      "evidence": "eval/project_b_comparison.json; docs/PROJECT_B_LESSONS.md",
+      "result": "Intent rules fire 10/10 on its own questions and 1/18 on our held-out set; query expansion 9/10 vs 2/18. 9 of 10 of its checker's gold/avoid patterns are literal strings copied from its own ranker's scoring rules. 143/452 (31.6%) of its indexed chunks exceed its 256-token encoder window, discarding 83,516 tokens at encode time.",
+      "failure_mode": "Its checker and its ranker were authored together, so the ranker passes by construction. Its 'evidence' cannot support its claims.",
+      "decision": "REJECT the retrieval machinery; TEST the chunking idea",
+      "lesson_learned": "Overfitting is often visible in the source before it is visible in the metrics. Read the code, not just the numbers."
+    },
+    {
+      "n": 18,
+      "name": "Experiment 12 V1 - atomic chunking, page-safe",
+      "phase": "Phase 9",
+      "problem": "Chunk boundaries are set by pagination, so no chunk corresponds to a clinical unit.",
+      "hypothesis": "Cutting at structural anchors and keeping recommendations whole will retrieve complete recommendations.",
+      "intervention": "Document-level text with page sentinels; anchors = 'Recommendation N', numbered recommendation IDs, numbered section headings. Page breaks still cut narrative but never a recommendation. Token budget enforced throughout. Pure dense cosine; no query rules of any kind.",
+      "dataset": "original10 and heldout18",
+      "metrics": {
+        "original10": {
+          "P@1": 0.6,
+          "P@3": 0.4333,
+          "P@5": 0.4,
+          "MRR": 0.775,
+          "Recall@5": 0.415,
+          "Recall@10": 0.5583,
+          "Relevant_Top1": 6,
+          "Answering@5": 10
+        },
+        "heldout18": {
+          "P@1": 0.7222,
+          "P@3": 0.5556,
+          "P@5": 0.4444,
+          "MRR": 0.8148,
+          "Recall@5": 0.7685,
+          "Recall@10": 0.8981,
+          "Relevant_Top1": 13,
+          "Answering@5": 17
+        },
+        "original10 (start-page-only scoring)": {
+          "P@1": 0.6,
+          "P@3": 0.4333,
+          "P@5": 0.4,
+          "MRR": 0.775,
+          "Recall@5": 0.415,
+          "Recall@10": 0.5583,
+          "Relevant_Top1": 6,
+          "Answering@5": 10
+        },
+        "heldout18 (start-page-only scoring)": {
+          "P@1": 0.7222,
+          "P@3": 0.537,
+          "P@5": 0.4333,
+          "MRR": 0.8148,
+          "Recall@5": 0.7685,
+          "Recall@10": 0.8981,
+          "Relevant_Top1": 13,
+          "Answering@5": 17
+        },
+        "final20": {
+          "P@1": 0.55,
+          "P@3": 0.3333,
+          "P@5": 0.3,
+          "MRR": 0.6642,
+          "Recall@5": 0.6667,
+          "Recall@10": 0.7833,
+          "Relevant_Top1": 11,
+          "Answering@5": 16
+        }
+      },
+      "evidence": "eval/runs/exp12_atomic_chunking.json; eval/final_evaluation_results.json",
+      "result": "First change in the project's history to raise P@1: +0.10 on original10 and +0.167 on heldout18, with MRR +0.156 / +0.118. Gains are UNCHANGED under start-page-only scoring, which removes the page-overlap term entirely.",
+      "failure_mode": "Anchors exist in only 2 of 4 documents (ESVS, NICE). USPSTF and SVS yield none and fall back to baseline splitting.",
+      "decision": "See final decision in docs/experiment_history.md",
+      "lesson_learned": "Structure beat every model-level and reranking trick attempted before it. The unit of retrieval matters more than the machinery ranking those units."
+    },
+    {
+      "n": 19,
+      "name": "Experiment 12 V2 - atomic chunking, pure",
+      "phase": "Phase 9",
+      "problem": "As V1, but closest to Project B's shape.",
+      "hypothesis": "Removing page breaks entirely will maximise the benefit of atomic chunking.",
+      "intervention": "Anchors only; page boundaries never cut. Mean 5.57 pages per chunk, 81.6% multi-page.",
+      "dataset": "original10 and heldout18",
+      "metrics": {
+        "original10": {
+          "P@1": 0.7,
+          "P@3": 0.5333,
+          "P@5": 0.42,
+          "MRR": 0.82,
+          "Recall@5": 0.345,
+          "Recall@10": 0.6183,
+          "Relevant_Top1": 7,
+          "Answering@5": 10
+        },
+        "heldout18": {
+          "P@1": 0.7222,
+          "P@3": 0.6296,
+          "P@5": 0.5222,
+          "MRR": 0.8241,
+          "Recall@5": 0.8519,
+          "Recall@10": 0.8796,
+          "Relevant_Top1": 13,
+          "Answering@5": 17
+        },
+        "original10 (start-page-only scoring)": {
+          "P@1": 0.4,
+          "P@3": 0.3333,
+          "P@5": 0.26,
+          "MRR": 0.6268,
+          "Recall@5": 0.215,
+          "Recall@10": 0.325,
+          "Relevant_Top1": 4,
+          "Answering@5": 8
+        },
+        "heldout18 (start-page-only scoring)": {
+          "P@1": 0.6667,
+          "P@3": 0.4074,
+          "P@5": 0.3333,
+          "MRR": 0.7611,
+          "Recall@5": 0.6019,
+          "Recall@10": 0.7037,
+          "Relevant_Top1": 12,
+          "Answering@5": 16
+        },
+        "final20": {
+          "P@1": 0.55,
+          "P@3": 0.3833,
+          "P@5": 0.33,
+          "MRR": 0.6919,
+          "Recall@5": 0.6417,
+          "Recall@10": 0.7833,
+          "Relevant_Top1": 11,
+          "Answering@5": 17
+        }
+      },
+      "evidence": "eval/runs/exp12_atomic_chunking.json; eval/final_evaluation_results.json",
+      "result": "Highest headline numbers of any configuration (original10 P@1 0.70, MRR 0.82). But under start-page-only scoring original10 P@1 collapses 0.70 -> 0.40, BELOW the 0.50 baseline.",
+      "failure_mode": "CONFOUNDED. Page span 5.57 vs baseline 1.005; the frozen relevance rule requires page-range overlap, so wider chunks are easier to score relevant regardless of retrieval quality.",
+      "decision": "REJECT - highest metrics, weakest evidence",
+      "lesson_learned": "The configuration with the best-looking numbers was the one whose numbers meant the least. Controls, not leaderboards."
+    },
+    {
+      "n": 20,
+      "name": "Experiment 12 V3 - size-matched control",
+      "phase": "Phase 9",
+      "problem": "V1/V2 chunks are larger than baseline, and the relevance rule rewards chunks covering more text.",
+      "hypothesis": "If the gain is really from chunk SIZE, the baseline algorithm enlarged to the same size will show it.",
+      "intervention": "Baseline page-buffer algorithm, NO structural anchors, token and character budgets enlarged toward V1's mean (target 221 tokens).",
+      "dataset": "original10 and heldout18",
+      "metrics": {
+        "original10": {
+          "P@1": 0.5,
+          "P@3": 0.3,
+          "P@5": 0.38,
+          "MRR": 0.6208,
+          "Recall@5": 0.3317,
+          "Recall@10": 0.4433,
+          "Relevant_Top1": 5,
+          "Answering@5": 8
+        },
+        "heldout18": {
+          "P@1": 0.5556,
+          "P@3": 0.4259,
+          "P@5": 0.3667,
+          "MRR": 0.7231,
+          "Recall@5": 0.6667,
+          "Recall@10": 0.787,
+          "Relevant_Top1": 10,
+          "Answering@5": 16
+        }
+      },
+      "evidence": "eval/runs/exp12_atomic_chunking.json",
+      "result": "Essentially null: original10 P@1 unchanged at 0.50 (MRR +0.0014); heldout18 P@1 unchanged at 0.5556 (MRR +0.0259, Recall@10 -0.0371).",
+      "failure_mode": "PARTIAL CONTROL. It reached only 199.8 mean tokens against V1's 221.4 (baseline 191.6), because the page buffer flushes at page ends before the enlarged budget binds. It therefore covers about 28% of the size gap, not all of it.",
+      "decision": "CONTROL - confirms size is not the driver",
+      "lesson_learned": "Report what a control did NOT cover. A control described as complete when it is partial is worse than no control."
+    },
+    {
+      "n": 21,
+      "name": "Experiment 12 V4 - page-span control",
+      "phase": "Phase 9",
+      "problem": "The frozen relevance rule requires the chunk's page range to overlap the answer passage's page range, so wider page spans are easier to score relevant.",
+      "hypothesis": "If page-span width alone can move the metrics, some of V2's advantage is measurement artifact rather than retrieval quality.",
+      "intervention": "Took the PRODUCTION index unchanged - same vectors, same ranking, same retrieved chunks - and widened every chunk's page range by +/-2 pages to match V2's mean span. Nothing about retrieval changed.",
+      "dataset": "original10 and heldout18",
+      "metrics": {
+        "original10": {
+          "P@1": 0.6,
+          "P@3": 0.4,
+          "P@5": 0.44,
+          "MRR": 0.6861,
+          "Recall@5": 0.4417,
+          "Recall@10": 0.5733,
+          "Relevant_Top1": 6,
+          "Answering@5": 8
+        },
+        "heldout18": {
+          "P@1": 0.6667,
+          "P@3": 0.5185,
+          "P@5": 0.5111,
+          "MRR": 0.7694,
+          "Recall@5": 0.7222,
+          "Recall@10": 0.8796,
+          "Relevant_Top1": 12,
+          "Answering@5": 16
+        }
+      },
+      "evidence": "eval/runs/exp12_atomic_chunking.json",
+      "result": "Widening page metadata ALONE, with identical retrieval, produced P@1 +0.10 (original10) and +0.1111 (heldout18), MRR +0.0667 / +0.0722.",
+      "failure_mode": "None - this control worked exactly as intended, and it is the reason V2 was rejected.",
+      "decision": "CONTROL - quantifies the confound at roughly +0.10 P@1",
+      "lesson_learned": "Build the control that can invalidate your best result. This one cost one function and changed the conclusion."
+    },
+    {
+      "n": 22,
+      "name": "final20 - pre-registered clean test set",
+      "phase": "Phase 10",
+      "problem": "By the end of Experiment 12, BOTH existing sets had been used to evaluate the chunking variants, so neither was untouched with respect to that decision.",
+      "hypothesis": "A third set, authored and frozen before any retrieval, will show whether the chunking gain generalises or was selection.",
+      "intervention": "Authored 20 questions from the extracted recommendation inventory of all 4 guidelines - numeric/threshold, multi-fact, negative-recommendation, paraphrase, multi-document and deliberately difficult types. Every answer passage validated against SOURCE page text. Frozen with SHA-256 before eval/run_final_evaluation.py was executed.",
+      "dataset": "final20",
+      "metrics": {
+        "final20 baseline": {
+          "P@1": 0.4,
+          "P@3": 0.3167,
+          "P@5": 0.25,
+          "MRR": 0.5312,
+          "Recall@5": 0.5417,
+          "Recall@10": 0.6083,
+          "Relevant_Top1": 8,
+          "Answering@5": 14
+        },
+        "final20 V1": {
+          "P@1": 0.55,
+          "P@3": 0.3333,
+          "P@5": 0.3,
+          "MRR": 0.6642,
+          "Recall@5": 0.6667,
+          "Recall@10": 0.7833,
+          "Relevant_Top1": 11,
+          "Answering@5": 16
+        },
+        "final20 V2": {
+          "P@1": 0.55,
+          "P@3": 0.3833,
+          "P@5": 0.33,
+          "MRR": 0.6919,
+          "Recall@5": 0.6417,
+          "Recall@10": 0.7833,
+          "Relevant_Top1": 11,
+          "Answering@5": 17
+        }
+      },
+      "evidence": "eval/gold_standard_final20.json; eval/gold_standard_final20.sha256; eval/final_evaluation_results.json; eval/final_evidence.json",
+      "result": "See eval/final_evaluation_results.json.",
+      "failure_mode": "n/a",
+      "decision": "See final decision in docs/experiment_history.md",
+      "lesson_learned": "Once a held-out set has been used to choose between configurations it is no longer held out. Selection consumes a test set; budget for that in advance."
+    },
+    {
+      "n": 23,
+      "name": "FINAL CORRECTED VALIDATION - V1 with the citation-heading fix ON",
+      "phase": "Phase 11",
+      "problem": "Every historical V1/V2 number was produced with a known anchor defect present: numbered bibliography lines ('3 Svensjo S, Bjorck M, Gurtelschmid M, Djavani') were accepted as section headings. The fix was implemented but gated off so the historical artifacts stayed reproducible.",
+      "hypothesis": "If the defect was immaterial, turning the fix on leaves final20 unchanged. If it was material, the V1 decision must be reopened.",
+      "intervention": "Set REJECT_CITATION_HEADINGS = True, rebuilt V1 chunks, re-embedded, re-scored against final20 ONLY. Nothing else changed: same model, same pinned revision, same dense cosine, same top-k, same gold, same relevance rule. Nothing was tuned -- a gate, not a sweep.",
+      "dataset": "final20",
+      "metrics": {
+        "final20 corrected V1 (fix ON, SHIPPED)": {
+          "P@1": 0.55,
+          "P@3": 0.3333,
+          "P@5": 0.3,
+          "MRR": 0.6642,
+          "Recall@5": 0.6667,
+          "Recall@10": 0.7833,
+          "Relevant_Top1": 11,
+          "Answering@5": 16
+        },
+        "final20 historical V1 (fix OFF)": {
+          "P@1": 0.55,
+          "P@3": 0.3333,
+          "P@5": 0.3,
+          "MRR": 0.6642,
+          "Recall@5": 0.6667,
+          "Recall@10": 0.7833,
+          "Relevant_Top1": 11,
+          "Answering@5": 16
+        }
+      },
+      "evidence": "eval/runs/final_corrected_v1_final20.json -- a new artifact; it overwrites nothing",
+      "result": "ALL EIGHT METRICS IDENTICAL (delta 0.0000 on P@1, P@3, P@5, MRR, Recall@5, Recall@10, Relevant_Top1, Answering@5). The fix removed 15 bogus USPSTF section anchors (15 -> 0) and 13 bogus ESVS ones (113 -> 100); NICE and every recommendation anchor were untouched. Chunks 1,764 -> 1,760 total, 1,004 -> 991 indexed, mean tokens 221.4 -> 223.7, still 0 over the limit, recommendation coverage 350 -> 351. Seven of twenty questions returned a differently identified top-1 chunk (chunk ids shift when boundaries move) with unchanged rank and relevance.",
+      "failure_mode": "None. The removed anchors only ever fragmented bibliography text, which the content classifier already excludes from the index, so retrieval never depended on them.",
+      "decision": "PASSED THE GATE - V1 PROMOTED TO SHIPPED DEFAULT",
+      "lesson_learned": "A defect can be real, worth fixing, and still immaterial to the result. Fixing it and measuring exactly zero change is a stronger statement than never having found it."
+    }
+  ],
+  "final_recommendation": "### Final decision: **ADOPT WITH CAVEATS** — V1 is the shipped chunker\n\n**Shipped:** `V1_atomic_pagesafe` — structural-anchor chunk boundaries with recommendations kept\nwhole, page breaks still cutting narrative, under the existing hard token budget, with\n`REJECT_CITATION_HEADINGS = True`.\n**Rejected:** `V2_atomic_pure`.\n**Unchanged:** the retriever. MedEmbed-base-v0.1 at pinned revision, dense cosine, top-10, no\nreranking, no query processing.\n\n#### Why V1\n\nIt is the only change in the project's history to raise P@1, and the only one to do so on a set\nfrozen **before the change existed**:\n\n| set | P@1 base → V1 | MRR base → V1 | Recall@10 base → V1 | status of the set |\n|---|---|---|---|---|\n| original10 | 0.500 → **0.600** | 0.619 → **0.775** | 0.468 → **0.558** | used to select among variants |\n| heldout18 | 0.556 → **0.722** | 0.697 → **0.815** | 0.824 → **0.898** | used to select among variants |\n| **final20** | 0.400 → **0.550** | 0.531 → **0.664** | 0.608 → **0.783** | **pre-registered, frozen before the comparison** |\n\nBoth confounds were controlled, and V1 survives both:\n\n- **Chunk size (V3).** Baseline algorithm, no anchors, enlarged budgets: P@1 moves 0.000 on both\n  sets. Size is not the driver. (Partial control — it reached 199.8 mean tokens against V1's\n  221.4, covering ~28% of the gap.)\n- **Page-span overlap (V4).** Widening page metadata alone — identical vectors, identical\n  ranking, identical retrieved chunks — is worth **P@1 +0.10 / +0.111**. Judging every chunk on\n  its start page only removes that term entirely, and V1's P@1 is then **unchanged on all three\n  sets** (0.600 / 0.722 / 0.550). V1's chunks average 1.23 pages against the baseline's 1.005, so\n  it was barely exposed.\n\n#### Why V2 was rejected despite equal or better headline numbers\n\nV2 posts the highest raw metrics in the project (original10 P@1 0.700, MRR 0.820). Its chunks\naverage 5.57 pages and 63–81% of what it retrieves is multi-page. With the page term removed its\noriginal10 P@1 collapses **0.700 → 0.400, below the 0.500 baseline**. Its true value is bounded\nbetween those extremes and is **unresolved**. The configuration with the best-looking numbers had\nthe weakest evidence for them.\n\n#### FINAL CORRECTED VALIDATION (the promotion gate)\n\nEvery historical V1/V2 number was produced with a known anchor defect present: numbered\n*bibliography* lines were accepted as section headings (all 15 USPSTF \"sections\" were reference\nentries such as `3 Svensjö S, Björck M, Gürtelschmid M, Djavani`). The fix was gated off so the\nhistorical artifacts stayed reproducible. The gate re-ran V1 with the fix **on**, against\n`final20` only, tuning nothing:\n\n| metric | historical V1 (fix off) | corrected V1 (fix on) | Δ |\n|---|---:|---:|---:|\n| P@1 | 0.5500 | **0.5500** | +0.0000 |\n| P@3 | 0.3333 | 0.3333 | +0.0000 |\n| P@5 | 0.3000 | 0.3000 | +0.0000 |\n| MRR | 0.6642 | **0.6642** | +0.0000 |\n| Recall@5 | 0.6667 | 0.6667 | +0.0000 |\n| Recall@10 | 0.7833 | 0.7833 | +0.0000 |\n| Relevant Top-1 | 11/20 | 11/20 | +0.0000 |\n| Answering@5 | 16/20 | 16/20 | +0.0000 |\n\n**Every metric identical.** The fix removed 15 bogus USPSTF section anchors (15 → 0) and 13 bogus\nESVS ones (113 → 100); NICE and all recommendation anchors were untouched. Seven of twenty\nquestions retrieved a *differently identified* top-1 chunk — chunk IDs shift when boundaries move\n— but the rank and relevance of every question were unchanged. The removed anchors only ever\nfragmented bibliography text, which the content classifier excludes from the index anyway.\n\nArtifact: `eval/runs/final_corrected_v1_final20.json`. It overwrites nothing.\n\n#### The caveats, in full\n\n1. **The mechanism reaches only half the corpus.** Anchors exist in ESVS 2024 (162 recommendation\n   + 100 section) and NICE NG156 (57 + 14). **USPSTF 2019 and SVS 2018 yield none** — USPSTF's\n   headings are unnumbered prose, SVS is a slide deck — and both fall back to page/token\n   splitting.\n2. **V3 is a partial size control** (~28% of the gap). The residual is not excluded.\n3. **Small sets, single runs, no significance claimed.** One question is 0.05 of P@1 on final20.\n4. **final20 has now been used.** A fourth frozen set is required before the next configuration\n   decision; final20 can no longer arbitrate.\n5. **Historical evaluations were scored against the previous index.** The original10 and\n   heldout18 rows in `eval/final_evaluation_results.json`, and every run in `eval/runs/`, were\n   produced with the page-buffer chunker, preserved in `data/archive_baseline_index/`. They\n   remain valid historical records and were not recomputed.\n\n#### Status\n\nV1 is the **shipped default**: `clinical_chunking.DEFAULT_CHUNKER = \"atomic\"`, and\n`data/chunks` + `data/embeddings` were rebuilt with it by `eval/rebuild_shipped_index.py`. The\nhistorical page-buffer chunker is retained as `clinical_chunking.build_chunks` and reachable via\n`run_chunking(strategy=\"page_buffer\")`, so pre-Experiment-12 results stay reproducible.\n"
+}

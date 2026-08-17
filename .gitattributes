@@ -1,0 +1,13 @@
+# Store and check out text with LF on every platform, so a fresh clone
+# reproduces the SHA-256 values recorded in eval/final_artifact_hashes.json.
+* text=auto eol=lf
+
+# Binary artifacts: never line-ending converted, never diffed as text.
+*.pdf   binary
+*.npy   binary
+*.parquet binary
+*.png   binary
+*.jpg   binary
+
+# Notebooks: keep byte-exact so the executed outputs stay reproducible.
+*.ipynb -text

@@ -1,0 +1,14 @@
+{
+  "index_type": "numpy_cosine",
+  "metric": "cosine",
+  "model_name": "abhinand/MedEmbed-base-v0.1",
+  "model_revision": "7a90c50263f620dff743eb9794b89a42bfc5d765",
+  "embedding_dim": 768,
+  "token_limit": 512,
+  "max_chunk_tokens": 254,
+  "n_vectors": 1330,
+  "failed_embeddings": [],
+  "vectors_file": "embeddings.npy",
+  "chunks_file": "embedded_chunks.json",
+  "created_at_utc": "2026-08-17T10:51:42.914307+00:00"
+}

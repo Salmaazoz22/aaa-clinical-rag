@@ -1,0 +1,349 @@
+{
+  "generated_by": "eval/build_hash_manifest.py",
+  "note": "SHA-256 of every frozen artifact at handoff. The gold standards and the historical run artifacts must never change; if a hash here stops matching, something was modified after the freeze.",
+  "shipped_configuration": {
+    "chunker": "V1_atomic_pagesafe (clinical_atomic_chunking), citation-heading rejection ON",
+    "embedding_model": "abhinand/MedEmbed-base-v0.1",
+    "embedding_revision": "7a90c50263f620dff743eb9794b89a42bfc5d765",
+    "retrieval": "dense cosine, top-10, 768-dim, L2-normalised, no reranking, no query processing",
+    "decision": "ADOPT WITH CAVEATS"
+  },
+  "artifacts": {
+    "frozen_gold_standards": {
+      "eval/gold_standard.json": {
+        "sha256": "0b8a443b69960bc5ac20311f0010926a2f131bbb5531ccf369f321f59ed2e5c1",
+        "bytes": 19588,
+        "status": "ok"
+      },
+      "eval/gold_standard_heldout.json": {
+        "sha256": "67112d0901337591c3e2d1c7f49bc532f800e5835084f6afeb9fa8b5ea8f1c82",
+        "bytes": 20744,
+        "status": "ok"
+      },
+      "eval/gold_standard_final20.json": {
+        "sha256": "36af11b88f7fd908fd474e904c41b567ef798b6608575f5302f3dee80f2e2579",
+        "bytes": 42400,
+        "status": "ok"
+      },
+      "eval/gold_standard_final20.json.sha256": {
+        "sha256": "536e382a1de0edd5ea40b75313526f786e9fbb283456439904f3b8021db4f821",
+        "bytes": 94,
+        "status": "ok"
+      }
+    },
+    "evaluation_evidence": {
+      "eval/final_evidence.json": {
+        "sha256": "9451b60303ac7ef15de8b0f8c17312804713de2dfd17f09cd0fb929b1557449e",
+        "bytes": 2343728,
+        "status": "ok"
+      },
+      "eval/final_evaluation_results.json": {
+        "sha256": "bbeb9ac3b3ef206cd6503bb0903515b2711131a7e7f5e7c4a7bafce57b51cd0b",
+        "bytes": 62066,
+        "status": "ok"
+      },
+      "eval/runs/final_corrected_v1_final20.json": {
+        "sha256": "407c4330def4176c70ab8d198f8f29a9da2c65d983506bf9f137c64cd069d58e",
+        "bytes": 326676,
+        "status": "ok"
+      },
+      "eval/conservative_rescoring.json": {
+        "sha256": "b0b21a4df78134e6ce862d979ec983f36136edf4e242015208bbbb8a2cb25898",
+        "bytes": 8412,
+        "status": "ok"
+      },
+      "eval/experiment_history.json": {
+        "sha256": "acfd364d13898a537a58e8ed6b0a3f32ccfc44f5fc9663c77e6e8ad0b405257d",
+        "bytes": 43948,
+        "status": "ok"
+      },
+      "eval/stability_report.json": {
+        "sha256": "86221c2d4db4d7a98c43ff16bc7a752cda6b4c2239489349225efb403694a266",
+        "bytes": 9042,
+        "status": "ok"
+      },
+      "eval/integrity_report.json": {
+        "sha256": "2125ca943831a4124e2451f579e961a97762669c52016eb28c4c89e8df8c696b",
+        "bytes": 5679,
+        "status": "ok"
+      },
+      "eval/corpus_audit.json": {
+        "sha256": "5ce796a0dd9e7263cfbfa506db58ac2e6acfcab0a6ab167ec8d239be62c7396e",
+        "bytes": 4059,
+        "status": "ok"
+      },
+      "eval/question_audit.json": {
+        "sha256": "1aeb660965c9ab3a4dfc00786c17711ac2999543b1cebdfb44eff3744f3387df",
+        "bytes": 34202,
+        "status": "ok"
+      },
+      "eval/project_b_comparison.json": {
+        "sha256": "1072dbc8551e327ac35a120d62e9a60af8d5ad0ad7b895ba1b64dbf565f5a56f",
+        "bytes": 36217,
+        "status": "ok"
+      },
+      "eval/final_recommendation.md": {
+        "sha256": "cae98a6151cd8bd590c6f6edfdd2494237a60c0e04c308293e66a8e39e5b6208",
+        "bytes": 5045,
+        "status": "ok"
+      }
+    },
+    "shipped_index": {
+      "data/chunks/chunks.json": {
+        "sha256": "fe1b618cea1618738bb380d26725a66df0d029dcf934c2e8eaf95744653378cc",
+        "bytes": 3707911,
+        "status": "ok"
+      },
+      "data/embeddings/embeddings.npy": {
+        "sha256": "7e18ccd016438274f1e6508c051d713e6dc2def27b5a5dd0336990c102a9d8da",
+        "bytes": 3044480,
+        "status": "ok"
+      },
+      "data/embeddings/embedded_chunks.json": {
+        "sha256": "d725b1a9f66955f8289a2629115ad19a993c678e7f031bc2c3f8d86e929f4fc5",
+        "bytes": 2058057,
+        "status": "ok"
+      },
+      "data/embeddings/index_meta.json": {
+        "sha256": "31c475d5b7ab8479d6b349744a4b943aa8fb57eb4ccee1bd0ab6bb0bcde02995",
+        "bytes": 433,
+        "status": "ok"
+      }
+    },
+    "pipeline_source": {
+      "notebooks/clinical_preprocess.py": {
+        "sha256": "1e6c69aef5b91e3dfcb2604cbaa32782145cf1d1a1431a72d5a1dce11f1fd07d",
+        "bytes": 74410,
+        "status": "ok"
+      },
+      "notebooks/clinical_chunking.py": {
+        "sha256": "4823175d885044b251c229b70f9ada22a0591d36f6e312215be611d706ec587b",
+        "bytes": 36323,
+        "status": "ok"
+      },
+      "notebooks/clinical_atomic_chunking.py": {
+        "sha256": "4026755138b6337ba984886e9ffe41cad62849c977d1c86a5e4287d0badb0624",
+        "bytes": 13018,
+        "status": "ok"
+      },
+      "notebooks/clinical_rag.py": {
+        "sha256": "db1f13cda825a0fdf3fac17265bad21a117c2654c3347befa9a59d6499b3f292",
+        "bytes": 10422,
+        "status": "ok"
+      },
+      "notebooks/clinical_rerank.py": {
+        "sha256": "c409eb10537e59aa2880c7da3960c2cc23cdf6b0733e22c637d5f1758a273388",
+        "bytes": 1981,
+        "status": "ok"
+      },
+      "notebooks/final_evaluation.ipynb": {
+        "sha256": "f2a4c95b2c013d9ed9eefb6c39513ed9a26049c8a81cb06e7e0efbd8be2ddfae",
+        "bytes": 81821,
+        "status": "ok"
+      },
+      "eval/evaluate.py": {
+        "sha256": "c1f41eb76ccab48472af8bed502888cf270e95c3b3d2a473e9ec36b4f5bcab29",
+        "bytes": 9867,
+        "status": "ok"
+      },
+      "tests/test_chunking.py": {
+        "sha256": "0dc0f2afa81faa17eb87492655004d86eb1a6cd1c42d348ba9daebd01c60e036",
+        "bytes": 14138,
+        "status": "ok"
+      }
+    },
+    "source_pdfs": {
+      "data/pdfs/abdom-aortic-aneurysm-screening-final-rs.pdf": {
+        "sha256": "a813b94cf2f8f1434886683b6597cce54a9cd2cc0bf2ac7973a68a37f5923ac3",
+        "bytes": 487783,
+        "status": "ok"
+      },
+      "data/pdfs/abdominal-aortic-aneurysm-diagnosis-and-management-pdf-66141843642565.pdf": {
+        "sha256": "3f6abbd1ca76d3e78bc80c8227f6b9cffc8712bb13cf58f81f43116a54ddff30",
+        "bytes": 273654,
+        "status": "ok"
+      },
+      "data/pdfs/ESVS_2024_AAA_Guidelines.pdf": {
+        "sha256": "ce2e0ad3ba0d8c6dd17ab9fd56b616ed813e1d6a3031c2eef5bb5099230dfd5b",
+        "bytes": 6772769,
+        "status": "ok"
+      },
+      "data/pdfs/SVS_Guideline_AAA_Slides_0.pdf": {
+        "sha256": "d26d9de82f12541e7ca65a0e557d529a8cf69b43a7eb510f1b544c0cdfa3e212",
+        "bytes": 227791,
+        "status": "ok"
+      }
+    },
+    "documentation": {
+      "README.md": {
+        "sha256": "127fa235e260b7500eabd4190a02f26484d16309f11328c1fe090ac79be0b225",
+        "bytes": 9798,
+        "status": "ok"
+      },
+      "docs/experiment_history.md": {
+        "sha256": "be34cdfb63c4cfe857696a1f95830e9a2795eed86e89857a086d98a56d9ea116",
+        "bytes": 39309,
+        "status": "ok"
+      },
+      "docs/presentation_story.md": {
+        "sha256": "8046bb1ec0e1eac1fb6da1873c71c1723021f70d46d29a21c1f3718d50e478ed",
+        "bytes": 13878,
+        "status": "ok"
+      },
+      "docs/limitations.md": {
+        "sha256": "133831955a3ee680fb8fb5ab60976aee953b9f091edab562cda7188cf378d2a7",
+        "bytes": 9027,
+        "status": "ok"
+      },
+      "docs/deployment_readiness.md": {
+        "sha256": "e52e557a15eeca2614662b22e52612a960441832c5c6f84c880aa12be2fb1b46",
+        "bytes": 6723,
+        "status": "ok"
+      },
+      "docs/PROJECT_B_LESSONS.md": {
+        "sha256": "460d9abfc439c54da6520b1238663d21759a2a4a41ca533a191a4cfaf3129bcc",
+        "bytes": 15237,
+        "status": "ok"
+      }
+    }
+  },
+  "historical_runs": {
+    "eval/runs/archived_final_evaluation_summary_phase7.json": {
+      "sha256": "17c8fad489c1240674ccfbc07881ce65c713d091a3fff7319e7ccd217621b110",
+      "bytes": 7375,
+      "status": "ok"
+    },
+    "eval/runs/archived_final_evidence_phase7.json": {
+      "sha256": "60e72ee75cdaca6741168de7a334f52a7efebc351cac0050925fca8569768e02",
+      "bytes": 331809,
+      "status": "ok"
+    },
+    "eval/runs/control_verify.json": {
+      "sha256": "cc6485e72508086be0651e2ffe2cee6976da9b451f369320a3dd3cd77a90a062",
+      "bytes": 122455,
+      "status": "ok"
+    },
+    "eval/runs/control_verify_exp6.json": {
+      "sha256": "2aadbb28c949f50aac0dc0da1a65b4859f470293d97b7f9db70ae0ec0196bd64",
+      "bytes": 122460,
+      "status": "ok"
+    },
+    "eval/runs/control_verify_post_exp7.json": {
+      "sha256": "8f2e54f9d02998faabce0c11e46d8bd75643376c6368e28e7dd58aaa91787d8a",
+      "bytes": 122465,
+      "status": "ok"
+    },
+    "eval/runs/exp10_medembed_medcpt_rerank.json": {
+      "sha256": "92a965f50ddf9871f8df7b46f8f1c928faa1a18014d49761d57e37a659bbe36b",
+      "bytes": 170981,
+      "status": "ok"
+    },
+    "eval/runs/exp11_selective_rerank_policy_A.json": {
+      "sha256": "57374455fc3cd9424552cbad36a3e6d1143648eaba4d29924473bbd8fb41f3f6",
+      "bytes": 134124,
+      "status": "ok"
+    },
+    "eval/runs/exp11_selective_rerank_policy_B.json": {
+      "sha256": "fcd962bbb51c1704501ebea0ae026e6f4c9ffcdc95c0a1040010d0c366791758",
+      "bytes": 134107,
+      "status": "ok"
+    },
+    "eval/runs/exp11_selective_rerank_policy_C.json": {
+      "sha256": "07e05ede885f848a3c73d3db0780fb4f60a2689f7146816657267b8f39a82131",
+      "bytes": 133929,
+      "status": "ok"
+    },
+    "eval/runs/exp12_atomic_chunking.json": {
+      "sha256": "761cf3eadf0b0a121c9070992d28a03b688cc980d89a2de0abc04485414fbbd9",
+      "bytes": 119138,
+      "status": "ok"
+    },
+    "eval/runs/exp1_pagespan.json": {
+      "sha256": "d9252f6c767505547afad565531484dd8eb86a7344c2a1be83ad7e151ee83cd2",
+      "bytes": 123588,
+      "status": "ok"
+    },
+    "eval/runs/exp2_furniture.json": {
+      "sha256": "fe70d02fc38b02f7abd3a2f939da10ba95a3574e021fe2c030e274dcf766ce37",
+      "bytes": 122937,
+      "status": "ok"
+    },
+    "eval/runs/exp3_sections.json": {
+      "sha256": "31dc882004a97d599d452f820d19a97f48c737565727888fe72d3db8a2bd2575",
+      "bytes": 121987,
+      "status": "ok"
+    },
+    "eval/runs/exp4_rerank_c20.json": {
+      "sha256": "8f596bcc748fcdf33710b8b313c966f182ed5363b841337561154cdda1b7705b",
+      "bytes": 123506,
+      "status": "ok"
+    },
+    "eval/runs/exp4_rerank_c30.json": {
+      "sha256": "0d0eb01d76894001200c08e695bda92114a16eddf92982f9473917649774e509",
+      "bytes": 126618,
+      "status": "ok"
+    },
+    "eval/runs/exp5_bge_base_en_v15.json": {
+      "sha256": "d003815d727c8641689a1baca38440407e94dbe2db60f93b183c787ab4b02e44",
+      "bytes": 125851,
+      "status": "ok"
+    },
+    "eval/runs/exp6_bge_plus_crossencoder.json": {
+      "sha256": "fa91775c2417fa1995a03d1a108cc8c6c0810ad16e9df35d5f84a5fbdf48b2b3",
+      "bytes": 171883,
+      "status": "ok"
+    },
+    "eval/runs/exp7_medembed_base_v01.json": {
+      "sha256": "351b1e98971bb22f73bb39ea11d890d7c6cd467e61c96915e53d1e864333f5cd",
+      "bytes": 127222,
+      "status": "ok"
+    },
+    "eval/runs/exp8_bm25_keyword.json": {
+      "sha256": "23f0b447ee6e75394356b82368c6a8bffa56cf2f0e12e557842b24bddfd78128",
+      "bytes": 129719,
+      "status": "ok"
+    },
+    "eval/runs/exp9_hybrid_a_75_25.json": {
+      "sha256": "0521fbcfe8280f875d946c30db0df9372e4f3e9b4d486747298e437ec6cd49ce",
+      "bytes": 142213,
+      "status": "ok"
+    },
+    "eval/runs/exp9_hybrid_b_50_50.json": {
+      "sha256": "f400a8fda112a772600a904f7651502eb93190b498ac9d48c6860ea77c046b43",
+      "bytes": 142676,
+      "status": "ok"
+    },
+    "eval/runs/exp9_hybrid_c_25_75.json": {
+      "sha256": "b4a62ea9b67ff352188716a4c7f715bb8903c53b4f621dba5ec6ca9c4e0cf784",
+      "bytes": 143877,
+      "status": "ok"
+    },
+    "eval/runs/final_corrected_v1_final20.json": {
+      "sha256": "407c4330def4176c70ab8d198f8f29a9da2c65d983506bf9f137c64cd069d58e",
+      "bytes": 326676,
+      "status": "ok"
+    },
+    "eval/runs/final_state_dense.json": {
+      "sha256": "cf28f9303382162adf21a18c211b963a43f65c3a58e4e23089acbbf3e5e6dd58",
+      "bytes": 122458,
+      "status": "ok"
+    },
+    "eval/runs/fresh_baseline_dense.json": {
+      "sha256": "90a7588977743afe4a55c9fcf4e6839277dce86fbae693f73023c039f965b2a3",
+      "bytes": 122461,
+      "status": "ok"
+    },
+    "eval/runs/phase1_production_medembed.json": {
+      "sha256": "19aad73d83fb957fd2d5f4c9d3d53bf412a0a9be435517fa3cd770f71a376701",
+      "bytes": 127131,
+      "status": "ok"
+    },
+    "eval/runs/phase7_heldout.json": {
+      "sha256": "724bfdf408156bc1cef1a4ebd132633db90bf7ea72a1a926c6ab450e8b0dc1cd",
+      "bytes": 39713,
+      "status": "ok"
+    }
+  },
+  "missing_artifacts": [],
+  "all_present": true
+}

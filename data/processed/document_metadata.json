@@ -1,0 +1,74 @@
+[
+  {
+    "document_id": "USPSTF_2019",
+    "document_name": "Screening for Abdominal Aortic Aneurysm: US Preventive Services Task Force Recommendation Statement",
+    "document_type": "government/public health recommendation",
+    "source_file": "abdom-aortic-aneurysm-screening-final-rs.pdf",
+    "source_path": "data/pdfs/abdom-aortic-aneurysm-screening-final-rs.pdf",
+    "source_organization": "US Preventive Services Task Force",
+    "authors": [
+      "U.S. Preventive Services Task Force"
+    ],
+    "publication_year": 2019,
+    "source_type": "government/public health recommendation",
+    "credibility_note": "Organization stated in page text: US Preventive Services Task Force. Publication year from JAMA citation year in text: 2019. Source locator printed in the document: doi:10.1001/jama.2019.18928. Bibliographic citation present in the PDF: JAMA. 2019;322(22):2211-2218.",
+    "public_access": null,
+    "source_url": "doi:10.1001/jama.2019.18928",
+    "page_count": 8,
+    "extraction_status": "ok",
+    "extraction_library": "pymupdf"
+  },
+  {
+    "document_id": "NICE_NG156",
+    "document_name": "Abdominal aortic aneurysm: diagnosis and management",
+    "document_type": "official guideline",
+    "source_file": "abdominal-aortic-aneurysm-diagnosis-and-management-pdf-66141843642565.pdf",
+    "source_path": "data/pdfs/abdominal-aortic-aneurysm-diagnosis-and-management-pdf-66141843642565.pdf",
+    "source_organization": "National Institute for Health and Care Excellence (NICE)",
+    "authors": null,
+    "publication_year": 2020,
+    "source_type": "official guideline",
+    "credibility_note": "Organization stated in PDF Author metadata: National Institute for Health and Care Excellence (NICE). Publication year from Published date in text: 2020. Source locator printed in the document: www.nice.org.uk/guidance/ng156.",
+    "public_access": true,
+    "source_url": "www.nice.org.uk/guidance/ng156",
+    "page_count": 53,
+    "extraction_status": "ok",
+    "extraction_library": "pymupdf"
+  },
+  {
+    "document_id": "ESVS_2024",
+    "document_name": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+    "document_type": "official guideline",
+    "source_file": "ESVS_2024_AAA_Guidelines.pdf",
+    "source_path": "data/pdfs/ESVS_2024_AAA_Guidelines.pdf",
+    "source_organization": "European Society for Vascular Surgery (ESVS)",
+    "authors": [
+      "Anders Wanhainen"
+    ],
+    "publication_year": 2024,
+    "source_type": "official guideline",
+    "credibility_note": "Organization stated in page text: European Society for Vascular Surgery (ESVS). Publication year from ESVS guideline year in title: 2024. Source locator printed in the document: https://doi.org/10.1016/j.ejvs.2023.11.002. Open-access licence printed in the document: creativecommons.org/licenses/by/4.0 (CC BY 4.0).",
+    "public_access": true,
+    "source_url": "https://doi.org/10.1016/j.ejvs.2023.11.002",
+    "page_count": 140,
+    "extraction_status": "corrupted",
+    "extraction_library": "pymupdf"
+  },
+  {
+    "document_id": "SVS_2018",
+    "document_name": "Care of Patients with an Abdominal Aortic Aneurysm",
+    "document_type": "official guideline",
+    "source_file": "SVS_Guideline_AAA_Slides_0.pdf",
+    "source_path": "data/pdfs/SVS_Guideline_AAA_Slides_0.pdf",
+    "source_organization": "Society for Vascular Surgery",
+    "authors": null,
+    "publication_year": 2018,
+    "source_type": "official guideline",
+    "credibility_note": "Organization stated in page text: Society for Vascular Surgery. Publication year from Practice Guidelines year in text: 2018. Source locator printed in the document: vsweb.org/Guidelines. Title page identifies 2018 Practice Guidelines from the Society for Vascular Surgery. PDF Author metadata (Nathan Haas) was not used as guideline authorship.",
+    "public_access": true,
+    "source_url": "vsweb.org/Guidelines",
+    "page_count": 48,
+    "extraction_status": "partial",
+    "extraction_library": "pymupdf"
+  }
+]

@@ -1,0 +1,186 @@
+{
+  "generated_by": "eval/verify_integrity.py",
+  "all_checks_passed": true,
+  "summary": {
+    "pass": 19,
+    "fail": 0
+  },
+  "checks": [
+    {
+      "check": "original10 gold standard unchanged (matches the SHA quoted in every historical run)",
+      "status": "pass",
+      "detail": {
+        "sha256": "0b8a443b69960bc5ac20311f0010926a2f131bbb5531ccf369f321f59ed2e5c1",
+        "on_record": "0b8a443b69960bc5ac20311f0010926a2f131bbb5531ccf369f321f59ed2e5c1"
+      }
+    },
+    {
+      "check": "heldout18 gold standard unchanged (matches the SHA recorded by Phase 7)",
+      "status": "pass",
+      "detail": {
+        "sha256": "67112d0901337591c3e2d1c7f49bc532f800e5835084f6afeb9fa8b5ea8f1c82",
+        "recorded_by_phase7": "67112d0901337591c3e2d1c7f49bc532f800e5835084f6afeb9fa8b5ea8f1c82"
+      }
+    },
+    {
+      "check": "final20 frozen: file hash == hash stamped at freeze time == hash used by the evaluation",
+      "status": "pass",
+      "detail": {
+        "file": "36af11b88f7fd908fd474e904c41b567ef798b6608575f5302f3dee80f2e2579",
+        "stamped_at_freeze": "36af11b88f7fd908fd474e904c41b567ef798b6608575f5302f3dee80f2e2579",
+        "used_by_evaluation": "36af11b88f7fd908fd474e904c41b567ef798b6608575f5302f3dee80f2e2579"
+      }
+    },
+    {
+      "check": "final20 passages were validated against SOURCE page text, not retrieval output",
+      "status": "pass",
+      "detail": {
+        "passages_validated": 29,
+        "all_supported": true
+      }
+    },
+    {
+      "check": "Selective Policy A threshold still frozen at its Phase 6 value (never retuned)",
+      "status": "pass",
+      "detail": {
+        "threshold_in_code": "0.035120"
+      }
+    },
+    {
+      "check": "Policy A was NOT evaluated against final20 (so final20 measures chunking alone)",
+      "status": "pass",
+      "detail": {
+        "configs_scored_on_final20": [
+          "V1_atomic_pagesafe",
+          "V2_atomic_pure",
+          "baseline_production"
+        ]
+      }
+    },
+    {
+      "check": "No query-specific / intent / recommendation-ID logic in the pipeline or evaluator",
+      "status": "pass",
+      "detail": {
+        "files_scanned": [
+          "notebooks/clinical_rag.py",
+          "notebooks/clinical_chunking.py",
+          "notebooks/clinical_preprocess.py",
+          "notebooks/clinical_rerank.py",
+          "eval/evaluate.py",
+          "eval/experimental_atomic_chunking.py"
+        ],
+        "violations": {}
+      }
+    },
+    {
+      "check": "Project B is NOT imported or required by any file in the final project",
+      "status": "pass",
+      "detail": {
+        "files_importing_project_b": []
+      }
+    },
+    {
+      "check": "Every historical run preserved (including archives of files this session replaced)",
+      "status": "pass",
+      "detail": {
+        "expected": 22,
+        "missing": []
+      }
+    },
+    {
+      "check": "Published metrics are exactly reconstructible from eval/final_evidence.json",
+      "status": "pass",
+      "detail": {
+        "pairs_checked": 9,
+        "mismatches": []
+      }
+    },
+    {
+      "check": "No token overflow in the shipped index",
+      "status": "pass",
+      "detail": {
+        "token_limit": 512,
+        "max_token_count": 512,
+        "chunks_over_limit": 0,
+        "stored_vs_recomputed_mismatches": 0
+      }
+    },
+    {
+      "check": "Test suite passes",
+      "status": "pass",
+      "detail": {
+        "returncode": 0,
+        "summary": "29 passed in 95.35s (0:01:35)"
+      }
+    },
+    {
+      "check": "Final notebook is valid nbformat and every artifact it loads exists",
+      "status": "pass",
+      "detail": {
+        "cells": 47,
+        "missing_inputs": []
+      }
+    },
+    {
+      "check": "Shipped chunker is the atomic (V1) chunker",
+      "status": "pass",
+      "detail": {
+        "DEFAULT_CHUNKER": "atomic"
+      }
+    },
+    {
+      "check": "Citation-heading fix is ON in both the shipped and the validation chunker",
+      "status": "pass",
+      "detail": {
+        "experimental_module": true,
+        "production_module": "clinical_atomic_chunking always rejects citation headings"
+      }
+    },
+    {
+      "check": "Shipped index matches the corrected-V1 profile that passed the gate",
+      "status": "pass",
+      "detail": {
+        "shipped_total_chunks": 1760,
+        "validated_total_chunks": 1760,
+        "shipped_vectors": 991,
+        "validated_indexed": 991
+      }
+    },
+    {
+      "check": "Corrected validation shows no regression on final20",
+      "status": "pass",
+      "detail": {
+        "delta": {
+          "P@1": 0.0,
+          "P@3": 0.0,
+          "P@5": 0.0,
+          "MRR": 0.0,
+          "Recall@5": 0.0,
+          "Recall@10": 0.0,
+          "Relevant_Top1": 0,
+          "Answering@5": 0
+        },
+        "decision": "ADOPT WITH CAVEATS"
+      }
+    },
+    {
+      "check": "Baseline (page-buffer) index preserved, not deleted",
+      "status": "pass",
+      "detail": {
+        "archive": [
+          "chunks_baseline_pagebuffer.json",
+          "embedded_chunks_baseline_pagebuffer.json",
+          "embeddings_baseline_pagebuffer.npy",
+          "index_meta_baseline_pagebuffer.json"
+        ]
+      }
+    },
+    {
+      "check": "Historical artifacts untouched by the promotion",
+      "status": "pass",
+      "detail": {
+        "note": "exp12 and final_evaluation_results describe the pre-promotion index and were not recomputed; the corrected run is a separate new artifact."
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Environments and secrets — never commit
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+secrets.*
+.venv/
+venv/
+
+# OS noise
+Thumbs.db
+.DS_Store
+
+# ---------------------------------------------------------------------------
+# Other people's projects that happen to live inside this directory.
+#
+# These are NOT part of this project and are NOT required to run or reproduce
+# anything in it. They are excluded from version control so that this
+# repository publishes only its own work.
+#
+#   aaa-clinical-ragnour/   - the separate reference implementation audited in
+#                             eval/project_b_comparison.json and
+#                             docs/PROJECT_B_LESSONS.md ("Project B"). Read-only
+#                             evidence; never modified, never imported.
+#   aaa-clinical-raggehad/  - a separate person's variant of the project. Its
+#                             pipeline files differ from this one's; it is not a
+#                             duplicate and was deliberately left untouched.
+#
+# Both remain on disk. The audit conclusions about Project B stand on their own:
+# every figure quoted is recorded in eval/project_b_comparison.json.
+# ---------------------------------------------------------------------------
+aaa-clinical-ragnour/
+aaa-clinical-raggehad/

@@ -1,0 +1,256 @@
+{
+  "schema_version": "1.0",
+  "gold_standard_id": "aaa-heldout-generalization-2026-08-17",
+  "frozen": true,
+  "status": "FROZEN held-out set. Separate from eval/gold_standard.json, which is unchanged.",
+  "purpose": "Generalization test for Phase 6 selective reranking Policy A. These 18 questions were written and labelled BEFORE any retrieval was run against them.",
+  "provenance": {
+    "built_from": "data/processed/pages.json and data/processed/recommendations.json (guideline text only)",
+    "method": "Topics were chosen to be clinically meaningful and genuinely distinct from the original 10 frozen questions. For each, the answering passages were located by reading the guideline text and pre-registered by document + page range + section.",
+    "independence": "No retrieval ranking, similarity score, BM25 score, reranker score or confidence value was consulted when choosing topics, writing questions, or assigning relevance. The labels cannot have been fitted to any retriever's output.",
+    "relation_to_original": "The original eval/gold_standard.json (SHA-256 0b8a443b69960bc5ac20311f0010926a2f131bbb5531ccf369f321f59ed2e5c1) is untouched. The original 10 questions are historical validation; these 18 are the generalization test and are never merged with them.",
+    "convention": "Identical relevance rule, normalisation and metric definitions as the original gold standard, so the two sets are methodologically comparable even though they are scored separately."
+  },
+  "relevance_rule": {
+    "description": "Identical to eval/gold_standard.json.",
+    "condition_1_provenance": "chunk.document_id equals answer_passage.document_id AND the chunk page span overlaps the passage page span.",
+    "condition_2_facts": "The normalised chunk text satisfies at least `min_groups` of the query's required_facts groups.",
+    "multiple_passages": "Matching any one pre-registered passage satisfies condition 1. No specific chunk_id is ever required.",
+    "regex_flags": "re.IGNORECASE over the frozen normalisation"
+  },
+  "queries": [
+    {
+      "query_id": 1,
+      "topic": "Endoleak management",
+      "query": "How should type 1 and type 3 endoleaks be managed after EVAR?",
+      "answer_passages": [
+        {"document_id": "NICE_NG156", "page_start": 22, "page_end": 22, "section_ref": "1.8.1 - 1.8.3 Managing endoleaks", "why": "Consider open, endovascular or percutaneous intervention for type 1 and type 3 endoleaks; intervene for type 2 with sac expansion."},
+        {"document_id": "ESVS_2024", "page_start": 65, "page_end": 66, "section_ref": "5.3 Type 1 and Type 3 endoleak management", "why": "Type 3 endoleaks expose the sac to aortic pressure so prompt intervention is warranted; proximal extension with fenestrated/branched devices for compromised proximal seal."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "endoleak_named", "any_of": ["endoleak"]},
+        {"name": "management_action", "any_of": ["intervention", "intervene", "embolis", "percutaneous", "open", "endovascular", "treatment", "extension", "repair"]}
+      ]}
+    },
+    {
+      "query_id": 2,
+      "topic": "Post-EVAR imaging follow-up",
+      "query": "What imaging follow-up is recommended after endovascular aneurysm repair?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 71, "page_end": 71, "section_ref": "Recommendations 113, 115 - post-EVAR imaging", "why": "Early post-operative CTA within 30 days; long term imaging follow up regardless of initial risk stratification."},
+        {"document_id": "SVS_2018", "page_start": 47, "page_end": 47, "section_ref": "Postoperative surveillance", "why": "Baseline imaging in the first month after EVAR with contrast-enhanced CT and duplex; repeat at 12 months."},
+        {"document_id": "NICE_NG156", "page_start": 21, "page_end": 21, "section_ref": "1.7.1 - 1.7.3 Surveillance after EVAR", "why": "Enrol people who have had EVAR into a surveillance imaging programme; base frequency on risk of complications."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "evar_named", "any_of": ["evar", "endovascular"]},
+        {"name": "imaging_followup", "any_of": ["imaging", "surveillance", "computed tomography", "\\bcta\\b", "\\bct\\b", "duplex", "follow up", "follow-up"]}
+      ]}
+    },
+    {
+      "query_id": 3,
+      "topic": "Antibiotic prophylaxis for repair",
+      "query": "Is antibiotic prophylaxis recommended before abdominal aortic aneurysm repair?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 33, "page_end": 33, "section_ref": "Recommendation 42", "why": "All patients undergoing open or endovascular AAA repair should receive peri-operative systemic antibiotic prophylaxis."},
+        {"document_id": "SVS_2018", "page_start": 33, "page_end": 33, "section_ref": "Perioperative antibiotic prophylaxis", "why": "IV first-generation cephalosporin, or vancomycin if penicillin allergic, within 30 minutes before OSR or EVAR; continue no more than 24 hours."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "antibiotic_named", "any_of": ["antibiotic", "cephalosporin", "vancomycin"]},
+        {"name": "prophylaxis_context", "any_of": ["prophyla", "before", "peri-operative", "perioperative", "repair"]}
+      ]}
+    },
+    {
+      "query_id": 4,
+      "topic": "Statin and antiplatelet therapy",
+      "query": "Should patients with an abdominal aortic aneurysm receive statin and antiplatelet therapy?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 23, "page_end": 23, "section_ref": "Recommendation 16 - cardiovascular risk factor management", "why": "All patients with an AAA should receive cardiovascular risk factor management with statin and antiplatelet therapy and blood pressure control."},
+        {"document_id": "ESVS_2024", "page_start": 58, "page_end": 58, "section_ref": "Recommendation 86 - post-operative risk management", "why": "Patients operated on for AAA should receive post-operative cardiovascular risk management including statin therapy and antiplatelet medication."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "statin_named", "any_of": ["statin"]},
+        {"name": "antiplatelet_named", "any_of": ["antiplatelet", "aspirin", "anti-platelet"]}
+      ]}
+    },
+    {
+      "query_id": 5,
+      "topic": "Permissive hypotension in rupture",
+      "query": "What blood pressure strategy is recommended during transfer of a suspected ruptured aneurysm?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 49, "page_end": 49, "section_ref": "Recommendation 72", "why": "For patients with a ruptured AAA, a policy of permissive hypotension is recommended (Class I)."},
+        {"document_id": "NICE_NG156", "page_start": 13, "page_end": 13, "section_ref": "1.3.6 Emergency transfer", "why": "Consider a restrictive approach to volume resuscitation (permissive hypotension) during emergency transfer."},
+        {"document_id": "SVS_2018", "page_start": 29, "page_end": 29, "section_ref": "The patient with a ruptured aneurysm", "why": "Implement hypotensive hemostasis with restriction of fluid resuscitation in the conscious patient."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "hypotension_strategy", "any_of": ["permissive hypotension", "hypotensive", "restrictive approach to volume", "restriction of fluid", "fluid resuscitation"]},
+        {"name": "rupture_context", "any_of": ["ruptur"]}
+      ]}
+    },
+    {
+      "query_id": 6,
+      "topic": "Abdominal compartment syndrome",
+      "query": "How should abdominal compartment syndrome be detected after repair of a ruptured aneurysm?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 56, "page_end": 56, "section_ref": "Recommendation 81", "why": "After open or endovascular treatment for ruptured AAA, post-operative monitoring of intra-abdominal pressure is recommended for early diagnosis of intra-abdominal hypertension or abdominal compartment syndrome."},
+        {"document_id": "NICE_NG156", "page_start": 21, "page_end": 21, "section_ref": "1.6.5 - 1.6.6 Abdominal compartment syndrome", "why": "Be aware people can develop abdominal compartment syndrome after EVAR or open repair of a ruptured AAA; assess if condition does not improve."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "acs_named", "any_of": ["compartment syndrome", "intra-abdominal pressure", "intra-abdominal hypertension"]},
+        {"name": "rupture_repair_context", "any_of": ["ruptur", "after evar", "open surgical repair", "post-operative", "postoperative"]}
+      ]}
+    },
+    {
+      "query_id": 7,
+      "topic": "Preoperative cardiac assessment",
+      "query": "What cardiac assessment is needed before aneurysm repair?",
+      "answer_passages": [
+        {"document_id": "SVS_2018", "page_start": 11, "page_end": 12, "section_ref": "Assessment of medical comorbidities - cardiac", "why": "Preoperative resting 12-lead ECG within 30 days; echocardiography for dyspnea of unknown origin; cardiology consultation for significant risk factors; coronary revascularization indications."},
+        {"document_id": "ESVS_2024", "page_start": 30, "page_end": 30, "section_ref": "Recommendations 28, 29 - cardiac work up", "why": "Routine referral for pre-operative cardiac work up is not indicated; patients with poor functional capacity or significant clinical risk factors are recommended for cardiac work up."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "cardiac_assessment", "any_of": ["electrocardiogram", "\\becg\\b", "echocardiograph", "cardiac", "coronary", "cardiology"]},
+        {"name": "preoperative_context", "any_of": ["preoperative", "pre-operative", "before", "prior to", "work up", "planned"]}
+      ]}
+    },
+    {
+      "query_id": 8,
+      "topic": "Contrast nephropathy and renal protection",
+      "query": "How should renal function be protected in patients receiving contrast for endovascular repair?",
+      "answer_passages": [
+        {"document_id": "SVS_2018", "page_start": 14, "page_end": 14, "section_ref": "Renal considerations", "why": "Preoperative hydration in renal insufficiency; pre/post hydration with saline or dextrose-bicarbonate for contrast-induced nephropathy risk; hold metformin by eGFR threshold."},
+        {"document_id": "ESVS_2024", "page_start": 80, "page_end": 80, "section_ref": "Recommendation 126", "why": "Strategy to preserve renal function by dose reduction of iodine contrast media, withdrawal of nephrotoxic drugs and adequate hydration."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "renal_named", "any_of": ["renal", "nephropathy", "metformin", "creatinine", "\\begfr\\b"]},
+        {"name": "contrast_or_protection", "any_of": ["contrast", "hydration", "preserve renal function", "nephrotoxic"]}
+      ]}
+    },
+    {
+      "query_id": 9,
+      "topic": "Mycotic aneurysm",
+      "query": "How is a mycotic abdominal aortic aneurysm treated?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 85, "page_end": 86, "section_ref": "Recommendations 140, 141 - mycotic AAA", "why": "Intravenous antibiotics with empirical cover; prompt surgical treatment irrespective of aneurysm size due to high rupture risk."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "mycotic_named", "any_of": ["mycotic", "infected aneurysm", "infective"]},
+        {"name": "treatment_action", "any_of": ["antibiotic", "surgical treatment", "repair", "irrespective", "prompt"]}
+      ]}
+    },
+    {
+      "query_id": 10,
+      "topic": "Iliac artery aneurysm surveillance",
+      "query": "How often should iliac artery aneurysms be imaged during surveillance?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 83, "page_end": 84, "section_ref": "Recommendation 134 - iliac artery aneurysm surveillance", "why": "Imaging surveillance using ultrasound every three years for 20-24 mm, every two years for larger, with a 40 mm threshold for considering surgery."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "iliac_named", "any_of": ["iliac"]},
+        {"name": "surveillance_interval", "any_of": ["surveillance", "every three years", "every two years", "every year", "annually", "imaging", "\\bmm\\b"]}
+      ]}
+    },
+    {
+      "query_id": 11,
+      "topic": "Internal iliac artery preservation",
+      "query": "Should internal iliac artery flow be preserved during aneurysm repair?",
+      "answer_passages": [
+        {"document_id": "SVS_2018", "page_start": 23, "page_end": 23, "section_ref": "EVAR - iliac considerations", "why": "Preservation of flow to at least one internal iliac artery; branch endograft devices in suitable anatomy; stage bilateral internal iliac occlusion by 1-2 weeks."},
+        {"document_id": "ESVS_2024", "page_start": 85, "page_end": 85, "section_ref": "Recommendation 138", "why": "For common iliac artery aneurysm repair requiring internal iliac embolisation or ligation, occlusion of the proximal main stem is preferred."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "internal_iliac_named", "any_of": ["internal iliac", "hypogastric"]},
+        {"name": "flow_action", "any_of": ["preservation", "preserve", "perfusion", "embolis", "occlusion", "ligation", "staging", "stage"]}
+      ]}
+    },
+    {
+      "query_id": 12,
+      "topic": "Complex AAA repair choice",
+      "query": "How should repair be chosen for a complex abdominal aortic aneurysm?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 77, "page_end": 77, "section_ref": "Recommendation 120", "why": "For complex AAA and standard surgical risk, open or endovascular repair should be considered based on patient fitness, anatomy and preference."},
+        {"document_id": "ESVS_2024", "page_start": 78, "page_end": 79, "section_ref": "Recommendations 122, 124", "why": "Parallel graft techniques only in emergency or bailout; hybrid visceral re-routing not recommended as first line."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "complex_named", "any_of": ["complex abdominal aortic", "complex aaa", "juxtarenal", "pararenal", "thoraco"]},
+        {"name": "repair_choice", "any_of": ["open", "endovascular", "fenestrated", "branched", "parallel graft", "hybrid", "fitness", "anatomy"]}
+      ]}
+    },
+    {
+      "query_id": 13,
+      "topic": "Venous thromboembolism prophylaxis",
+      "query": "What thromboprophylaxis is recommended for patients undergoing aneurysm repair?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 36, "page_end": 36, "section_ref": "Recommendation 48", "why": "All patients undergoing elective AAA repair at risk of post-operative venous thromboembolism should be considered for thromboprophylaxis."},
+        {"document_id": "SVS_2018", "page_start": 39, "page_end": 39, "section_ref": "Thromboprophylaxis", "why": "Intermittent pneumatic compression and early ambulation for all patients undergoing OSR or EVAR; heparin for moderate-to-high VTE risk."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "vte_named", "any_of": ["thromboprophylaxis", "venous thromboembolism", "\\bvte\\b", "pneumatic compression", "deep vein"]},
+        {"name": "repair_context", "any_of": ["repair", "\\bosr\\b", "evar", "undergoing", "post-operative", "postoperative"]}
+      ]}
+    },
+    {
+      "query_id": 14,
+      "topic": "Anaesthesia and analgesia",
+      "query": "What analgesia is recommended for people having open surgical repair?",
+      "answer_passages": [
+        {"document_id": "NICE_NG156", "page_start": 19, "page_end": 19, "section_ref": "1.5.8 Anaesthesia and analgesia", "why": "Consider epidural analgesia in addition to general anaesthesia for people having open surgical repair of an unruptured AAA."},
+        {"document_id": "ESVS_2024", "page_start": 34, "page_end": 34, "section_ref": "Recommendation 43", "why": "Patients undergoing elective open AAA repair may be considered for peri-operative epidural analgesia or catheter based continuous wound analgesia."},
+        {"document_id": "SVS_2018", "page_start": 41, "page_end": 41, "section_ref": "Postoperative pain control", "why": "Multimodality treatment including epidural analgesia for postoperative pain control after OSR."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "analgesia_named", "any_of": ["epidural", "analgesia", "anaesthesia", "anesthesia", "pain control"]},
+        {"name": "open_repair_context", "any_of": ["open", "\\bosr\\b"]}
+      ]}
+    },
+    {
+      "query_id": 15,
+      "topic": "Aortic diameter measurement method",
+      "query": "How should the aortic diameter be measured and reported on ultrasound?",
+      "answer_passages": [
+        {"document_id": "NICE_NG156", "page_start": 9, "page_end": 9, "section_ref": "1.1.10 Imaging technique", "why": "Report the inner-to-inner maximum anterior-posterior aortic diameter in accordance with the NHS AAA screening programme."},
+        {"document_id": "ESVS_2024", "page_start": 18, "page_end": 18, "section_ref": "Recommendation 8 - calliper placement", "why": "The anteroposterior plane with consistent calliper placement should be considered the preferred method for ultrasound aortic diameter measurement."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "measurement_method", "any_of": ["inner-to-inner", "inner to inner", "anteroposterior", "anterior-posterior", "calliper", "caliper", "outer wall"]},
+        {"name": "measurement_context", "any_of": ["measur", "diameter", "ultraso", "report"]}
+      ]}
+    },
+    {
+      "query_id": 16,
+      "topic": "Fluoroquinolones",
+      "query": "Are fluoroquinolone antibiotics contraindicated in patients with a small aneurysm?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 24, "page_end": 25, "section_ref": "4.2.3 Fluoroquinolone antibiotics - Recommendation 18", "why": "Having a small AAA is not a contraindication to using fluoroquinolone antibiotics; studies controlling for confounders reported no increased risk."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "fluoroquinolone_named", "any_of": ["fluoroquinolone", "quinolone"]},
+        {"name": "risk_or_contraindication", "any_of": ["contraindication", "not a contraindication", "risk", "association", "exposure", "small abdominal aortic"]}
+      ]}
+    },
+    {
+      "query_id": 17,
+      "topic": "Centre caseload and volume",
+      "query": "What minimum annual caseload should a centre performing aneurysm repair have?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 15, "page_end": 15, "section_ref": "Recommendation 3 - caseload", "why": "Centres performing AAA repair should not have a yearly total caseload of < 30, and not less than 15 each by open and endovascular methods."},
+        {"document_id": "SVS_2018", "page_start": 24, "page_end": 24, "section_ref": "Perioperative outcomes of elective EVAR", "why": "Elective EVAR performed at centers with a volume of at least 10 EVAR cases each year and perioperative mortality/conversion rate of 2% or less."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "volume_named", "any_of": ["caseload", "volume of at least", "cases each year", "cases/year", "yearly total", "annual volume", "per year"]},
+        {"name": "centre_named", "any_of": ["centre", "center", "hospital", "institution", "performing", "performed"]}
+      ]}
+    },
+    {
+      "query_id": 18,
+      "topic": "Rapid aneurysm growth",
+      "query": "What should be done if a small aneurysm shows rapid growth?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 27, "page_end": 28, "section_ref": "Recommendation 24 - rapid growth", "why": "Patients with small AAA showing rapid growth (>= 10 mm/year) should be considered for remeasurement; rapid growth may reflect measurement error so the first action is to re-measure."}
+      ],
+      "required_facts": {"min_groups": 2, "groups": [
+        {"name": "growth_named", "any_of": ["rapid growth", "rapid aneurysm growth", "growth rate", "10 mm/year", "grown by"]},
+        {"name": "action_named", "any_of": ["remeasure", "re-measure", "remeasurement", "considered", "repair", "surveillance", "referral"]}
+      ]}
+    }
+  ]
+}

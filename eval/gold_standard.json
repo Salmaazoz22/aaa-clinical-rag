@@ -1,0 +1,211 @@
+{
+  "schema_version": "1.0",
+  "gold_standard_id": "aaa-projectA-fresh-2026-08-17",
+  "frozen": true,
+  "status": "FROZEN - do not edit. Record any disputed judgement as a separate sensitivity analysis file.",
+  "provenance": {
+    "built_from": "data/processed/pages.json (text extracted from the four source PDFs) and data/processed/recommendations.json",
+    "method": "Each query was answered by reading the guideline text page by page and pre-registering the passages that genuinely contain the answer. Passages were chosen BEFORE any retrieval run and WITHOUT looking at retriever output.",
+    "independence": "Relevance is anchored to document_id + page range + required clinical facts. It never references chunk_id, chunk ordering, similarity score, or retriever behaviour, so it stays valid across re-chunking.",
+    "note": "This is a FRESH evaluation baseline for the current repository. It is NOT a continuation of, and is NOT numerically comparable to, any previous audit."
+  },
+  "relevance_rule": {
+    "description": "A retrieved chunk counts as RELEVANT to a query if and only if BOTH conditions hold.",
+    "condition_1_provenance": "chunk.document_id equals answer_passage.document_id AND the chunk page span [page_start, page_end] overlaps the passage page span [page_start, page_end]. Overlap test: chunk.page_start <= passage.page_end AND chunk.page_end >= passage.page_start.",
+    "condition_2_facts": "The normalised chunk text satisfies at least `min_groups` of the query's required_facts groups. A group is satisfied if ANY of its regex alternatives matches.",
+    "multiple_passages": "A query may have several acceptable answer passages; matching any one of them satisfies condition 1. No specific chunk_id is ever required.",
+    "text_normalisation": [
+      "map PDF ligatures: fi-ligature -> 'fi', fl-ligature -> 'fl'",
+      "map curly quotes/apostrophes to ASCII",
+      "map the en-dash/minus/'>=' glyph variants used by ESVS to ASCII space",
+      "lowercase",
+      "collapse all runs of whitespace to a single space"
+    ],
+    "regex_flags": "re.IGNORECASE, applied to the normalised text"
+  },
+  "metrics": {
+    "P@k": "(number of relevant chunks in the top-k) / k",
+    "MRR": "1 / (rank of the first relevant chunk within the top-10); 0 if none in the top-10",
+    "Recall@k": "(number of distinct pre-registered answer passages covered by at least one relevant chunk in the top-k) / (total answer passages for that query). Passage-level, NOT chunk-level, so it is stable across re-chunking.",
+    "Relevant Top-1": "count of queries whose rank-1 chunk is relevant",
+    "Answering@5": "true if at least one relevant chunk appears in the top-5",
+    "aggregation": "unweighted mean over the 10 queries (counts for Relevant Top-1)",
+    "retrieval_depth": "top-10 retrieved for every query; deeper metrics are computed from the same single ranked list",
+    "tie_breaking": "the retriever's own deterministic ordering is used as-is; no re-sorting is applied by the evaluator"
+  },
+  "queries": [
+    {
+      "query_id": 1,
+      "query": "What are the recommendations for screening for abdominal aortic aneurysm?",
+      "answer_passages": [
+        {"document_id": "USPSTF_2019", "page_start": 1, "page_end": 1, "section_ref": "RECOMMENDATIONS box (B / C / I statements)", "why": "States the 1-time ultrasonography screening recommendation for men 65-75 who have ever smoked, plus the selective-offer and against-routine statements."},
+        {"document_id": "USPSTF_2019", "page_start": 2, "page_end": 2, "section_ref": "Summary of Recommendations", "why": "Repeats the graded screening recommendations with the population and net-benefit assessment."},
+        {"document_id": "ESVS_2024", "page_start": 20, "page_end": 21, "section_ref": "3.3 Screening for AAA - Recommendation 11", "why": "Recommendation 11: ultrasound screening for early detection of AAA in high risk populations to reduce death from rupture (Class I, Level A)."},
+        {"document_id": "NICE_NG156", "page_start": 6, "page_end": 7, "section_ref": "1.1.1 - 1.1.5 Identifying and diagnosing AAA", "why": "NHS AAA screening programme recommendations: inform men aged 66 or over, encourage self-referral with risk factors, consider ultrasound for women 70+."},
+        {"document_id": "SVS_2018", "page_start": 15, "page_end": 15, "section_ref": "Screening recommendations", "why": "One-time ultrasound screening in men or women 65 to 75 years of age with a history of tobacco use (1/A), plus first-degree relatives and >75 years."}
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {"name": "screening_concept", "any_of": ["screen"]},
+          {"name": "population_or_modality", "any_of": ["65 to 75", "65\\s*e\\s*75", "65-75", "aged 66 or over", "high risk population", "first degree relative", "first-degree relative", "ultrasound screening", "screening for aaa with ultrasonography", "screening programme", "ever smoked", "history of tobacco use"]}
+        ]
+      }
+    },
+    {
+      "query_id": 2,
+      "query": "What AAA diameter is generally associated with consideration of elective repair?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 26, "page_end": 28, "section_ref": "4.4 Diameter threshold for elective repair - Recommendations 20-23", "why": "Rec 20: men <55 mm not recommended for elective repair. Rec 22: men >=55 mm should be considered. Rec 21/23: women <50 mm not recommended, >=50 mm may be considered."},
+        {"document_id": "SVS_2018", "page_start": 19, "page_end": 19, "section_ref": "Timing for intervention", "why": "Elective repair for a fusiform AAA >= 5.5 cm (1/A); repair in women with AAA 5.0-5.4 cm (2/B)."},
+        {"document_id": "NICE_NG156", "page_start": 16, "page_end": 16, "section_ref": "1.5.1 When to consider repair", "why": "Consider repair if asymptomatic and 5.5 cm or larger, or >4.0 cm with growth >1 cm in 1 year, or symptomatic."}
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {"name": "diameter_threshold", "any_of": ["5\\.5\\s*cm", "55\\s*mm", "5\\.0\\s*cm", "50\\s*mm", "5\\.4\\s*cm", "54\\s*mm"]},
+          {"name": "elective_repair_concept", "any_of": ["repair"]}
+        ]
+      }
+    },
+    {
+      "query_id": 3,
+      "query": "What surveillance strategy is recommended for small abdominal aortic aneurysms?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 21, "page_end": 22, "section_ref": "4.1 Surveillance of small AAA - Recommendations 13, 14, 15", "why": "RESCAN-based intervals: every 5 years for 25-29 mm, 3 years for 30-39 mm, annually for 40-49 mm, every 6 months for 50-54 mm; separate sex-specific recommendation for women."},
+        {"document_id": "SVS_2018", "page_start": 16, "page_end": 16, "section_ref": "Surveillance intervals", "why": "Surveillance imaging at 3-year intervals for 3.0-3.9 cm, 12-month for 4.0-4.9 cm, 6-month for 5.0-5.4 cm; rescreen after 10 years if <3 cm."},
+        {"document_id": "NICE_NG156", "page_start": 11, "page_end": 12, "section_ref": "1.2.3 - 1.2.4 Monitoring the risk of rupture", "why": "Offer surveillance with aortic ultrasound to people with an asymptomatic AAA, using the NHS AAA screening programme frequency."}
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {"name": "surveillance_concept", "any_of": ["surveillance", "rescreen", "monitoring", "follow up interval"]},
+          {"name": "interval_or_frequency", "any_of": ["every five years", "every three years", "every two years", "every six months", "every 12 months", "3-year interval", "12-month interval", "6-month interval", "annually", "yearly", "frequency", "interval"]}
+        ]
+      }
+    },
+    {
+      "query_id": 4,
+      "query": "What are the indications for endovascular aneurysm repair?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 46, "page_end": 46, "section_ref": "5.2 Choice of repair modality - Recommendations 65, 66", "why": "Rec 65: for most patients with suitable anatomy and reasonable life expectancy, endovascular repair should be considered the preferred elective modality."},
+        {"document_id": "ESVS_2024", "page_start": 54, "page_end": 54, "section_ref": "Recommendation 80 - ruptured AAA", "why": "For patients with a ruptured AAA and suitable anatomy, endovascular repair is recommended as the first line treatment option."},
+        {"document_id": "NICE_NG156", "page_start": 17, "page_end": 17, "section_ref": "1.5.4 - 1.5.5 Standard EVAR", "why": "Consider EVAR for unruptured AAA with abdominal copathology (hostile abdomen, horseshoe kidney, stoma), or where anaesthetic risk/comorbidity contraindicates open surgical repair."},
+        {"document_id": "NICE_NG156", "page_start": 19, "page_end": 20, "section_ref": "1.6.1 - 1.6.3 Ruptured aneurysms", "why": "Consider EVAR or open surgical repair for ruptured AAA; open repair if standard EVAR unsuitable."},
+        {"document_id": "SVS_2018", "page_start": 29, "page_end": 29, "section_ref": "Patient with a ruptured AAA", "why": "If anatomically feasible, EVAR is recommended over open repair for a ruptured AAA (1/C)."}
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {"name": "evar_named", "any_of": ["evar", "endovascular"]},
+          {"name": "indication_criterion", "any_of": ["suitable anatomy", "anatomically feasible", "anatomical suitability", "preferred treatment", "first line", "contraindicat", "hostile abdomen", "horseshoe kidney", "anaesthetic risk", "life expectancy", "unsuitable"]}
+        ]
+      }
+    },
+    {
+      "query_id": 5,
+      "query": "What are the risk factors associated with abdominal aortic aneurysm?",
+      "answer_passages": [
+        {"document_id": "USPSTF_2019", "page_start": 2, "page_end": 2, "section_ref": "Practice Considerations - Assessment of Risk", "why": "Important risk factors for AAA include older age, male sex, smoking, first-degree relative with AAA; other factors include CAD, cerebrovascular disease, atherosclerosis, hypercholesterolaemia, hypertension."},
+        {"document_id": "ESVS_2024", "page_start": 16, "page_end": 17, "section_ref": "2.x Epidemiology and risk factors", "why": "Smoking is the strongest risk factor (OR >3); other risk factors include atherosclerosis, hypertension, ethnicity, and family history."},
+        {"document_id": "ESVS_2024", "page_start": 20, "page_end": 20, "section_ref": "3.3 Screening - high risk groups", "why": "The dominant risk factor for AAA, apart from male sex and age, is smoking; ~75% of AAA cases attributable to smoking."},
+        {"document_id": "NICE_NG156", "page_start": 6, "page_end": 7, "section_ref": "1.1.2 - 1.1.3 risk factor lists", "why": "Enumerated risk factors: COPD, coronary/cerebrovascular/peripheral arterial disease, family history of AAA, hyperlipidaemia, hypertension, smoking."}
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {"name": "risk_factor_concept", "any_of": ["risk factor", "risk factors", "predictor", "associated with an increased risk"]},
+          {"name": "named_factor", "any_of": ["smok", "tobacco", "family history", "first-degree relative", "first degree relative", "male sex", "older age", "hypertension", "copd", "atherosclerosis", "hyperlipidaemia", "hypercholesterolemia"]}
+        ]
+      }
+    },
+    {
+      "query_id": 6,
+      "query": "What imaging modality is recommended for diagnosis or surveillance of AAA?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 18, "page_end": 19, "section_ref": "3.2 Imaging - Recommendations 7, 8, 9, 10", "why": "Rec 7: ultrasonography recommended for first line diagnosis and surveillance of small AAA. Rec 9: CTA for treatment planning once threshold met and for diagnosis of rupture."},
+        {"document_id": "SVS_2018", "page_start": 15, "page_end": 15, "section_ref": "Imaging modality", "why": "Ultrasound recommended, when feasible, as the preferred imaging modality for aneurysm screening and surveillance (1/A)."},
+        {"document_id": "NICE_NG156", "page_start": 7, "page_end": 9, "section_ref": "1.1.5, 1.1.10 aortic ultrasound", "why": "Offer an aortic ultrasound where asymptomatic AAA is being considered; report inner-to-inner maximum AP diameter."},
+        {"document_id": "ESVS_2024", "page_start": 21, "page_end": 22, "section_ref": "4.1 imaging surveillance using ultrasound", "why": "Recommendations 13/14 specify imaging surveillance using ultrasound for small AAA."}
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {"name": "modality_named", "any_of": ["ultraso", "computed tomography", "\\bcta\\b", "\\bct\\b", "duplex", "magnetic resonance"]},
+          {"name": "purpose", "any_of": ["diagnos", "surveillance", "screening", "imaging modality", "measurement", "treatment planning"]}
+        ]
+      }
+    },
+    {
+      "query_id": 7,
+      "query": "What factors influence the risk of AAA rupture?",
+      "answer_passages": [
+        {"document_id": "USPSTF_2019", "page_start": 2, "page_end": 2, "section_ref": "Assessment of Risk - rupture", "why": "Risk factors for AAA rupture include older age, female sex, smoking, and elevated blood pressure."},
+        {"document_id": "ESVS_2024", "page_start": 26, "page_end": 27, "section_ref": "4.4 rupture risk vs diameter, sex, growth", "why": "Rupture risk by diameter (0.3-0.8%/yr below 55 mm in men); women have a fourfold greater rupture risk; rapid growth >10 mm/year associated with greater rupture risk."},
+        {"document_id": "ESVS_2024", "page_start": 17, "page_end": 17, "section_ref": "2.x natural history", "why": "With progressive aneurysm enlargement the risk of AAA rupture increases; quantified by diameter and time."},
+        {"document_id": "ESVS_2024", "page_start": 21, "page_end": 21, "section_ref": "4.1 rupture rates during surveillance", "why": "Annual rupture risk by diameter band in the UK screening programme; women had a fourfold greater rupture risk."},
+        {"document_id": "ESVS_2024", "page_start": 28, "page_end": 28, "section_ref": "4.5 smoking and statins vs rupture risk", "why": "Rupture risk increased two-fold in current smokers; statins may reduce rupture risk."}
+      ],
+      "required_facts": {
+        "min_groups": 3,
+        "groups": [
+          {"name": "rupture_concept", "any_of": ["ruptur"]},
+          {"name": "risk_concept", "any_of": ["risk", "rate"]},
+          {"name": "influencing_factor", "any_of": ["diameter", "size", "women", "female", "smok", "growth", "blood pressure", "hypertension", "per year", "per annum", "fourfold", "four fold", "four times", "two fold", "twofold", "age", "enlargement"]}
+        ]
+      }
+    },
+    {
+      "query_id": 8,
+      "query": "What are the recommendations for smoking cessation in patients with AAA?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 23, "page_end": 24, "section_ref": "4.2 Recommendations 16, 17", "why": "Rec 16: all patients with AAA should receive cardiovascular risk factor management with smoking cessation. Rec 17: patients with a small AAA are recommended to stop smoking and receive help, to reduce growth rate and rupture risk (Class I, Level B)."},
+        {"document_id": "NICE_NG156", "page_start": 11, "page_end": 11, "section_ref": "1.2.1 Reducing the risk of rupture", "why": "Offer a referral to a stop smoking service to people with an AAA who smoke."},
+        {"document_id": "SVS_2018", "page_start": 20, "page_end": 20, "section_ref": "Medical management during surveillance", "why": "We recommend smoking cessation to reduce the risk of AAA growth and rupture (1/B)."},
+        {"document_id": "SVS_2018", "page_start": 13, "page_end": 13, "section_ref": "Preoperative pulmonary evaluation", "why": "We recommend smoking cessation for at least 2 weeks before aneurysm repair."}
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {"name": "smoking_named", "any_of": ["smok", "tobacco"]},
+          {"name": "cessation_action", "any_of": ["cessation", "stop smoking", "quit", "give up smoking", "referral to a stop smoking"]}
+        ]
+      }
+    },
+    {
+      "query_id": 9,
+      "query": "What are the recommendations for women regarding AAA screening?",
+      "answer_passages": [
+        {"document_id": "USPSTF_2019", "page_start": 1, "page_end": 1, "section_ref": "RECOMMENDATIONS box - women", "why": "C recommendation: against routine screening in women who have never smoked and have no family history; I statement for women 65-75 who have ever smoked or have a family history."},
+        {"document_id": "USPSTF_2019", "page_start": 2, "page_end": 2, "section_ref": "Summary of Recommendations - women", "why": "Evidence insufficient for women 65-75 who ever smoked/family history; harms outweigh benefits for women who never smoked with no family history."},
+        {"document_id": "ESVS_2024", "page_start": 20, "page_end": 20, "section_ref": "3.3 Screening in women", "why": "Limited evidence for screening in women, the only RCT underpowered; population screening in women has not been considered given lower prevalence."},
+        {"document_id": "NICE_NG156", "page_start": 7, "page_end": 7, "section_ref": "1.1.3 women aged 70 and over", "why": "Consider an aortic ultrasound for women aged 70 and over with listed risk factors if AAA not already excluded."},
+        {"document_id": "SVS_2018", "page_start": 15, "page_end": 15, "section_ref": "Screening recommendations", "why": "One-time ultrasound screening in men or women 65 to 75 years of age with a history of tobacco use."}
+      ],
+      "required_facts": {
+        "min_groups": 2,
+        "groups": [
+          {"name": "women_named", "any_of": ["women", "female", "woman"]},
+          {"name": "screening_concept", "any_of": ["screen"]}
+        ]
+      }
+    },
+    {
+      "query_id": 10,
+      "query": "What are the differences between open surgical repair and EVAR recommendations?",
+      "answer_passages": [
+        {"document_id": "ESVS_2024", "page_start": 46, "page_end": 46, "section_ref": "5.2 Recommendations 65 and 66", "why": "Rec 65: EVAR preferred for most patients with suitable anatomy and reasonable life expectancy. Rec 66: open surgical repair preferred for most patients with long life expectancy. The surrounding text contrasts short-term survival benefit of EVAR against long-term durability."},
+        {"document_id": "NICE_NG156", "page_start": 17, "page_end": 17, "section_ref": "1.5.3 - 1.5.5 OSR vs standard EVAR", "why": "Offer open surgical repair unless contraindicated; consider EVAR for abdominal copathology; consider EVAR or conservative management if OSR contraindicated."},
+        {"document_id": "SVS_2018", "page_start": 29, "page_end": 29, "section_ref": "Patient with a ruptured AAA", "why": "If anatomically feasible, EVAR recommended over open repair for a ruptured AAA."}
+      ],
+      "required_facts": {
+        "min_groups": 3,
+        "groups": [
+          {"name": "evar_named", "any_of": ["evar", "endovascular"]},
+          {"name": "open_repair_named", "any_of": ["open surgical repair", "open repair", "open aneurysm repair", "\\bosr\\b", "open aortic"]},
+          {"name": "comparative_or_directive", "any_of": ["prefer", "consider", "offer", "recommend", "contraindicat", "over open", "rather than", "compared with", "unless"]}
+        ]
+      }
+    }
+  ]
+}
