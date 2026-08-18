@@ -8,12 +8,15 @@ evaluation was run against --
 
     data/embeddings/embedded_chunks.json   991 indexed chunk records
     data/embeddings/embeddings.npy         991 x 768 float32, L2-normalised
-    data/embeddings/index_meta.json        model, revision, dim, token limit
+    data/embeddings/ids.json               the ordered chunk_id list
+    data/embeddings/index_meta.json        model, revision, dim, token limit, digests
 
--- validates them against the migration contract in `vectordb/schema.py`, and
-upserts them as Qdrant points. No text is re-chunked and no vector is
-re-embedded, so the production store holds bit-identical vectors to the ones
-the reported metrics were produced from.
+-- loads them through `clinical_rag.load_index`, so the binding between chunk
+IDs and vectors is verified before anything is written, validates them against
+the migration contract in `vectordb/schema.py`, and upserts them as Qdrant
+points. No text is re-chunked and no vector is re-embedded, so the production
+store holds bit-identical vectors to the ones the reported metrics were produced
+from.
 """
 from __future__ import annotations
 
@@ -24,11 +27,10 @@ import time
 from pathlib import Path
 from typing import Any
 
-import numpy as np
-
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+for _extra in (str(ROOT), str(ROOT / "notebooks")):
+    if _extra not in sys.path:
+        sys.path.insert(0, _extra)
 
 from vectordb.config import QdrantSettings, load_settings, make_client  # noqa: E402
 from vectordb.schema import (  # noqa: E402
@@ -46,17 +48,46 @@ BATCH_SIZE = 128
 
 
 def load_local_index(index_dir: Path = INDEX_DIR) -> dict[str, Any]:
-    """Load the shipped local index exactly as `clinical_rag.load_index` does."""
-    meta_path = index_dir / "index_meta.json"
-    chunks_path = index_dir / "embedded_chunks.json"
-    vectors_path = index_dir / "embeddings.npy"
-    for path in (meta_path, chunks_path, vectors_path):
-        if not path.exists():
-            raise FileNotFoundError(f"missing local index artifact: {path}")
-    meta = json.loads(meta_path.read_text(encoding="utf-8"))
-    records = json.loads(chunks_path.read_text(encoding="utf-8"))
-    vectors = np.load(vectors_path)
-    return {"meta": meta, "records": records, "vectors": vectors, "dir": index_dir}
+    """Load the local index through `clinical_rag.load_index`.
+
+    Going through the project's own loader rather than re-reading the files here
+    is deliberate: `load_index` applies `clinical_rag.verify_index_binding`, so
+    the ingestion path -- the only path that WRITES to production -- refuses to
+    run against an index whose chunk_id <-> vector binding no longer holds.
+
+    That matters because the join is positional on both sides: row *i* of
+    embeddings.npy is record *i* of embedded_chunks.json, and `upsert_points`
+    pairs them by index. A length-preserving change upstream (a re-sort, a
+    hand-edit, a re-chunk landing on the same count) would otherwise be copied
+    into Qdrant intact, mis-attributing every citation while the scores still
+    looked plausible.
+    """
+    import clinical_rag as cr
+
+    for name in ("index_meta.json", "embedded_chunks.json", "embeddings.npy", cr.IDS_FILENAME):
+        if not (index_dir / name).exists():
+            raise FileNotFoundError(f"missing local index artifact: {index_dir / name}")
+
+    # `load_index` resolves <project_root>/data/embeddings itself, so derive that
+    # root from index_dir instead of assuming ROOT -- this keeps the index_dir
+    # parameter meaningful. Refuse rather than guess if the two disagree.
+    resolved = index_dir.resolve()
+    project_root = resolved.parents[1]
+    if (project_root / "data" / "embeddings").resolve() != resolved:
+        raise ValueError(
+            f"{index_dir} is not a <project_root>/data/embeddings directory, so the "
+            f"chunk_id <-> vector binding cannot be resolved against its chunk set. "
+            f"Ingestion refuses to proceed unverified."
+        )
+
+    index = cr.load_index(project_root)
+    return {
+        "meta": index["meta"],
+        "records": index["chunks"],
+        "vectors": index["vectors"],
+        "binding": index["binding"],
+        "dir": index_dir,
+    }
 
 
 def ensure_collection(client, collection: str, *, recreate: bool) -> str:
@@ -147,6 +178,8 @@ def run(settings: QdrantSettings | None = None, *, recreate: bool = False, index
             "dir": index_dir.relative_to(ROOT).as_posix(),
             "chunks_file": "embedded_chunks.json",
             "vectors_file": "embeddings.npy",
+            "binding_verified_by": "clinical_rag.verify_index_binding (via clinical_rag.load_index)",
+            "binding": bundle.get("binding"),
             **summary,
         },
         "collection_action": action,

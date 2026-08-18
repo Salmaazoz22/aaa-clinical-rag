@@ -28,7 +28,7 @@
     "unique_chunk_ids": 991,
     "unique_point_ids": 991
   },
-  "collection_action": "recreated",
+  "collection_action": "created",
   "points_uploaded": 991,
   "collection": {
     "points_count": 991,
@@ -36,6 +36,6 @@
     "distance": "Cosine",
     "status": "green"
   },
-  "ingestion_seconds": 0.947,
-  "points_per_second": 1046.3
+  "ingestion_seconds": 2.895,
+  "points_per_second": 342.4
 }
