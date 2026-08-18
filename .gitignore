@@ -7,6 +7,8 @@ __pycache__/
 # Environments and secrets — never commit
 .env
 .env.*
+# ...except the template, which documents variable NAMES and holds no value.
+!.env.example
 *.key
 *.pem
 credentials.json
@@ -17,6 +19,11 @@ venv/
 # OS noise
 Thumbs.db
 .DS_Store
+
+# Qdrant local storage — the collection is rebuilt from data/embeddings/ by
+# `python vectordb/ingest.py`, so no database file belongs in git.
+.qdrant_local/
+qdrant_storage/
 
 # ---------------------------------------------------------------------------
 # Other people's projects that happen to live inside this directory.

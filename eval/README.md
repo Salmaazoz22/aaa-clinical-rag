@@ -12,6 +12,14 @@
 | `evaluate.py` | The single scoring implementation. Scores any ranked result. |
 | `runs/*.json` | One saved run per experiment: metrics + top-10 with scores, pages, sections, text. |
 | `README.md` | This file — methodology of record. |
+| `qdrant_migration_verification.json` | **Not an evaluation.** Infrastructure equivalence between the local index and Qdrant. |
+| `qdrant_ingestion_report.json` | **Not an evaluation.** What was uploaded to the vector database, and its validation summary. |
+| `qdrant_performance.json` | **Not an evaluation.** Measured retrieval latency and footprint. |
+
+The three `qdrant_*` files record an infrastructure migration (`docs/vector_database.md`).
+They compute no metric and score no gold standard; they exist to prove the production vector
+database returns exactly what the local index returns. The published numbers come from the
+files above them and were not re-run.
 
 ## Frozen gold standard
 
