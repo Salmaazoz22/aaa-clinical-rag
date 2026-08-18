@@ -137,7 +137,7 @@ EXPERIMENTS = [
     E(5, "Experiment 4 - optional dense + cross-encoder reranker",
       "Dense-only retrieval leaves Q4, Q5, Q10 unanswered.",
       "A cross-encoder reranking the dense top-N will recover queries dense retrieval ranks poorly.",
-      "New opt-in module notebooks/clinical_rerank.py: dense top-30 -> cross-encoder/ms-marco-MiniLM-L-6-v2 -> top-10. No BM25, no query rules.",
+      "New opt-in module notebooks/retrieval.rerank.py: dense top-30 -> cross-encoder/ms-marco-MiniLM-L-6-v2 -> top-10. No BM25, no query rules.",
       "original10",
       {"original10 (30 candidates)": from_run("exp4_rerank_c30.json"),
        "original10 (20 candidates)": from_run("exp4_rerank_c20.json")},

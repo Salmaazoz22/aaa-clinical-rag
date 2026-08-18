@@ -19,7 +19,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "notebooks"))
 
-import clinical_rag as cr  # noqa: E402
+import retrieval.index as cr  # noqa: E402
 
 INDEX_DIR = ROOT / "data" / "embeddings"
 CHUNKS_PATH = ROOT / "data" / "chunks" / "chunks.json"

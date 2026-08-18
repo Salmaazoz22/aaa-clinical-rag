@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Rebuild data/chunks and data/embeddings with the shipped chunker.
 
-Runs exactly what a clean user gets: clinical_chunking.run_chunking() with its
-default strategy, then clinical_rag's index builder. No experiment code is
+Runs exactly what a clean user gets: ingestion.chunking.run_chunking() with its
+default strategy, then retrieval.index's index builder. No experiment code is
 involved, so the shipped artifacts are reproducible from the shipped pipeline.
 
 The previous page-buffer artifacts are preserved in data/archive_baseline_index/.
@@ -16,8 +16,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "notebooks"))
 
-import clinical_chunking as cc  # noqa: E402
-import clinical_rag as cr  # noqa: E402
+import ingestion.chunking as cc  # noqa: E402
+import retrieval.index as cr  # noqa: E402
 
 
 def main() -> int:

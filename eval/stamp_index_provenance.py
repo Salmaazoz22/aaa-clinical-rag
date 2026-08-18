@@ -3,9 +3,9 @@
 
 Why this is not a rebuild
 -------------------------
-`clinical_rag.save_index` now writes `data/embeddings/ids.json` and stamps
+`retrieval.index.save_index` now writes `data/embeddings/ids.json` and stamps
 `source_chunks_sha256` + `indexed_chunk_ids_sha256` into `index_meta.json`, and
-`clinical_rag.load_index` refuses to load an index that lacks them. The committed
+`retrieval.index.load_index` refuses to load an index that lacks them. The committed
 index predates those fields, so it has to acquire them -- but re-running
 `eval/rebuild_shipped_index.py` would re-encode 991 chunks and rewrite
 `embeddings.npy`, whose SHA-256 is a frozen artifact hash. Floating-point
@@ -40,13 +40,13 @@ sys.path.insert(0, str(ROOT / "notebooks"))
 
 import numpy as np  # noqa: E402
 
-import clinical_chunking as cc  # noqa: E402
-import clinical_rag as cr  # noqa: E402
+import ingestion.chunking as cc  # noqa: E402
+import retrieval.index as cr  # noqa: E402
 
 INDEX_DIR = ROOT / "data" / "embeddings"
 CHUNKS_PATH = ROOT / "data" / "chunks" / "chunks.json"
 
-# The order clinical_rag.save_index writes, so a future rebuild produces the same
+# The order retrieval.index.save_index writes, so a future rebuild produces the same
 # key order and a diff of index_meta.json stays readable.
 META_KEY_ORDER = [
     "index_type", "metric", "model_name", "model_revision", "embedding_dim",
@@ -130,7 +130,7 @@ def main() -> int:
         "note": (
             "Ordered chunk_id list, row-aligned to embeddings.npy. Retrieval joins "
             "vectors to metadata by position, so this list is what makes the join "
-            "checkable: clinical_rag.load_index refuses to load unless it matches "
+            "checkable: retrieval.index.load_index refuses to load unless it matches "
             "embedded_chunks.json element-wise."
         ),
         "vectors_file": "embeddings.npy",

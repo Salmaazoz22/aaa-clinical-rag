@@ -61,8 +61,8 @@ sys.path.insert(0, str(EVAL_DIR))
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-import clinical_atomic_chunking as cac  # noqa: E402
-import clinical_chunking as cc  # noqa: E402
+import ingestion.atomic_chunking as cac  # noqa: E402
+import ingestion.chunking as cc  # noqa: E402
 from evaluate import evaluate_run, load_gold  # noqa: E402
 
 HELDOUT_GOLD = EVAL_DIR / "gold_standard_heldout.json"
@@ -72,7 +72,7 @@ EVAL_DEPTH = 10
 # Anchors and chunk assembly
 #
 # There is ONE implementation of the atomic chunker, in
-# `notebooks/clinical_atomic_chunking.py` -- the module that produces the shipped
+# `ingestion/atomic_chunking.py` -- the module that produces the shipped
 # artifacts. This file used to carry a second, independent copy of the anchor
 # patterns, the segmenter and the chunk-assembly loop. The two drifted: the copy
 # here produced 1,764 chunks / 1,004 indexed while the shipped module produced
@@ -130,7 +130,7 @@ def build_atomic_chunks(
 
     V1 is `keep_page_breaks=True` (the shipped default); V2 is False. Nothing is
     reimplemented here -- this is a parameterised call into
-    `clinical_atomic_chunking.build_chunks`, so the evaluated chunk set and the
+    `ingestion.atomic_chunking.build_chunks`, so the evaluated chunk set and the
     shipped chunk set cannot diverge again.
     """
     return cac.build_chunks(
@@ -207,13 +207,13 @@ def retrieve(query: str, index: dict[str, Any], model, top_k: int = EVAL_DEPTH) 
 
 
 def load_production_index() -> dict[str, Any]:
-    import clinical_rag as cr
+    import retrieval.index as cr
 
     d = ROOT / "data" / "embeddings"
     meta = json.loads((d / "index_meta.json").read_text(encoding="utf-8"))
     chunks = json.loads((d / "embedded_chunks.json").read_text(encoding="utf-8"))
     vectors = np.load(d / "embeddings.npy")
-    # The same binding check `clinical_rag.load_index` applies: element-wise
+    # The same binding check `retrieval.index.load_index` applies: element-wise
     # chunk_id equality plus the digests stamped at build time. This path is the
     # one the evaluations retrieve through, so it must not be the weaker one.
     cr.verify_index_binding(ROOT, meta, chunks, vectors)
@@ -331,7 +331,7 @@ METRIC_KEYS = ("P@1", "P@3", "P@5", "MRR", "Recall@5", "Recall@10", "Relevant_To
 
 
 def main() -> int:
-    import clinical_rag as cr
+    import retrieval.index as cr
 
     loaded = cc.load_processed(ROOT)
     pages_df, recs_df = loaded["pages_df"], loaded["recommendations_df"]

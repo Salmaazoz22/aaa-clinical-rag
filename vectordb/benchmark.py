@@ -108,8 +108,8 @@ def run(
     warmup: int = 3,
     container: str | None = None,
 ) -> dict[str, Any]:
-    import clinical_rag as cr
-    from clinical_chunking import load_embedder
+    import retrieval.index as cr
+    from ingestion.chunking import load_embedder
 
     settings = load_settings()
     index = cr.load_index(ROOT)

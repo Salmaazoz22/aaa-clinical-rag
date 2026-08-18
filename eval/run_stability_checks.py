@@ -53,7 +53,7 @@ _REBUILD_CACHE: dict[str, Any] = {}
 def _rebuild_chunks():
     """Rebuild using the SHIPPED chunker, whatever run_chunking() defaults to."""
     if "chunks" not in _REBUILD_CACHE:
-        import clinical_chunking as cc
+        import ingestion.chunking as cc
         loaded = cc.load_processed(ROOT)
         _REBUILD_CACHE["chunks"] = cc.build_chunks_for(
             cc.DEFAULT_CHUNKER, loaded["pages_df"], loaded["recommendations_df"])
@@ -62,7 +62,7 @@ def _rebuild_chunks():
 
 @check("Chunking is deterministic: two rebuilds from the same inputs agree", "reproducibility")
 def chunking_deterministic():
-    import clinical_chunking as cc
+    import ingestion.chunking as cc
     a = _rebuild_chunks()
     loaded = cc.load_processed(ROOT)
     b = cc.build_chunks_for(cc.DEFAULT_CHUNKER, loaded["pages_df"], loaded["recommendations_df"])
@@ -78,7 +78,7 @@ def chunking_deterministic():
 
 @check("Committed chunks.json still reproduces from the CURRENT code", "reproducibility")
 def committed_chunks_reproduce():
-    import clinical_chunking as cc
+    import ingestion.chunking as cc
     rebuilt = _rebuild_chunks()
     committed = json.loads((ROOT / "data/chunks/chunks.json").read_text(encoding="utf-8"))["chunks"]
     if len(rebuilt) == len(committed):
@@ -108,7 +108,7 @@ def chunk_ids():
 
 @check("Embedding model revision is pinned", "reproducibility")
 def pinned_revision():
-    import clinical_chunking as cc
+    import ingestion.chunking as cc
     meta = json.loads((ROOT / "data/embeddings/index_meta.json").read_text(encoding="utf-8"))
     pinned = cc.model_revision(meta["model_name"])
     return ("pass" if pinned and meta.get("model_revision") == pinned else "fail",
@@ -118,7 +118,7 @@ def pinned_revision():
 
 @check("Index integrity: vectors align with metadata and are L2-normalised", "reproducibility")
 def index_integrity():
-    import clinical_rag as cr
+    import retrieval.index as cr
     vecs = np.load(ROOT / "data/embeddings/embeddings.npy")
     chunks = json.loads((ROOT / "data/embeddings/embedded_chunks.json").read_text(encoding="utf-8"))
     meta = json.loads((ROOT / "data/embeddings/index_meta.json").read_text(encoding="utf-8"))
@@ -144,7 +144,7 @@ def index_integrity():
 
 @check("Index reproducibility: re-embedding a sample reproduces stored vectors", "reproducibility")
 def reembed_sample():
-    import clinical_chunking as cc
+    import ingestion.chunking as cc
     chunks = json.loads((ROOT / "data/embeddings/embedded_chunks.json").read_text(encoding="utf-8"))
     vecs = np.load(ROOT / "data/embeddings/embeddings.npy")
     idx = list(range(0, len(chunks), max(1, len(chunks) // 64)))[:64]
@@ -159,7 +159,7 @@ def reembed_sample():
 
 @check("Token safety: no indexed chunk exceeds the encoder window", "correctness")
 def token_safety():
-    import clinical_chunking as cc
+    import ingestion.chunking as cc
     chunks = json.loads((ROOT / "data/embeddings/embedded_chunks.json").read_text(encoding="utf-8"))
     limit = cc.model_token_limit()
     recomputed = [(c["chunk_id"], cc.count_tokens(c["chunk_text"])) for c in chunks]
@@ -172,7 +172,7 @@ def token_safety():
 
 @check("Fail-loud token validator rejects an oversized chunk", "correctness")
 def fail_loud():
-    import clinical_chunking as cc
+    import ingestion.chunking as cc
     limit = cc.model_token_limit()
     fake = [{"chunk_id": "SYNTHETIC__p1-1__c0001", "chunk_text": "aneurysm " * (limit * 3),
              "document_type": "official guideline", "is_guideline": True,
@@ -186,7 +186,7 @@ def fail_loud():
 
 @check("Malformed and adversarial queries do not crash retrieval", "robustness")
 def malformed_queries():
-    import clinical_chunking as cc
+    import ingestion.chunking as cc
     import experimental_atomic_chunking as ex
     index = ex.load_production_index()
     model = cc.load_embedder(cc.DEFAULT_EMBED_MODEL)
@@ -217,7 +217,7 @@ def malformed_queries():
 
 @check("Query determinism: the same query returns the same ranking", "robustness")
 def query_determinism():
-    import clinical_chunking as cc
+    import ingestion.chunking as cc
     import experimental_atomic_chunking as ex
     index = ex.load_production_index()
     model = cc.load_embedder(cc.DEFAULT_EMBED_MODEL)
@@ -231,8 +231,8 @@ def query_determinism():
 
 @check("Retrieval latency", "performance")
 def latency():
-    import clinical_chunking as cc
-    import clinical_rag as cr
+    import ingestion.chunking as cc
+    import retrieval.index as cr
     import experimental_atomic_chunking as ex
     index = ex.load_production_index()
     model = cc.load_embedder(cc.DEFAULT_EMBED_MODEL)
@@ -286,8 +286,8 @@ def checksums():
         "data/embeddings/embedded_chunks.json", "data/embeddings/index_meta.json",
         "data/embeddings/ids.json",
         "data/processed/pages.json", "data/processed/recommendations.json",
-        "notebooks/clinical_chunking.py", "notebooks/clinical_preprocess.py",
-        "notebooks/clinical_rag.py",
+        "ingestion/chunking.py", "ingestion/preprocess.py",
+        "retrieval/index.py",
     ]
     out = {}
     for f in files:
@@ -298,11 +298,11 @@ def checksums():
 
 @check("Structured logging / observability in the retrieval path", "operability")
 def logging_check():
-    src = (ROOT / "notebooks/clinical_rag.py").read_text(encoding="utf-8")
+    src = (ROOT / "retrieval/index.py").read_text(encoding="utf-8")
     has_logging = "logging" in src or "logger" in src
     return ("fail" if not has_logging else "pass",
             {"logging_module_used": has_logging,
-             "note": ("clinical_rag.retrieve emits no logs, no timings and no request ids. "
+             "note": ("retrieval.index.retrieve emits no logs, no timings and no request ids. "
                       "Acceptable for a notebook-driven research pipeline; NOT acceptable for a "
                       "service. Listed as a deployment gap, not a research defect.")})
 

@@ -24,7 +24,7 @@ EXPECTED_TOKEN_LIMIT = 512
 COLLECTION_DISTANCE = "Cosine"
 DEFAULT_TOP_K = 10
 
-# Vectors are written L2-normalised by `clinical_rag.build_embeddings`
+# Vectors are written L2-normalised by `retrieval.index.build_embeddings`
 # (`normalize_embeddings=True`). Qdrant re-normalises for Cosine anyway; the
 # check exists to detect an index that was NOT built under the validated
 # configuration, not to fix one.

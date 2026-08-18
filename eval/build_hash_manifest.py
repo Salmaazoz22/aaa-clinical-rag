@@ -40,11 +40,11 @@ SHIPPED_INDEX = [
     "data/embeddings/ids.json",
 ]
 PIPELINE = [
-    "notebooks/clinical_preprocess.py",
-    "notebooks/clinical_chunking.py",
-    "notebooks/clinical_atomic_chunking.py",
-    "notebooks/clinical_rag.py",
-    "notebooks/clinical_rerank.py",
+    "ingestion/preprocess.py",
+    "ingestion/chunking.py",
+    "ingestion/atomic_chunking.py",
+    "retrieval/index.py",
+    "retrieval/rerank.py",
     "notebooks/final_evaluation.ipynb",
     "eval/evaluate.py",
     "tests/test_chunking.py",
@@ -88,7 +88,7 @@ def main() -> int:
                  "historical run artifacts must never change; if a hash here stops matching, "
                  "something was modified after the freeze."),
         "shipped_configuration": {
-            "chunker": "V1_atomic_pagesafe (clinical_atomic_chunking), citation-heading rejection ON",
+            "chunker": "V1_atomic_pagesafe (ingestion.atomic_chunking), citation-heading rejection ON",
             "embedding_model": "abhinand/MedEmbed-base-v0.1",
             "embedding_revision": "7a90c50263f620dff743eb9794b89a42bfc5d765",
             "retrieval": "dense cosine, top-10, 768-dim, L2-normalised, no reranking, no query processing",

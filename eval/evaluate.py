@@ -181,8 +181,8 @@ def evaluate_run(runs: dict[int, list[dict[str, Any]]], gold: dict[str, Any]) ->
 
 def run_retrieval(top_k: int = 10, rerank: bool = False, candidates: int = 30) -> dict[str, Any]:
     sys.path.insert(0, str(ROOT / "notebooks"))
-    import clinical_chunking as cc  # noqa: E402
-    import clinical_rag as cr  # noqa: E402
+    import ingestion.chunking as cc  # noqa: E402
+    import retrieval.index as cr  # noqa: E402
 
     index = cr.load_index(ROOT)
     # `cc.load_embedder` applies the revision pin. Constructing SentenceTransformer
@@ -192,7 +192,7 @@ def run_retrieval(top_k: int = 10, rerank: bool = False, candidates: int = 30) -
 
     reranker = None
     if rerank:
-        from clinical_rerank import load_reranker, rerank_hits  # noqa: E402
+        from retrieval.rerank import load_reranker, rerank_hits  # noqa: E402
         reranker = load_reranker()
 
     runs, records = {}, {}

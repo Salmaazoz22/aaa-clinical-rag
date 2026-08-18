@@ -10,7 +10,7 @@ from typing import Any
 
 import numpy as np
 
-from clinical_chunking import (
+from ingestion.chunking import (
     DEFAULT_EMBED_MODEL,
     count_tokens,
     embeddable_chunks,
@@ -18,7 +18,7 @@ from clinical_chunking import (
     model_revision,
     model_token_limit,
 )
-from clinical_preprocess import find_project_root, relative_posix
+from ingestion.preprocess import find_project_root, relative_posix
 
 DEFAULT_MODEL = DEFAULT_EMBED_MODEL
 INDEX_DIRNAME = "embeddings"

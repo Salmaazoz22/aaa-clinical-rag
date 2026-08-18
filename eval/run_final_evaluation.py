@@ -35,7 +35,7 @@ sys.path.insert(0, str(EVAL_DIR))
 
 import numpy as np  # noqa: E402
 
-import clinical_chunking as cc  # noqa: E402
+import ingestion.chunking as cc  # noqa: E402
 import experimental_atomic_chunking as ex  # noqa: E402
 from evaluate import evaluate_run, load_gold, matched_passages, normalise  # noqa: E402
 
@@ -53,7 +53,7 @@ def sha256(path: Path) -> str:
 
 def queries_for(gold: dict[str, Any], name: str) -> dict[int, str]:
     if name == "original10":
-        import clinical_rag as cr
+        import retrieval.index as cr
         return {i: q for i, q in enumerate(cr.CLINICAL_QUERIES, start=1)}
     return {s["query_id"]: s["query"] for s in gold["queries"]}
 

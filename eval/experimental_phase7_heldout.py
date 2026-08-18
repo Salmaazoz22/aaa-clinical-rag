@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """PHASE 7 — held-out generalization test for selective reranking Policy A.
 
-Isolated by design. Production (`clinical_rag.retrieve`) remains pure dense
+Isolated by design. Production (`retrieval.index.retrieve`) remains pure dense
 MedEmbed and does not import this module.
 
 What this tests
@@ -46,8 +46,8 @@ HELDOUT_GOLD = EVAL_DIR / "gold_standard_heldout.json"
 
 
 def run() -> dict:
-    import clinical_rag as cr
-    import clinical_chunking as cc
+    import retrieval.index as cr
+    import ingestion.chunking as cc
     from evaluate import load_gold, evaluate_run, is_relevant
     from experimental_rerank import (DEFAULT_RERANK_MODEL, DEFAULT_REVISION,
                                      rerank_hits, full_reranked_order)

@@ -63,7 +63,7 @@ DATASETS = {
 
 def load_queries() -> list[dict[str, Any]]:
     """Question text only, from the frozen sets. Nothing else is read."""
-    import clinical_rag as cr
+    import retrieval.index as cr
 
     out: list[dict[str, Any]] = []
     for name, path in DATASETS.items():
@@ -80,7 +80,7 @@ def load_queries() -> list[dict[str, Any]]:
 
 
 def local_top_k(vector: np.ndarray, index: dict[str, Any], top_k: int) -> list[dict[str, Any]]:
-    """Replicates `clinical_rag.retrieve` scoring and ordering exactly."""
+    """Replicates `retrieval.index.retrieve` scoring and ordering exactly."""
     scores = index["vectors"] @ vector
     order = np.argsort(-scores)[:top_k]
     hits = []
@@ -207,8 +207,8 @@ def compare(local: list[dict[str, Any]], remote: list[dict[str, Any]], tolerance
 
 
 def run(top_k: int = DEFAULT_TOP_K, tolerance: float = SCORE_TOLERANCE) -> dict[str, Any]:
-    import clinical_rag as cr
-    from clinical_chunking import load_embedder
+    import retrieval.index as cr
+    from ingestion.chunking import load_embedder
 
     settings = load_settings()
     index = cr.load_index(ROOT)

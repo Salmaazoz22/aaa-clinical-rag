@@ -28,7 +28,7 @@ ROOT = EVAL_DIR.parent
 sys.path.insert(0, str(ROOT / "notebooks"))
 sys.path.insert(0, str(EVAL_DIR))
 
-import clinical_chunking as cc  # noqa: E402
+import ingestion.chunking as cc  # noqa: E402
 import experimental_atomic_chunking as ex  # noqa: E402
 from evaluate import evaluate_run, load_gold, matched_passages, normalise  # noqa: E402
 

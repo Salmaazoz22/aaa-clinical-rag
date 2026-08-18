@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """EXPERIMENTAL selective / confidence-aware reranking.
 
-Isolated by design. Production (`clinical_rag.retrieve`) remains pure dense
+Isolated by design. Production (`retrieval.index.retrieve`) remains pure dense
 MedEmbed and does not import this module.
 
 Hypothesis

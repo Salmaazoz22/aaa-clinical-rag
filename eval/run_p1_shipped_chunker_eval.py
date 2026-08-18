@@ -15,7 +15,7 @@ never recomputed, so their published V1 rows still describe the 1,764/1,004 set.
 
 This script closes that gap. It scores all three frozen sets against the shipped
 artifacts on disk (`data/chunks/chunks.json` + `data/embeddings/`), which were
-verified to reproduce exactly from `clinical_chunking.build_chunks_for("atomic")`:
+verified to reproduce exactly from `ingestion.chunking.build_chunks_for("atomic")`:
 1,760 chunks, identical chunk_id order, zero text differences.
 
 What is held constant
@@ -47,7 +47,7 @@ ROOT = EVAL_DIR.parent
 sys.path.insert(0, str(ROOT / "notebooks"))
 sys.path.insert(0, str(EVAL_DIR))
 
-import clinical_chunking as cc  # noqa: E402
+import ingestion.chunking as cc  # noqa: E402
 import experimental_atomic_chunking as ex  # noqa: E402
 from evaluate import evaluate_run, load_gold  # noqa: E402
 
@@ -68,7 +68,7 @@ def sha256(path: Path) -> str:
 def queries_for(gold: dict[str, Any], name: str) -> dict[int, str]:
     """Identical to run_final_evaluation.queries_for, so query handling is unchanged."""
     if name == "original10":
-        import clinical_rag as cr
+        import retrieval.index as cr
 
         return {i: q for i, q in enumerate(cr.CLINICAL_QUERIES, start=1)}
     return {s["query_id"]: s["query"] for s in gold["queries"]}
@@ -132,7 +132,7 @@ def main() -> int:
                               "file in eval/runs/ from previous phases are left untouched.",
         "chunker_reproducibility_check": repro,
         "configuration": {
-            "chunker": f"clinical_atomic_chunking via clinical_chunking.build_chunks_for"
+            "chunker": f"ingestion.atomic_chunking via ingestion.chunking.build_chunks_for"
                        f"('{cc.DEFAULT_CHUNKER}')",
             "chunk_source": "data/chunks/chunks.json (shipped)",
             "index_source": "data/embeddings/embeddings.npy + embedded_chunks.json (shipped)",

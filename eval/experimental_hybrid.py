@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """EXPERIMENTAL hybrid retrieval: MedEmbed dense + BM25 lexical, score fusion.
 
-Isolated by design. Production (`clinical_rag.retrieve`) remains pure dense
+Isolated by design. Production (`retrieval.index.retrieve`) remains pure dense
 MedEmbed and does not import this module.
 
 Method (fixed before any result was observed)

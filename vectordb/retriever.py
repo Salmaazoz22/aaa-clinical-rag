@@ -10,7 +10,7 @@ bonus, no filtering and no per-question logic. The retriever cannot see *which*
 question it is answering, which is what makes the frozen evaluation meaningful.
 
 The returned hit dictionaries use the same keys as
-`notebooks/clinical_rag.retrieve`, so anything already consuming local evidence
+`notebooks/retrieval.index.retrieve`, so anything already consuming local evidence
 (including `eval/evaluate.py`) accepts them unchanged. `text` and `score` are
 added as aliases of `chunk_text` and `similarity_score`.
 """
@@ -26,7 +26,7 @@ for extra in (str(ROOT), str(ROOT / "notebooks")):
         sys.path.insert(0, extra)
 
 from vectordb.config import QdrantSettings, load_settings, make_client  # noqa: E402
-from vectordb.schema import DEFAULT_TOP_K, EXPECTED_DIM, EXPECTED_MODEL  # noqa: E402
+from vectordb.schema import DEFAULT_TOP_K, EXPECTED_DIM, EXPECTED_MODEL, point_id_for  # noqa: E402
 
 MAX_QUERY_CHARS = 20_000
 
@@ -56,7 +56,7 @@ class QdrantRetriever:
     def model(self):
         """The pinned MedEmbed encoder, loaded on first use."""
         if self._model is None:
-            from clinical_chunking import load_embedder
+            from ingestion.chunking import load_embedder
 
             self._model = load_embedder(self.model_name)
         return self._model
@@ -99,6 +99,47 @@ class QdrantRetriever:
         )
         return [self._to_hit(rank, point) for rank, point in enumerate(response.points, start=1)]
 
+    # -- direct lookup -------------------------------------------------------
+    def get_by_chunk_ids(self, chunk_ids: list[str]) -> dict[str, dict[str, Any]]:
+        """Fetch full payloads for known chunk_ids, no query or embedding involved.
+
+        Point IDs are deterministic (`point_id_for(chunk_id)`), so this is a direct
+        by-ID lookup rather than a search: it exists for auditing and manual review,
+        where the chunk is already known and only its full text and metadata are
+        needed. Unknown or missing chunk_ids are simply absent from the result
+        instead of raising, so a caller reviewing a batch of citations does not lose
+        the whole batch to one bad ID.
+        """
+        ids = [str(c) for c in dict.fromkeys(chunk_ids) if c]
+        if not ids:
+            return {}
+        points = self.client.retrieve(
+            collection_name=self.settings.collection,
+            ids=[point_id_for(c) for c in ids],
+            with_payload=True,
+        )
+        by_point_id = {str(p.id): p for p in points}
+        out: dict[str, dict[str, Any]] = {}
+        for chunk_id in ids:
+            point = by_point_id.get(point_id_for(chunk_id))
+            if point is None:
+                continue
+            payload = point.payload or {}
+            out[chunk_id] = {
+                "chunk_id": payload.get("chunk_id", chunk_id),
+                "chunk_text": payload.get("chunk_text"),
+                "document": payload.get("document_name"),
+                "document_id": payload.get("document_id"),
+                "section": payload.get("section_title"),
+                "page": payload.get("page_number"),
+                "page_start": payload.get("page_start"),
+                "page_end": payload.get("page_end"),
+                "recommendation_id": payload.get("recommendation_id"),
+                "recommendation_grade": payload.get("recommendation_grade"),
+                "evidence_level": payload.get("evidence_level"),
+            }
+        return out
+
     # -- evidence shape ----------------------------------------------------
     @staticmethod
     def _to_hit(rank: int, point) -> dict[str, Any]:
@@ -130,7 +171,7 @@ class QdrantRetriever:
 
 
 def retrieve(query: str, top_k: int = DEFAULT_TOP_K, retriever: QdrantRetriever | None = None) -> list[dict[str, Any]]:
-    """Convenience wrapper mirroring `clinical_rag.retrieve`'s call shape."""
+    """Convenience wrapper mirroring `retrieval.index.retrieve`'s call shape."""
     return (retriever or QdrantRetriever()).search(query, top_k=top_k)
 
 

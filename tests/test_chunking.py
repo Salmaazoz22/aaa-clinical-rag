@@ -12,7 +12,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "notebooks"))
 
-import clinical_chunking as cc  # noqa: E402
+import ingestion.chunking as cc  # noqa: E402
 
 CHUNKS_PATH = ROOT / "data" / "chunks" / "chunks.json"
 INDEX_CHUNKS_PATH = ROOT / "data" / "embeddings" / "embedded_chunks.json"

@@ -83,8 +83,8 @@ def main() -> int:
     # 5. no query-specific logic anywhere in the production retrieval path
     banned = re.compile(r"_INTENT_PATTERNS|_QUERY_EXPANSIONS|_detect_intents|_expand_query"
                         r"|intent_adjustment|_anchor_indices|recommendation_id\s*==\s*[\"']", re.I)
-    prod = ["notebooks/clinical_rag.py", "notebooks/clinical_chunking.py",
-            "notebooks/clinical_preprocess.py", "notebooks/clinical_rerank.py",
+    prod = ["retrieval/index.py", "ingestion/chunking.py",
+            "ingestion/preprocess.py", "retrieval/rerank.py",
             "eval/evaluate.py", "eval/experimental_atomic_chunking.py"]
     hits = {f: banned.findall((ROOT / f).read_text(encoding="utf-8")) for f in prod}
     hits = {f: h for f, h in hits.items() if h}
@@ -172,7 +172,7 @@ def main() -> int:
 
     # 11. promotion: the shipped configuration is V1 and the artifacts match it
     sys.path.insert(0, str(ROOT / "notebooks"))
-    import clinical_chunking as cc  # noqa: E402
+    import ingestion.chunking as cc  # noqa: E402
     import experimental_atomic_chunking as ex  # noqa: E402
 
     record("Shipped chunker is the atomic (V1) chunker",
@@ -181,7 +181,7 @@ def main() -> int:
     record("Citation-heading fix is ON in both the shipped and the validation chunker",
            ex.REJECT_CITATION_HEADINGS is True,
            {"experimental_module": ex.REJECT_CITATION_HEADINGS,
-            "production_module": "clinical_atomic_chunking always rejects citation headings"})
+            "production_module": "ingestion.atomic_chunking always rejects citation headings"})
 
     corr = json.loads((EVAL_DIR / "runs/final_corrected_v1_final20.json").read_text(encoding="utf-8"))
     shipped_chunks = json.loads((ROOT / "data/chunks/chunks.json").read_text(encoding="utf-8"))
@@ -202,10 +202,10 @@ def main() -> int:
     # 1764/1004 chunk set went unflagged against the shipped 1760/991 one, so the
     # binding is now asserted by content digest: the ordered chunk_id list beside
     # the vectors, its digest, and a digest of the chunks.json the index was built
-    # from. clinical_rag.load_index refuses to load if any of the three disagree.
+    # from. retrieval.index.load_index refuses to load if any of the three disagree.
     import numpy as np  # noqa: E402
 
-    import clinical_rag as cr  # noqa: E402
+    import retrieval.index as cr  # noqa: E402
 
     try:
         binding = cr.verify_index_binding(
@@ -219,7 +219,7 @@ def main() -> int:
     except Exception as e:
         bind_ok = False
         bind_detail = {"error": f"{type(e).__name__}: {e}"}
-    bind_detail["verified_by"] = "clinical_rag.verify_index_binding (the loader's own check)"
+    bind_detail["verified_by"] = "retrieval.index.verify_index_binding (the loader's own check)"
     record("Shipped index is bound to its chunk set by content digest, not by count",
            bind_ok, bind_detail)
 

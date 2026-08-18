@@ -2,7 +2,7 @@
 """EXPERIMENTAL lexical (BM25) retrieval over the existing indexed chunks.
 
 Isolated by design. Nothing in the production pipeline imports this module:
-`clinical_rag.retrieve` remains pure dense MedEmbed retrieval and is untouched.
+`retrieval.index.retrieve` remains pure dense MedEmbed retrieval and is untouched.
 This exists so keyword retrieval can be *measured* against the frozen gold
 standard before any decision is made about adopting or fusing it.
 
@@ -106,7 +106,7 @@ class BM25Index:
         return scores
 
     def retrieve(self, query: str, top_k: int = 10) -> list[dict[str, Any]]:
-        """Ranked hits in the same shape `clinical_rag.retrieve` returns."""
+        """Ranked hits in the same shape `retrieval.index.retrieve` returns."""
         scores = self.score_query(query)
         # Deterministic: score descending, then original index order on ties.
         order = sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))[:top_k]

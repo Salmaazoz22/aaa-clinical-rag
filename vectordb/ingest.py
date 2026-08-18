@@ -11,7 +11,7 @@ evaluation was run against --
     data/embeddings/ids.json               the ordered chunk_id list
     data/embeddings/index_meta.json        model, revision, dim, token limit, digests
 
--- loads them through `clinical_rag.load_index`, so the binding between chunk
+-- loads them through `retrieval.index.load_index`, so the binding between chunk
 IDs and vectors is verified before anything is written, validates them against
 the migration contract in `vectordb/schema.py`, and upserts them as Qdrant
 points. No text is re-chunked and no vector is re-embedded, so the production
@@ -48,10 +48,10 @@ BATCH_SIZE = 128
 
 
 def load_local_index(index_dir: Path = INDEX_DIR) -> dict[str, Any]:
-    """Load the local index through `clinical_rag.load_index`.
+    """Load the local index through `retrieval.index.load_index`.
 
     Going through the project's own loader rather than re-reading the files here
-    is deliberate: `load_index` applies `clinical_rag.verify_index_binding`, so
+    is deliberate: `load_index` applies `retrieval.index.verify_index_binding`, so
     the ingestion path -- the only path that WRITES to production -- refuses to
     run against an index whose chunk_id <-> vector binding no longer holds.
 
@@ -62,7 +62,7 @@ def load_local_index(index_dir: Path = INDEX_DIR) -> dict[str, Any]:
     into Qdrant intact, mis-attributing every citation while the scores still
     looked plausible.
     """
-    import clinical_rag as cr
+    import retrieval.index as cr
 
     for name in ("index_meta.json", "embedded_chunks.json", "embeddings.npy", cr.IDS_FILENAME):
         if not (index_dir / name).exists():
@@ -178,7 +178,7 @@ def run(settings: QdrantSettings | None = None, *, recreate: bool = False, index
             "dir": index_dir.relative_to(ROOT).as_posix(),
             "chunks_file": "embedded_chunks.json",
             "vectors_file": "embeddings.npy",
-            "binding_verified_by": "clinical_rag.verify_index_binding (via clinical_rag.load_index)",
+            "binding_verified_by": "retrieval.index.verify_index_binding (via retrieval.index.load_index)",
             "binding": bundle.get("binding"),
             **summary,
         },

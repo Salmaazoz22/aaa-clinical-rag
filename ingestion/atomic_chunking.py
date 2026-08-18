@@ -54,7 +54,7 @@ from typing import Any
 
 import pandas as pd
 
-import clinical_chunking as cc
+import ingestion.chunking as cc
 
 # ---------------------------------------------------------------------------
 # Anchors -- structural only

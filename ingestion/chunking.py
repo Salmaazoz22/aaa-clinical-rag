@@ -12,7 +12,7 @@ from typing import Any
 
 import pandas as pd
 
-from clinical_preprocess import (
+from ingestion.preprocess import (
     EN_DASH,
     find_project_root,
     numeric_tokens,
@@ -849,7 +849,7 @@ def build_chunks_for(strategy: str, pages_df: pd.DataFrame, recs_df: pd.DataFram
     if strategy == "page_buffer":
         return build_chunks(pages_df, recs_df)
     if strategy == "atomic":
-        import clinical_atomic_chunking as cac  # local import avoids a circular import
+        import ingestion.atomic_chunking as cac  # local import avoids a circular import
 
         return cac.build_chunks(pages_df, recs_df)
     raise ValueError(f"Unknown chunker strategy: {strategy}")
