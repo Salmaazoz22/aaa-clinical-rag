@@ -89,6 +89,71 @@ retrieval failure, not a coverage gap, so adding documents is **not** recommende
 
 ---
 
+## Production Vector Database
+
+Qdrant is the **production storage and retrieval backend**. The local numpy index is
+**preserved unchanged** as the reproducibility artifact — every published number above was
+produced from it, and it remains the reference the production store is verified against.
+
+| | research artifact | production backend |
+|---|---|---|
+| where | `data/embeddings/` (numpy, exhaustive cosine) | Qdrant collection `aaa_clinical_v1` |
+| role | what the frozen evaluation was run on | what a service queries |
+| used by | `eval/`, `notebooks/` | `vectordb/retriever.py` (FastAPI later) |
+
+**Same index, moved — not rebuilt.** Vector dimension **768**, distance **cosine**, top-K
+**10**, **991** points, `abhinand/MedEmbed-base-v0.1` @ `7a90c502…`, L2-normalised. The
+existing `embeddings.npy` values are uploaded as-is; nothing is re-chunked or re-embedded.
+Point IDs are deterministic — `uuid5(fixed-namespace, chunk_id)` — and the original `chunk_id`
+is preserved in the payload, which carries the complete indexed record (text, document,
+document_id, page_number/start/end, section, content_type, token_count, char_count,
+source_file, source_excerpt, recommendation_id/grade, evidence_level).
+
+Retrieval semantics are untouched: question → MedEmbed embedding → cosine → top 10. No
+reranking, no query rewriting, no intent detection, no filtering, no per-question rules, **no
+LLM yet**.
+
+### Local vs Qdrant equivalence
+
+The migration is only accepted if the database returns what the numpy index returns. All 48
+frozen questions (original10 + heldout18 + final20) are embedded once and sent down both paths:
+
+| queries | same top-1 | same top-10 | same order | max abs. score diff | verdict |
+|---:|---:|---:|---:|---:|---|
+| 48 / 48 pass | 48/48 | 48/48 | 48/48 | 2.075e-07 (tol 1e-05) | **EQUIVALENT** |
+
+Those question sets are used here **only** as a fixed query sample — no metric is computed, no
+gold standard is scored, nothing is tuned. Artifact:
+`eval/qdrant_migration_verification.json`. Full detail: `docs/vector_database.md`.
+
+### Running it
+
+```bash
+pip install -r requirements.txt
+cp .env.example .env                     # never commit .env
+
+docker compose up -d                     # local Qdrant v1.19.0 :6333 / :6334
+python vectordb/ingest.py --recreate     # migrate 991 vectors  (measured: 0.95 s)
+python vectordb/verify_migration.py      # local vs Qdrant equivalence, 48 queries
+python vectordb/benchmark.py             # latency + footprint
+python vectordb/retriever.py "When is elective AAA repair recommended?"
+```
+
+Ingestion refuses to run on bad data rather than repairing it: wrong dimension, NaN/Inf or
+unnormalised vectors, count mismatch, missing/duplicate chunk IDs, missing or null payload
+fields, token-limit violations, or an `index_meta.json` that does not name the pinned model.
+
+Environment (no credential is ever hardcoded or committed; see `.env.example`):
+`QDRANT_URL`, `QDRANT_API_KEY`, `QDRANT_COLLECTION`, `QDRANT_PREFER_GRPC`, `QDRANT_TIMEOUT`,
+`QDRANT_EXACT_SEARCH`, `QDRANT_LOCAL_PATH`. Qdrant Cloud is supported by pointing `QDRANT_URL`
+at the cluster and setting `QDRANT_API_KEY`; the same equivalence check is the acceptance test
+for any deployment target.
+
+Measured on local Docker, CPU, 48 queries × 3: Qdrant search **9.8 ms mean / 26.3 ms p95**,
+query embedding 39.5 ms, end-to-end 51.1 ms; collection 10.0 MiB, container ~92 MiB.
+
+---
+
 ## Layout
 
 ```
@@ -111,9 +176,18 @@ eval/                     gold standards, evaluator, experiments, evidence
   final_evaluation_results.json
   experiment_history.json     23 experiments
   runs/                       every historical run, preserved
-docs/                     experiment_history.md · presentation_story.md
+vectordb/                 ** production vector database (Qdrant) — infrastructure only **
+  config.py                 env-driven settings; no credential in code
+  schema.py                 collection schema, deterministic point IDs, ingest validation
+  ingest.py                 migrate the existing 991 vectors into Qdrant
+  retriever.py              dense cosine top-10 from Qdrant (no rerank, no LLM)
+  verify_migration.py       local vs Qdrant equivalence -> eval/qdrant_migration_verification.json
+  benchmark.py              latency + footprint -> eval/qdrant_performance.json
+docker-compose.yml        local Qdrant only; the project itself is not containerised
+docs/                     HANDOFF.md ** start here ** · vector_database.md
+                          experiment_history.md · presentation_story.md
                           PROJECT_B_LESSONS.md · limitations.md · deployment_readiness.md
-tests/                    29 tests
+tests/                    69 tests (29 pipeline + 40 vector database)
 aaa-clinical-ragnour/     Project B - EXTERNAL read-only reference. Not a dependency,
                           not published to git.
 aaa-clinical-raggehad/    A separate person's project variant. Untouched, not published to git.
@@ -132,7 +206,7 @@ python eval/run_stability_checks.py             # 16 stability / readiness check
 python eval/verify_integrity.py                 # 19 integrity checks
 python eval/rebuild_shipped_index.py            # rebuild data/chunks + data/embeddings
 python eval/build_experiment_history.py         # regenerates history JSON + markdown
-python -m pytest tests -q                       # 29 tests
+python -m pytest tests -q                       # 69 tests
 ```
 
 **Open the presentation notebook** (already executed; outputs are committed):
@@ -159,9 +233,10 @@ artifact in `eval/final_artifact_hashes.json`.
 
 **Not production ready, and not claimed to be.** The retrieval core is deterministic,
 reproducible, token-safe and robust to malformed input (14/16 stability checks pass, 19/19
-integrity checks pass). There is no service,
-no logging, no authentication, and **no abstention threshold** — an out-of-scope query still
-returns 10 chunks. See `docs/deployment_readiness.md`.
+integrity checks pass). A production vector store (Qdrant) now backs retrieval, verified
+equivalent to the local index on all 48 frozen questions — but there is still no service,
+no logging, no authentication, no answer generation, and **no abstention threshold** — an
+out-of-scope query still returns 10 chunks. See `docs/deployment_readiness.md`.
 
 ## Project B
 

@@ -1,0 +1,125 @@
+{
+  "artifact": "qdrant_performance",
+  "configuration": {
+    "qdrant": {
+      "mode": "server",
+      "url": "http://localhost:6333",
+      "local_path": null,
+      "collection": "aaa_clinical_v1",
+      "prefer_grpc": false,
+      "timeout_s": 30.0,
+      "exact_search": true,
+      "api_key_supplied": false
+    },
+    "top_k": 10,
+    "queries": 48,
+    "repeats": 3,
+    "warmup_queries": 3,
+    "embedding_model": "abhinand/MedEmbed-base-v0.1",
+    "device": "cpu"
+  },
+  "latency": {
+    "query_embedding": {
+      "n": 144,
+      "mean_ms": 41.294,
+      "median_ms": 39.681,
+      "p95_ms": 52.667,
+      "min_ms": 31.873,
+      "max_ms": 134.305
+    },
+    "qdrant_search": {
+      "n": 144,
+      "mean_ms": 9.789,
+      "median_ms": 7.591,
+      "p95_ms": 26.304,
+      "min_ms": 6.249,
+      "max_ms": 29.805
+    },
+    "end_to_end_embedding_plus_search": {
+      "n": 144,
+      "mean_ms": 51.083,
+      "median_ms": 48.234,
+      "p95_ms": 66.134,
+      "min_ms": 38.488,
+      "max_ms": 143.553
+    },
+    "local_numpy_search_reference": {
+      "n": 144,
+      "mean_ms": 0.393,
+      "median_ms": 0.36,
+      "p95_ms": 0.524,
+      "min_ms": 0.303,
+      "max_ms": 1.282
+    }
+  },
+  "footprint": {
+    "collection": {
+      "points_count": 991,
+      "vectors_count": null,
+      "segments_count": 6,
+      "status": "green",
+      "optimizer_status": "ok",
+      "indexed_vectors_count": 0,
+      "raw_config": {
+        "params": {
+          "vectors": {
+            "size": 768,
+            "distance": "Cosine",
+            "hnsw_config": null,
+            "quantization_config": null,
+            "on_disk": null,
+            "memory": null,
+            "datatype": null,
+            "multivector_config": null
+          },
+          "shard_number": 1,
+          "sharding_method": null,
+          "replication_factor": 1,
+          "write_consistency_factor": 1,
+          "read_fan_out_factor": null,
+          "read_fan_out_delay_ms": null,
+          "on_disk_payload": true,
+          "payload": null,
+          "sparse_vectors": null
+        },
+        "hnsw_config": {
+          "m": 16,
+          "ef_construct": 100,
+          "full_scan_threshold": 10000,
+          "max_indexing_threads": 0,
+          "on_disk": false,
+          "memory": null,
+          "payload_m": null,
+          "inline_storage": null
+        },
+        "optimizer_config": {
+          "deleted_threshold": 0.2,
+          "vacuum_min_vector_number": 1000,
+          "default_segment_number": 0,
+          "max_segment_size": null,
+          "memmap_threshold": null,
+          "indexing_threshold": 10000,
+          "flush_interval_sec": 5,
+          "max_optimization_threads": null,
+          "prevent_unoptimized": null
+        },
+        "wal_config": {
+          "wal_capacity_mb": 32,
+          "wal_segments_ahead": 0,
+          "wal_retain_closed": 1
+        },
+        "quantization_config": null,
+        "strict_mode_config": null,
+        "metadata": null
+      }
+    },
+    "raw_vector_bytes": 3044352,
+    "raw_vector_mib": 2.903,
+    "docker": {
+      "container": "aaa-clinical-qdrant",
+      "memory_usage": "92.11MiB / 7.602GiB",
+      "storage_kib": 10276,
+      "storage_mib": 10.04
+    }
+  }
+}
