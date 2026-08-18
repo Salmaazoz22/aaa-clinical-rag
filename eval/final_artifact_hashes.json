@@ -2,7 +2,7 @@
   "generated_by": "eval/build_hash_manifest.py",
   "note": "SHA-256 of every frozen artifact at handoff. The gold standards and the historical run artifacts must never change; if a hash here stops matching, something was modified after the freeze.",
   "shipped_configuration": {
-    "chunker": "V1_atomic_pagesafe (clinical_atomic_chunking), citation-heading rejection ON",
+    "chunker": "V1_atomic_pagesafe (ingestion.atomic_chunking), citation-heading rejection ON",
     "embedding_model": "abhinand/MedEmbed-base-v0.1",
     "embedding_revision": "7a90c50263f620dff743eb9794b89a42bfc5d765",
     "retrieval": "dense cosine, top-10, 768-dim, L2-normalised, no reranking, no query processing",
@@ -63,8 +63,8 @@
         "status": "ok"
       },
       "eval/integrity_report.json": {
-        "sha256": "539f45deb1e550ae5e3a3a80a9b0af1f9bc157c1226a3e940cd19337370169e1",
-        "bytes": 6132,
+        "sha256": "769b5e2e5bf5acc3b70ddafea7ff062425c68d227a2270ce8045143e8ffc5f27",
+        "bytes": 6118,
         "status": "ok"
       },
       "eval/corpus_audit.json": {
@@ -116,44 +116,44 @@
       }
     },
     "pipeline_source": {
-      "notebooks/clinical_preprocess.py": {
+      "ingestion/preprocess.py": {
         "sha256": "a66cb0cecc050c3e4ceeede03a9e0d771a9d7bea00db56cb2ec2fec87c877a21",
         "bytes": 72469,
         "status": "ok"
       },
-      "notebooks/clinical_chunking.py": {
-        "sha256": "72c451f1b8327732355e47b271730f58c361ff7c8c363b19977583ca4dc2a7b1",
-        "bytes": 35421,
+      "ingestion/chunking.py": {
+        "sha256": "d1baf6af58bed5fe39687d029fdb3a3d73e45a2a36ea6f55f5d65b826efdae70",
+        "bytes": 35424,
         "status": "ok"
       },
-      "notebooks/clinical_atomic_chunking.py": {
-        "sha256": "3301d347aa496d6b3c54d9d799ddbee94f7f725af25b06996fb0908073c90e5c",
-        "bytes": 14663,
+      "ingestion/atomic_chunking.py": {
+        "sha256": "943c962643e44f906d07c6a92bea9e3af578560316c8202ef61f96d7c16cee2f",
+        "bytes": 14664,
         "status": "ok"
       },
-      "notebooks/clinical_rag.py": {
-        "sha256": "528171775be8624975b8c96b740a585d56324ac38f8d92e19b37703328a9935f",
-        "bytes": 17080,
+      "retrieval/index.py": {
+        "sha256": "c5ab7bd526b47e17d03583a3062d91cce2ccded79a5a2ebbcef58d6d34c66693",
+        "bytes": 17093,
         "status": "ok"
       },
-      "notebooks/clinical_rerank.py": {
+      "retrieval/rerank.py": {
         "sha256": "c409eb10537e59aa2880c7da3960c2cc23cdf6b0733e22c637d5f1758a273388",
         "bytes": 1981,
         "status": "ok"
       },
       "notebooks/final_evaluation.ipynb": {
-        "sha256": "f2a4c95b2c013d9ed9eefb6c39513ed9a26049c8a81cb06e7e0efbd8be2ddfae",
-        "bytes": 81821,
+        "sha256": "062d29f24582bd783d35217cc125d4b8de83934f2a7d23a882ef837b57125c5a",
+        "bytes": 80177,
         "status": "ok"
       },
-      "eval/evaluate.py": {
-        "sha256": "ee2b7c0949a931178f80ecb8e65c332efb7c1e5f0ac1c4ae23f9634a5cab1117",
-        "bytes": 10050,
+      "eval/scripts/evaluate.py": {
+        "sha256": "23e35b1b20b323263bf115320a1205e587b6c0c53b30cbb433e7cf9b9c7c6a9f",
+        "bytes": 10012,
         "status": "ok"
       },
       "tests/test_chunking.py": {
-        "sha256": "0dc0f2afa81faa17eb87492655004d86eb1a6cd1c42d348ba9daebd01c60e036",
-        "bytes": 14138,
+        "sha256": "07bc9710995d6709c003e90d87cbc8f71a605abc56143a96042cf993443b3649",
+        "bytes": 14159,
         "status": "ok"
       }
     },
@@ -181,8 +181,8 @@
     },
     "documentation": {
       "README.md": {
-        "sha256": "81194a580cd00ffef9a6a24c7354ae96a0a52f1a9417e9765ebdc856e22ca762",
-        "bytes": 15689,
+        "sha256": "67330f9f7d37bed58310af532bd317594d5a09e6e46535f1a17c36c798d7ece5",
+        "bytes": 16610,
         "status": "ok"
       },
       "docs/experiment_history.md": {
