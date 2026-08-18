@@ -25,12 +25,39 @@ that was authored and hash-frozen *before* the configuration being tested existe
 | original10 | baseline (page-buffer, historical) | 0.500 | 0.333 | 0.400 | 0.619 | 0.357 | 0.468 | 5/10 | 8/10 |
 | original10 | **V1 atomic (SHIPPED)** | 0.600 | 0.433 | 0.400 | 0.775 | 0.415 | 0.558 | 6/10 | 10/10 |
 | heldout18 | baseline (page-buffer, historical) | 0.556 | 0.370 | 0.344 | 0.697 | 0.667 | 0.824 | 10/18 | 16/18 |
-| heldout18 | **V1 atomic (SHIPPED)** | 0.722 | 0.556 | 0.444 | 0.815 | 0.769 | 0.898 | 13/18 | 17/18 |
+| heldout18 | V1 atomic — as first published (superseded) | 0.722 | 0.556 | 0.444 | 0.815 | 0.769 | 0.898 | 13/18 | 17/18 |
+| heldout18 | **V1 atomic (SHIPPED, recomputed)** | 0.722 | **0.574** | **0.456** | **0.824** | 0.769 | 0.898 | 13/18 | 17/18 |
 | **final20** | baseline (page-buffer, historical) | 0.400 | 0.317 | 0.250 | 0.531 | 0.542 | 0.608 | 8/20 | 14/20 |
 | **final20** | **V1 atomic (SHIPPED)** | **0.550** | 0.333 | 0.300 | **0.664** | **0.667** | **0.783** | **11/20** | 16/20 |
 
 The retriever is **identical** in every row — same model, same pinned revision, same dense
 cosine, no reranking. The only variable is where chunk boundaries fall.
+
+#### Correction: the heldout18 V1 row was recomputed on the shipped chunker
+
+The V1 rows were originally produced by `eval/experimental_atomic_chunking.py`, which carried a
+second copy of the atomic chunker. That copy emitted **1,764 chunks / 1,004 indexed** where the
+shipped chunker emits **1,760 / 991** — the difference being the citation-heading fix, which was
+off when those rows were written. `original10` and `final20` are unaffected (every metric
+identical), but three `heldout18` metrics moved, all upward:
+
+| metric | as first published | shipped chunker | Δ |
+|---|---:|---:|---:|
+| P@3 | 0.5556 | **0.5741** | +0.0185 |
+| P@5 | 0.4444 | **0.4556** | +0.0112 |
+| MRR | 0.8148 | **0.8241** | +0.0093 |
+
+The entire delta comes from one question — heldout18 Q7, "What cardiac assessment is needed before
+aneurysm repair?" — whose first relevant hit moved from rank 3 to rank 2. No other question changed
+any scored quantity. Seven other questions retrieved differently-numbered chunk ids from the same
+pages, which the page-range relevance rule scores identically.
+
+The superseded row is retained above rather than deleted. Artifact:
+`eval/runs/p1_shipped_chunker_all_sets.json`, which records both sets of numbers, the per-question
+detail, and a control confirming `final20` still reproduces
+`eval/runs/final_corrected_v1_final20.json` exactly. The two chunker implementations have since
+been collapsed into one (`notebooks/clinical_atomic_chunking.py`); see
+`docs/REFERENCE_COMPARISON.md`.
 
 **Decision: ADOPT WITH CAVEATS** (`eval/final_recommendation.md`). V1 is the first change in the
 project's history to raise P@1, and the only one to do so on a pre-registered set. **It is now the
@@ -38,7 +65,8 @@ shipped default.**
 
 ### Final corrected validation (the promotion gate)
 
-Every V1/V2 number above was produced with a known anchor defect present — numbered *bibliography*
+Every V1/V2 number above **except the recomputed heldout18 row** was produced with a known anchor
+defect present — numbered *bibliography*
 lines were being accepted as section headings (all 15 USPSTF "sections" were reference entries).
 The gate turned the fix on and re-ran V1 against `final20` only, tuning nothing:
 

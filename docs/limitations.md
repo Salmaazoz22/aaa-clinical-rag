@@ -18,6 +18,14 @@ hypothetical, and nothing that was verified is listed as a limitation.
 - Gold labels for all three sets were **authored by the same agent that ran the experiments**.
   They were always written before retrieval was run against them, and final20 was additionally
   validated against source page text and hash-frozen — but no independent clinician reviewed them.
+- **The `final20` freeze hash no longer matches the file it certifies.** The stamp taken at freeze
+  time (`eval/gold_standard_final20.sha256`, `36af11b8…`) disagrees with the committed
+  `eval/gold_standard_final20.json` (`5e02dbb8…`): the file was modified after the stamp was taken,
+  and the original bytes exist nowhere in history. **The metrics are unaffected** — every published
+  `final20` number reproduces exactly from the file as it stands — but the *audit trail* for the
+  freeze is broken. It was deliberately **not** re-stamped: a fresh hash would assert a
+  pre-registration property that can no longer be evidenced. `eval/integrity_report.json` records
+  this as a FAIL rather than hiding it. Full detail: `docs/REFERENCE_COMPARISON.md` §9.
 
 ## 2. Test-set consumption
 
@@ -61,9 +69,13 @@ exactly why V2's true value is unresolved.
   **all eight metrics identical, Δ 0.0000** (`eval/runs/final_corrected_v1_final20.json`). The
   removed anchors only ever fragmented bibliography text, which the content classifier already
   excludes from the index. The shipped chunker has the fix on.
-  **Residual caveat:** the corrected configuration was validated on `final20` only, as instructed.
-  The `original10` and `heldout18` numbers in `eval/final_evaluation_results.json` were produced
-  with the fix off and were not recomputed.
+  **Residual caveat, now closed:** the corrected configuration was originally validated on
+  `final20` only, as instructed. `original10` and `heldout18` have since been recomputed on the
+  shipped chunker (`eval/runs/p1_shipped_chunker_all_sets.json`): `original10` is identical in all
+  eight metrics, and `heldout18` moved in three — P@3 +0.0185, P@5 +0.0112, MRR +0.0093 — all
+  upward and all traceable to a single question whose first relevant hit moved from rank 3 to
+  rank 2. The figures in `eval/final_evaluation_results.json` are preserved as the historical
+  record; the README carries both the superseded and the recomputed `heldout18` row.
 
 ## 5. Selective reranking (Policy A) is unresolved, not adopted
 

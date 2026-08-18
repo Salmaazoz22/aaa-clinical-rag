@@ -181,11 +181,14 @@ def evaluate_run(runs: dict[int, list[dict[str, Any]]], gold: dict[str, Any]) ->
 
 def run_retrieval(top_k: int = 10, rerank: bool = False, candidates: int = 30) -> dict[str, Any]:
     sys.path.insert(0, str(ROOT / "notebooks"))
+    import clinical_chunking as cc  # noqa: E402
     import clinical_rag as cr  # noqa: E402
-    from sentence_transformers import SentenceTransformer  # noqa: E402
 
     index = cr.load_index(ROOT)
-    model = SentenceTransformer(index["model_name"])
+    # `cc.load_embedder` applies the revision pin. Constructing SentenceTransformer
+    # directly would resolve `main` at download time, so a hub update could move
+    # results under a frozen gold standard.
+    model = cc.load_embedder(index["model_name"])
 
     reranker = None
     if rerank:

@@ -37,6 +37,7 @@ SHIPPED_INDEX = [
     "data/embeddings/embeddings.npy",
     "data/embeddings/embedded_chunks.json",
     "data/embeddings/index_meta.json",
+    "data/embeddings/ids.json",
 ]
 PIPELINE = [
     "notebooks/clinical_preprocess.py",

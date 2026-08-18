@@ -33,8 +33,17 @@ Thumbs.db
 #                             pipeline files differ from this one's; it is not a
 #                             duplicate and was deliberately left untouched.
 #
-# Both remain on disk. The audit conclusions about Project B stand on their own:
+#   for ground truth code/     - a third-party "mini-rag" reference service (FastAPI +
+#                             Celery + Qdrant/pgvector) kept on disk purely as a
+#                             read-only design reference for chunking, embedding,
+#                             retrieval and evaluation logic. Not a dependency: no
+#                             module in this repo imports it, and nothing in it runs
+#                             as part of this pipeline. Its libraries and APIs are
+#                             older than ours; only its design decisions are reused.
+#
+# All remain on disk. The audit conclusions about Project B stand on their own:
 # every figure quoted is recorded in eval/project_b_comparison.json.
 # ---------------------------------------------------------------------------
 aaa-clinical-ragnour/
 aaa-clinical-raggehad/
+for ground truth code/

@@ -35,6 +35,16 @@ typeset, not what any evaluation question asks.
 Token safety is unchanged from `clinical_chunking`: every piece is budgeted
 against the real tokenizer of the active embedding model and a recommendation is
 kept whole only up to that budget. Nothing is ever silently truncated.
+
+Single source of truth
+----------------------
+This module is the ONLY implementation of the atomic chunker. `build_chunks`
+carries the two switches the evaluation harness needs -- `keep_page_breaks`
+(False reaches the rejected V2 anchors-only shape) and `reject_citation_headings`
+(False reproduces the pre-fix historical artifacts) -- so that
+`eval/experimental_atomic_chunking.py` can call this function with parameters
+instead of maintaining a second copy of it. The defaults are the shipped
+configuration; changing a default changes the shipped index.
 """
 from __future__ import annotations
 
@@ -88,12 +98,12 @@ def _looks_like_citation_line(title: str) -> bool:
     return False
 
 
-def _heading_is_real(title: str, line: str) -> bool:
+def _heading_is_real(title: str, line: str, reject_citation_headings: bool = True) -> bool:
     if _DOT_LEADER.search(line):
         return False  # table-of-contents row
     if _CITATION_SHAPE.search(line):
         return False  # bibliography entry
-    if _looks_like_citation_line(title):
+    if reject_citation_headings and _looks_like_citation_line(title):
         return False  # numbered reference masquerading as a heading
     if len(title.split()) > 12:
         return False
@@ -148,7 +158,7 @@ def strip_markers(text: str) -> str:
     return _PAGE_MARKER.sub("", text).strip()
 
 
-def find_anchors(marked: str) -> list[tuple[int, str, str]]:
+def find_anchors(marked: str, reject_citation_headings: bool = True) -> list[tuple[int, str, str]]:
     """(offset, kind, label) for every structural anchor, de-duplicated."""
     anchors: dict[int, tuple[str, str]] = {}
     for m in _REC_HEADING.finditer(marked):
@@ -159,28 +169,35 @@ def find_anchors(marked: str) -> list[tuple[int, str, str]]:
         if m.start() in anchors:
             continue
         title = m.group(2).strip()
-        if not _heading_is_real(title, m.group(0)):
+        if not _heading_is_real(title, m.group(0), reject_citation_headings):
             continue
         anchors[m.start()] = (SECTION_ANCHOR, f"{m.group(1)} {title}")
     return sorted((off, kind, label) for off, (kind, label) in anchors.items())
 
 
-def segment(marked: str) -> list[dict[str, Any]]:
-    """Cut into spans at anchors; page breaks also cut, except inside a
-    recommendation, so a recommendation is never severed by pagination."""
-    hard = find_anchors(marked)
+def segment(marked: str, keep_page_breaks: bool = True,
+            reject_citation_headings: bool = True) -> list[dict[str, Any]]:
+    """Cut into spans at anchors.
+
+    With `keep_page_breaks` (the shipped V1 behaviour) a page break also cuts,
+    except inside a recommendation, so a recommendation is never severed by
+    pagination. With it False only anchors cut -- the rejected V2 shape, kept
+    reachable so the V2 comparison runs against this one implementation.
+    """
+    hard = find_anchors(marked, reject_citation_headings=reject_citation_headings)
     points: list[tuple[int, str, str]] = list(hard)
 
-    hard_by_off = {off: (kind, label) for off, kind, label in hard}
-    hard_offsets = sorted(hard_by_off)
-    for m in _PAGE_MARKER.finditer(marked):
-        off = m.start()
-        if off in hard_by_off:
-            continue
-        prior = [h for h in hard_offsets if h <= off]
-        if prior and hard_by_off[prior[-1]][0] == REC_ANCHOR:
-            continue  # keep the recommendation whole across the page break
-        points.append((off, PAGE_ANCHOR, ""))
+    if keep_page_breaks:
+        hard_by_off = {off: (kind, label) for off, kind, label in hard}
+        hard_offsets = sorted(hard_by_off)
+        for m in _PAGE_MARKER.finditer(marked):
+            off = m.start()
+            if off in hard_by_off:
+                continue
+            prior = [h for h in hard_offsets if h <= off]
+            if prior and hard_by_off[prior[-1]][0] == REC_ANCHOR:
+                continue  # keep the recommendation whole across the page break
+            points.append((off, PAGE_ANCHOR, ""))
 
     points.sort()
     if not points or points[0][0] > 0:
@@ -220,6 +237,8 @@ def build_chunks(
     recs_df: pd.DataFrame | None = None,
     rec_token_budget: int | None = None,
     narrative_token_budget: int = cc.TARGET_TOKENS,
+    keep_page_breaks: bool = True,
+    reject_citation_headings: bool = True,
 ) -> list[dict[str, Any]]:
     """Anchor-driven chunks, token-budgeted so nothing is ever truncated.
 
@@ -227,6 +246,12 @@ def build_chunks(
     Experiment 3 established that `section_title` is metadata only -- it is never
     embedded -- so deriving it differently here would change provenance without
     being able to change retrieval.
+
+    The default arguments ARE the shipped V1 configuration. The two switches exist
+    so that the evaluation harness can reach the rejected V2 shape
+    (`keep_page_breaks=False`) and reproduce the pre-fix historical artifacts
+    (`reject_citation_headings=False`) without a second copy of this function.
+    Changing either default changes the shipped index.
     """
     recs_df = recs_df if recs_df is not None else pd.DataFrame()
     limit = cc.max_content_tokens()
@@ -239,7 +264,8 @@ def build_chunks(
         meta_by_page = _page_meta(doc_pages)
         doc_seq = 0
 
-        for span in segment(marked):
+        for span in segment(marked, keep_page_breaks=keep_page_breaks,
+                            reject_citation_headings=reject_citation_headings):
             text = span["text"]
             if len(text) < cc.MIN_VALID_CHARS:
                 continue

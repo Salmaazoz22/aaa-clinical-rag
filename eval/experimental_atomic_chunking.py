@@ -48,7 +48,6 @@ Run:
 from __future__ import annotations
 
 import json
-import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -62,6 +61,7 @@ sys.path.insert(0, str(EVAL_DIR))
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
+import clinical_atomic_chunking as cac  # noqa: E402
 import clinical_chunking as cc  # noqa: E402
 from evaluate import evaluate_run, load_gold  # noqa: E402
 
@@ -69,32 +69,27 @@ HELDOUT_GOLD = EVAL_DIR / "gold_standard_heldout.json"
 EVAL_DEPTH = 10
 
 # ---------------------------------------------------------------------------
-# Anchors
+# Anchors and chunk assembly
 #
-# Structure-driven only. These patterns describe how a clinical guideline is
-# typeset, not what any evaluation question asks. No query string, gold label,
-# recommendation number or topic keyword appears anywhere in this file.
+# There is ONE implementation of the atomic chunker, in
+# `notebooks/clinical_atomic_chunking.py` -- the module that produces the shipped
+# artifacts. This file used to carry a second, independent copy of the anchor
+# patterns, the segmenter and the chunk-assembly loop. The two drifted: the copy
+# here produced 1,764 chunks / 1,004 indexed while the shipped module produced
+# 1,760 / 991, so the published original10 and heldout18 rows described a chunk
+# set that was never shipped (see docs/REFERENCE_COMPARISON.md).
+#
+# The variants below are now expressed as PARAMETERS on that single
+# implementation, not as a forked body. Structure-driven only: no query string,
+# gold label, recommendation number or topic keyword appears anywhere in this file.
 # ---------------------------------------------------------------------------
-_PAGE_MARKER = re.compile(r"\x00PAGE:(\d+)\x00")
 
-# "Recommendation 11" on a line of its own (ESVS / SVS house style).
-_REC_HEADING = re.compile(r"(?m)^\s*Recommendation\s+(\d{1,3})\s*$")
-# NICE-style numbered recommendation identifiers: "1.5.4 Offer ...".
-_REC_ID = re.compile(r"(?m)^\s*(\d{1,2}\.\d{1,2}\.\d{1,2}(?:\.\d{1,2})?)\s+(?=\S)")
-# Numbered section headings: "3.3 Screening for AAA", "5 Management".
-_SECTION_HEADING = re.compile(r"(?m)^\s*(\d{1,2}(?:\.\d{1,2}){0,2})\.?\s+([A-Z][^\n]{4,90})$")
-# Contents-page leaders, reused from the baseline classifier's vocabulary: a
-# heading-shaped line carrying dot leaders is a table-of-contents row.
-_DOT_LEADER = re.compile(r"\.{4,}|(?:\.[ \t]){4,}")
-# Bibliography-shaped lines that can mimic a numbered heading.
-_CITATION_SHAPE = re.compile(r"\bet al\b|doi:|\bAvailable at:|\[Accessed\b|\b\d{4};\s*\d+", re.I)
-# A numbered reference entry ("3 Svensjo S, Bjorck M, Gurtelschmid M, Djavani")
-# is shaped exactly like a numbered heading. Experiment 3 hit the same class of
-# false positive and rejected author lists and citations for the same reason.
-# These are structural shape tests, not a list of this corpus's actual headings.
-_AUTHOR_INITIALS = re.compile(r"\b[A-Z][a-z]+\s+[A-Z]{1,3}[,.]")
-_INTERNAL_SENTENCE_BREAK = re.compile(r"\.\s+[A-Z]")
+REC_ANCHOR, SECTION_ANCHOR, PAGE_ANCHOR = cac.REC_ANCHOR, cac.SECTION_ANCHOR, cac.PAGE_ANCHOR
 
+# Provenance helpers are re-exported so callers keep working unchanged.
+build_marked_text = cac.build_marked_text
+page_at_offset = cac.page_at_offset
+strip_markers = cac.strip_markers
 
 # Rejects numbered bibliography lines that are shaped like numbered headings
 # ("3 Svensjo S, Bjorck M, Gurtelschmid M, Djavani"). Removing them drops 15 bogus
@@ -106,184 +101,22 @@ _INTERNAL_SENTENCE_BREAK = re.compile(r"\.\s+[A-Z]")
 # historical experiments. To reproduce them exactly, set this back to False.
 # The FINAL CORRECTED VALIDATION (eval/runs/final_corrected_v1_final20.json) and
 # the shipped configuration use True.
+#
+# This flag is read at CALL time by the wrappers below, so assigning to
+# `ex.REJECT_CITATION_HEADINGS` at runtime still takes effect
+# (eval/run_corrected_validation.py relies on that).
 REJECT_CITATION_HEADINGS = True
 
 
-def _looks_like_citation_line(title: str) -> bool:
-    if title.count(",") >= 2:
-        return True
-    if ";" in title:
-        return True
-    if _AUTHOR_INITIALS.search(title):
-        return True
-    if _INTERNAL_SENTENCE_BREAK.search(title):
-        return True
-    return False
-
-REC_ANCHOR, SECTION_ANCHOR, PAGE_ANCHOR = "recommendation", "section", "page"
-
-# `split_text` re-tokenises the whole remaining span on every iteration, which is
-# cheap for page-sized input but quadratic on a 40-page anchor-free stretch (the
-# baseline never produces one). Spans longer than this are pre-cut on blank lines
-# first. The cut size is ~4x the largest possible token budget in characters, so
-# no chunk boundary that `split_text` would have chosen is displaced.
-_PRECUT_CHARS = 8000
-
-
-def _precut(text: str, limit: int = _PRECUT_CHARS) -> list[str]:
-    """Cut an over-long span on paragraph boundaries before token splitting."""
-    if len(text) <= limit:
-        return [text]
-    out, current = [], ""
-    for para in re.split(r"\n\s*\n", text):
-        if current and len(current) + len(para) > limit:
-            out.append(current)
-            current = para
-        else:
-            current = f"{current}\n\n{para}" if current else para
-    if current.strip():
-        out.append(current)
-    # A single paragraph can still exceed the limit (an unbroken table block).
-    final = []
-    for piece in out:
-        while len(piece) > limit:
-            final.append(piece[:limit])
-            piece = piece[limit:]
-        if piece.strip():
-            final.append(piece)
-    return final
-
-
-def build_marked_text(doc_pages: pd.DataFrame) -> str:
-    """Document-level text with page sentinels (Project B's provenance trick).
-
-    Page content is produced by the BASELINE `page_working_text`, so the text
-    being chunked is identical to the baseline's; only the boundaries differ.
-    """
-    parts: list[str] = []
-    for _, row in doc_pages.iterrows():
-        if row.get("extraction_status") == "corrupted":
-            continue
-        text = cc.page_working_text(row)
-        parts.append(f"\x00PAGE:{int(row['page_number'])}\x00")
-        parts.append(text)
-    return "\n".join(parts)
-
-
-def page_at_offset(marked: str, offset: int) -> int:
-    page = 1
-    for m in _PAGE_MARKER.finditer(marked):
-        if m.start() > offset:
-            break
-        page = int(m.group(1))
-    return page
-
-
-def strip_markers(text: str) -> str:
-    return _PAGE_MARKER.sub("", text).strip()
-
-
-def _heading_is_real(title: str, line: str) -> bool:
-    if _DOT_LEADER.search(line):
-        return False  # table-of-contents row
-    if _CITATION_SHAPE.search(line):
-        return False  # bibliography entry
-    if REJECT_CITATION_HEADINGS and _looks_like_citation_line(title):
-        return False  # numbered reference entry masquerading as a heading
-    if len(title.split()) > 12:
-        return False
-    if title.rstrip().endswith((",", ";", ":")):
-        return False
-    return True
-
-
 def find_anchors(marked: str) -> list[tuple[int, str, str]]:
-    """(offset, kind, label) for every structural anchor, de-duplicated."""
-    anchors: dict[int, tuple[str, str]] = {}
-
-    for m in _REC_HEADING.finditer(marked):
-        anchors[m.start()] = (REC_ANCHOR, m.group(1))
-
-    for m in _REC_ID.finditer(marked):
-        anchors.setdefault(m.start(), (REC_ANCHOR, m.group(1)))
-
-    for m in _SECTION_HEADING.finditer(marked):
-        if m.start() in anchors:
-            continue
-        line = m.group(0)
-        title = m.group(2).strip()
-        if not _heading_is_real(title, line):
-            continue
-        anchors[m.start()] = (SECTION_ANCHOR, f"{m.group(1)} {title}")
-
-    return sorted((off, kind, label) for off, (kind, label) in anchors.items())
-
-
-def _page_anchor_offsets(marked: str) -> list[int]:
-    return [m.start() for m in _PAGE_MARKER.finditer(marked)]
+    """Anchors from the shipped implementation, honouring the module flag."""
+    return cac.find_anchors(marked, reject_citation_headings=REJECT_CITATION_HEADINGS)
 
 
 def segment(marked: str, keep_page_breaks: bool) -> list[dict[str, Any]]:
-    """Cut `marked` into spans at anchors.
-
-    With `keep_page_breaks`, a page boundary also cuts -- except inside a
-    recommendation span, so a recommendation is never severed by pagination.
-    """
-    hard = find_anchors(marked)
-    points: list[tuple[int, str, str]] = list(hard)
-
-    if keep_page_breaks:
-        hard_by_off = {off: (kind, label) for off, kind, label in hard}
-        hard_offsets = sorted(hard_by_off)
-        for off in _page_anchor_offsets(marked):
-            if off in hard_by_off:
-                continue
-            prior = [h for h in hard_offsets if h <= off]
-            if prior and hard_by_off[prior[-1]][0] == REC_ANCHOR:
-                continue  # keep the recommendation whole across the page break
-            points.append((off, PAGE_ANCHOR, ""))
-
-    points.sort()
-    if not points or points[0][0] > 0:
-        points.insert(0, (0, PAGE_ANCHOR, ""))
-
-    bounds = [p[0] for p in points] + [len(marked)]
-    spans = []
-    current_section: str | None = None
-    for i, (start, kind, label) in enumerate(points):
-        if kind == SECTION_ANCHOR:
-            current_section = label
-        body = strip_markers(marked[start : bounds[i + 1]])
-        if not body:
-            continue
-        spans.append(
-            {
-                "kind": kind,
-                "label": label,
-                "enclosing_section": current_section,
-                "text": body,
-                "page_start": page_at_offset(marked, start),
-                "page_end": page_at_offset(marked, bounds[i + 1] - 1),
-            }
-        )
-    return spans
-
-
-# ---------------------------------------------------------------------------
-# Chunk assembly
-# ---------------------------------------------------------------------------
-
-def _page_meta(doc_pages: pd.DataFrame) -> dict[int, dict[str, Any]]:
-    out = {}
-    for _, row in doc_pages.iterrows():
-        out[int(row["page_number"])] = {
-            "document_name": row.get("document_name"),
-            "document_type": row.get("document_type"),
-            "source_file": row.get("source_file"),
-            "section_title": cc._as_optional(row.get("section_title")),
-            "section_source": cc._as_optional(row.get("section_source")) or "unknown",
-        }
-    return out
+    """Spans from the shipped implementation, honouring the module flag."""
+    return cac.segment(marked, keep_page_breaks=keep_page_breaks,
+                       reject_citation_headings=REJECT_CITATION_HEADINGS)
 
 
 def build_atomic_chunks(
@@ -293,76 +126,21 @@ def build_atomic_chunks(
     rec_token_budget: int,
     narrative_token_budget: int = cc.TARGET_TOKENS,
 ) -> list[dict[str, Any]]:
-    """Anchor-driven chunks, token-budgeted so nothing is ever truncated.
+    """V1 / V2 atomic chunks, built by the SHIPPED chunker.
 
-    Section titles are taken from the SAME page-level source the baseline uses.
-    Experiment 3 established that `section_title` is metadata only -- it is
-    never embedded -- so changing its derivation here would add a second,
-    non-retrieval variable to the comparison for no possible metric effect.
+    V1 is `keep_page_breaks=True` (the shipped default); V2 is False. Nothing is
+    reimplemented here -- this is a parameterised call into
+    `clinical_atomic_chunking.build_chunks`, so the evaluated chunk set and the
+    shipped chunk set cannot diverge again.
     """
-    limit = cc.max_content_tokens()
-    chunks: list[dict[str, Any]] = []
-
-    for document_id, doc_pages in pages_df.groupby("document_id", sort=True):
-        doc_pages = doc_pages.sort_values("page_number")
-        marked = build_marked_text(doc_pages)
-        meta_by_page = _page_meta(doc_pages)
-        doc_seq = 0
-
-        for span in segment(marked, keep_page_breaks=keep_page_breaks):
-            text = span["text"]
-            if len(text) < cc.MIN_VALID_CHARS:
-                continue
-
-            is_rec = span["kind"] == REC_ANCHOR
-            budget = min(rec_token_budget if is_rec else narrative_token_budget, limit)
-            pieces = []
-            for block in _precut(text):
-                pieces.extend(
-                    cc.split_text(block, target_tokens=budget, overlap_tokens=cc.OVERLAP_TOKENS)
-                )
-            if not pieces:
-                continue
-
-            page_start, page_end = span["page_start"], span["page_end"]
-            meta = meta_by_page.get(page_start) or next(iter(meta_by_page.values()))
-            recs_nearby: list[dict[str, Any]] = []
-            for pg in range(page_start, page_end + 1):
-                recs_nearby.extend(cc.recs_for_page(recs_df, document_id, pg))
-
-            for piece in pieces:
-                rec_meta = cc.attach_recommendation_metadata(piece, recs_nearby)
-                if is_rec and not rec_meta["recommendation_id"]:
-                    rec_meta = dict(rec_meta, recommendation_id=span["label"])
-                doc_seq += 1
-                section_title = meta["section_title"]
-                chunks.append(
-                    {
-                        "chunk_id": f"{document_id}__p{page_start}-{page_end}__c{doc_seq:04d}",
-                        "document_id": document_id,
-                        "document_name": meta["document_name"],
-                        "document_type": meta["document_type"],
-                        "is_guideline": cc.is_guideline_document(meta["document_type"]),
-                        "section_title": section_title,
-                        "section_source": meta["section_source"],
-                        "anchor_kind": span["kind"],
-                        "anchor_label": span["label"] or None,
-                        "enclosing_section": span["enclosing_section"],
-                        "page_number": page_start,
-                        "page_start": page_start,
-                        "page_end": page_end,
-                        "source_file": meta["source_file"],
-                        "chunk_text": piece,
-                        "source_excerpt": piece[:400],
-                        "token_count": cc.count_tokens(piece),
-                        "char_count": len(piece),
-                        "content_type": cc.classify_chunk_content(piece, section_title),
-                        "recommendation_id": rec_meta["recommendation_id"],
-                        "recommendation_grade": rec_meta["recommendation_grade"],
-                        "evidence_level": rec_meta["evidence_level"],
-                    }
-                )
-    return chunks
+    return cac.build_chunks(
+        pages_df,
+        recs_df,
+        rec_token_budget=rec_token_budget,
+        narrative_token_budget=narrative_token_budget,
+        keep_page_breaks=keep_page_breaks,
+        reject_citation_headings=REJECT_CITATION_HEADINGS,
+    )
 
 
 def build_size_control_chunks(
@@ -429,11 +207,16 @@ def retrieve(query: str, index: dict[str, Any], model, top_k: int = EVAL_DEPTH) 
 
 
 def load_production_index() -> dict[str, Any]:
+    import clinical_rag as cr
+
     d = ROOT / "data" / "embeddings"
+    meta = json.loads((d / "index_meta.json").read_text(encoding="utf-8"))
     chunks = json.loads((d / "embedded_chunks.json").read_text(encoding="utf-8"))
     vectors = np.load(d / "embeddings.npy")
-    if len(chunks) != len(vectors):
-        raise RuntimeError("production index is out of sync")
+    # The same binding check `clinical_rag.load_index` applies: element-wise
+    # chunk_id equality plus the digests stamped at build time. This path is the
+    # one the evaluations retrieve through, so it must not be the weaker one.
+    cr.verify_index_binding(ROOT, meta, chunks, vectors)
     # `all_chunks` is the full pre-filter set, so the control's "total chunks"
     # column is comparable with the variants' (2,116, not the 1,330 indexed).
     produced = json.loads((ROOT / "data" / "chunks" / "chunks.json").read_text(encoding="utf-8"))

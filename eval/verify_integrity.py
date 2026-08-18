@@ -193,7 +193,35 @@ def main() -> int:
            {"shipped_total_chunks": len(shipped_chunks["chunks"]),
             "validated_total_chunks": prof["total_chunks"],
             "shipped_vectors": shipped_meta["n_vectors"],
-            "validated_indexed": prof["indexed_chunks"]})
+            "validated_indexed": prof["indexed_chunks"],
+            "note": "A profile match on counts, which is NOT an identity check -- two "
+                    "different chunk sets of the same size satisfy it. The digest check "
+                    "below is the identity check."})
+
+    # Counts are not identity. This is exactly how the experimental chunker's
+    # 1764/1004 chunk set went unflagged against the shipped 1760/991 one, so the
+    # binding is now asserted by content digest: the ordered chunk_id list beside
+    # the vectors, its digest, and a digest of the chunks.json the index was built
+    # from. clinical_rag.load_index refuses to load if any of the three disagree.
+    import numpy as np  # noqa: E402
+
+    import clinical_rag as cr  # noqa: E402
+
+    try:
+        binding = cr.verify_index_binding(
+            ROOT,
+            shipped_meta,
+            json.loads((ROOT / "data/embeddings/embedded_chunks.json").read_text(encoding="utf-8")),
+            np.load(ROOT / "data/embeddings/embeddings.npy"),
+        )
+        bind_ok: bool = True
+        bind_detail: dict[str, Any] = dict(binding)
+    except Exception as e:
+        bind_ok = False
+        bind_detail = {"error": f"{type(e).__name__}: {e}"}
+    bind_detail["verified_by"] = "clinical_rag.verify_index_binding (the loader's own check)"
+    record("Shipped index is bound to its chunk set by content digest, not by count",
+           bind_ok, bind_detail)
 
     record("Corrected validation shows no regression on final20",
            all(abs(v) < 1e-9 for v in corr["delta"].values()),

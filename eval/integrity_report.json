@@ -1,9 +1,9 @@
 {
   "generated_by": "eval/verify_integrity.py",
-  "all_checks_passed": true,
+  "all_checks_passed": false,
   "summary": {
     "pass": 19,
-    "fail": 0
+    "fail": 1
   },
   "checks": [
     {
@@ -24,9 +24,9 @@
     },
     {
       "check": "final20 frozen: file hash == hash stamped at freeze time == hash used by the evaluation",
-      "status": "pass",
+      "status": "FAIL",
       "detail": {
-        "file": "36af11b88f7fd908fd474e904c41b567ef798b6608575f5302f3dee80f2e2579",
+        "file": "5e02dbb84448a2dcc2c132a3e0d99128784c45399c896c7490b2ea83542c4840",
         "stamped_at_freeze": "36af11b88f7fd908fd474e904c41b567ef798b6608575f5302f3dee80f2e2579",
         "used_by_evaluation": "36af11b88f7fd908fd474e904c41b567ef798b6608575f5302f3dee80f2e2579"
       }
@@ -110,7 +110,7 @@
       "status": "pass",
       "detail": {
         "returncode": 0,
-        "summary": "29 passed in 95.35s (0:01:35)"
+        "summary": "41 passed in 51.83s"
       }
     },
     {
@@ -143,7 +143,18 @@
         "shipped_total_chunks": 1760,
         "validated_total_chunks": 1760,
         "shipped_vectors": 991,
-        "validated_indexed": 991
+        "validated_indexed": 991,
+        "note": "A profile match on counts, which is NOT an identity check -- two different chunk sets of the same size satisfy it. The digest check below is the identity check."
+      }
+    },
+    {
+      "check": "Shipped index is bound to its chunk set by content digest, not by count",
+      "status": "pass",
+      "detail": {
+        "n_indexed": 991,
+        "source_chunks_sha256": "82faf28fb81b599f5a6ad4bcda5845d19963e2e46790f0357b1d52dc3952f0d2",
+        "indexed_chunk_ids_sha256": "b48e5ec5a3164d106cf69d36bda831b1f8564f4132aedeb1c652be12a649fd47",
+        "verified_by": "clinical_rag.verify_index_binding (the loader's own check)"
       }
     },
     {

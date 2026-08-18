@@ -118,15 +118,28 @@ def pinned_revision():
 
 @check("Index integrity: vectors align with metadata and are L2-normalised", "reproducibility")
 def index_integrity():
+    import clinical_rag as cr
     vecs = np.load(ROOT / "data/embeddings/embeddings.npy")
     chunks = json.loads((ROOT / "data/embeddings/embedded_chunks.json").read_text(encoding="utf-8"))
+    meta = json.loads((ROOT / "data/embeddings/index_meta.json").read_text(encoding="utf-8"))
     norms = np.linalg.norm(vecs, axis=1)
-    ok = len(chunks) == vecs.shape[0] and float(norms.min()) > 0.999 and float(norms.max()) < 1.001
+    # Alignment is asserted chunk_id by chunk_id, not by comparing lengths: the
+    # vector<->chunk join is positional, so a length-preserving reorder would pass
+    # a count check and mis-attribute every retrieved chunk.
+    try:
+        binding = cr.verify_index_binding(ROOT, meta, chunks, vecs)
+        bound, binding_error = True, None
+    except Exception as e:
+        binding, bound, binding_error = {}, False, f"{type(e).__name__}: {e}"
+    ok = bound and float(norms.min()) > 0.999 and float(norms.max()) < 1.001
     return ("pass" if ok else "fail",
             {"vectors": list(vecs.shape), "metadata_records": len(chunks),
              "dtype": str(vecs.dtype),
              "l2_norm_min": round(float(norms.min()), 8),
-             "l2_norm_max": round(float(norms.max()), 8)})
+             "l2_norm_max": round(float(norms.max()), 8),
+             "chunk_id_join_verified_element_wise": bound,
+             "binding": binding,
+             "binding_error": binding_error})
 
 
 @check("Index reproducibility: re-embedding a sample reproduces stored vectors", "reproducibility")
@@ -271,6 +284,7 @@ def checksums():
         "eval/gold_standard_final20.json",
         "data/chunks/chunks.json", "data/embeddings/embeddings.npy",
         "data/embeddings/embedded_chunks.json", "data/embeddings/index_meta.json",
+        "data/embeddings/ids.json",
         "data/processed/pages.json", "data/processed/recommendations.json",
         "notebooks/clinical_chunking.py", "notebooks/clinical_preprocess.py",
         "notebooks/clinical_rag.py",

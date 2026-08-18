@@ -10,5 +10,9 @@
   "failed_embeddings": [],
   "vectors_file": "embeddings.npy",
   "chunks_file": "embedded_chunks.json",
+  "ids_file": "ids.json",
+  "source_chunks_file": "data/chunks/chunks.json",
+  "source_chunks_sha256": "82faf28fb81b599f5a6ad4bcda5845d19963e2e46790f0357b1d52dc3952f0d2",
+  "indexed_chunk_ids_sha256": "b48e5ec5a3164d106cf69d36bda831b1f8564f4132aedeb1c652be12a649fd47",
   "created_at_utc": "2026-08-17T20:40:17.076870+00:00"
 }

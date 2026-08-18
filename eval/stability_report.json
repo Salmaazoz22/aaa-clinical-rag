@@ -19,7 +19,7 @@
         "identical": true,
         "note": "Determinism of the chunker itself, independent of the committed artifact."
       },
-      "seconds": 58.2
+      "seconds": 25.25
     },
     {
       "check": "Committed chunks.json still reproduces from the CURRENT code",
@@ -29,7 +29,7 @@
         "chunks": 1760,
         "mismatches": 0
       },
-      "seconds": 0.05
+      "seconds": 0.03
     },
     {
       "check": "Chunk IDs unique and deterministic in form",
@@ -40,7 +40,7 @@
         "unique": 1760,
         "malformed": []
       },
-      "seconds": 0.05
+      "seconds": 0.03
     },
     {
       "check": "Embedding model revision is pinned",
@@ -65,7 +65,14 @@
         "metadata_records": 991,
         "dtype": "float32",
         "l2_norm_min": 0.99999988,
-        "l2_norm_max": 1.00000012
+        "l2_norm_max": 1.00000012,
+        "chunk_id_join_verified_element_wise": true,
+        "binding": {
+          "n_indexed": 991,
+          "source_chunks_sha256": "82faf28fb81b599f5a6ad4bcda5845d19963e2e46790f0357b1d52dc3952f0d2",
+          "indexed_chunk_ids_sha256": "b48e5ec5a3164d106cf69d36bda831b1f8564f4132aedeb1c652be12a649fd47"
+        },
+        "binding_error": null
       },
       "seconds": 0.03
     },
@@ -75,10 +82,10 @@
       "status": "pass",
       "detail": {
         "sampled_chunks": 64,
-        "max_abs_difference": 1.3783574104309082e-07,
+        "max_abs_difference": 2.169981598854065e-07,
         "tolerance": 0.0001
       },
-      "seconds": 40.87
+      "seconds": 30.57
     },
     {
       "check": "Token safety: no indexed chunk exceeds the encoder window",
@@ -90,7 +97,7 @@
         "chunks_over_limit": 0,
         "stored_vs_recomputed_mismatches": 0
       },
-      "seconds": 2.01
+      "seconds": 0.58
     },
     {
       "check": "Fail-loud token validator rejects an oversized chunk",
@@ -149,7 +156,7 @@
         "failed": [],
         "note": "No case raised. NOTE: an empty or punctuation-only query still returns 10 chunks with low similarity -- there is NO abstention threshold. See deployment_readiness.md."
       },
-      "seconds": 5.47
+      "seconds": 2.7
     },
     {
       "check": "Query determinism: the same query returns the same ranking",
@@ -159,7 +166,7 @@
         "identical_rankings": true,
         "distinct_top1_scores": 1
       },
-      "seconds": 3.54
+      "seconds": 2.08
     },
     {
       "check": "Retrieval latency",
@@ -167,14 +174,14 @@
       "status": "pass",
       "detail": {
         "queries_timed": 10,
-        "mean_seconds": 0.0719,
-        "median_seconds": 0.0716,
-        "p90_seconds": 0.0789,
-        "max_seconds": 0.0893,
+        "mean_seconds": 0.1051,
+        "median_seconds": 0.1239,
+        "p90_seconds": 0.132,
+        "max_seconds": 0.132,
         "hardware": "CPU only (torch CPU build); no GPU used",
         "note": "Dominated by query encoding, not by the 1,330-vector dot product."
       },
-      "seconds": 3.17
+      "seconds": 2.55
     },
     {
       "check": "Index footprint on disk and in memory",
@@ -182,7 +189,7 @@
       "status": "pass",
       "detail": {
         "vectors_file_bytes": 3044480,
-        "chunk_metadata_file_bytes": 2058057,
+        "chunk_metadata_file_bytes": 2037245,
         "vectors_in_memory_bytes": 3044352,
         "shape": [
           991,
@@ -190,7 +197,7 @@
         ],
         "index_type": "in-process NumPy matrix, exhaustive cosine (no ANN service)"
       },
-      "seconds": 0.01
+      "seconds": 0.0
     },
     {
       "check": "Test suite",
@@ -198,9 +205,9 @@
       "status": "pass",
       "detail": {
         "returncode": 0,
-        "summary": "29 passed in 95.35s (0:01:35)"
+        "summary": "41 passed in 51.83s"
       },
-      "seconds": 99.78
+      "seconds": 53.81
     },
     {
       "check": "Critical artifact checksums recorded",
@@ -209,18 +216,19 @@
       "detail": {
         "eval/gold_standard.json": "0b8a443b69960bc5ac20311f0010926a2f131bbb5531ccf369f321f59ed2e5c1",
         "eval/gold_standard_heldout.json": "67112d0901337591c3e2d1c7f49bc532f800e5835084f6afeb9fa8b5ea8f1c82",
-        "eval/gold_standard_final20.json": "36af11b88f7fd908fd474e904c41b567ef798b6608575f5302f3dee80f2e2579",
-        "data/chunks/chunks.json": "fe1b618cea1618738bb380d26725a66df0d029dcf934c2e8eaf95744653378cc",
+        "eval/gold_standard_final20.json": "5e02dbb84448a2dcc2c132a3e0d99128784c45399c896c7490b2ea83542c4840",
+        "data/chunks/chunks.json": "82faf28fb81b599f5a6ad4bcda5845d19963e2e46790f0357b1d52dc3952f0d2",
         "data/embeddings/embeddings.npy": "7e18ccd016438274f1e6508c051d713e6dc2def27b5a5dd0336990c102a9d8da",
-        "data/embeddings/embedded_chunks.json": "d725b1a9f66955f8289a2629115ad19a993c678e7f031bc2c3f8d86e929f4fc5",
-        "data/embeddings/index_meta.json": "31c475d5b7ab8479d6b349744a4b943aa8fb57eb4ccee1bd0ab6bb0bcde02995",
-        "data/processed/pages.json": "e402e4070056f5c354798b6e0bdd9202737f7d588a2322b12f5bb346b2d52a06",
-        "data/processed/recommendations.json": "f90122607bf393722b33e077d8999ea308543c737ac78170354718ba37aed941",
-        "notebooks/clinical_chunking.py": "4823175d885044b251c229b70f9ada22a0591d36f6e312215be611d706ec587b",
-        "notebooks/clinical_preprocess.py": "1e6c69aef5b91e3dfcb2604cbaa32782145cf1d1a1431a72d5a1dce11f1fd07d",
-        "notebooks/clinical_rag.py": "db1f13cda825a0fdf3fac17265bad21a117c2654c3347befa9a59d6499b3f292"
+        "data/embeddings/embedded_chunks.json": "c08f08372fba13077191dbcdee966c6ecce6bb14de7028132611ec4308e06007",
+        "data/embeddings/index_meta.json": "e4de343c238c4bdebf13c16e38d1d44a00d3adc2f91c31212df59e0df4bbb6c0",
+        "data/embeddings/ids.json": "c34155e45606c10e8ccce35f877fe3196a59e8d283ccfca444b3ff71ee3e1fae",
+        "data/processed/pages.json": "1dc53d566fac376b958215adaf9eeebb567df8936dbb686fe6f80af7eaacc9a9",
+        "data/processed/recommendations.json": "feb6e9830c7c841c1b3d1ffb1ea4da6e165314d4d527d0fa6da7b2ac9a06a75d",
+        "notebooks/clinical_chunking.py": "72c451f1b8327732355e47b271730f58c361ff7c8c363b19977583ca4dc2a7b1",
+        "notebooks/clinical_preprocess.py": "a66cb0cecc050c3e4ceeede03a9e0d771a9d7bea00db56cb2ec2fec87c877a21",
+        "notebooks/clinical_rag.py": "528171775be8624975b8c96b740a585d56324ac38f8d92e19b37703328a9935f"
       },
-      "seconds": 0.04
+      "seconds": 0.03
     },
     {
       "check": "Structured logging / observability in the retrieval path",

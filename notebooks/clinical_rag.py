@@ -2,6 +2,7 @@
 """Local embeddings, vector index, and retrieval for AAA clinical chunks."""
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,6 +22,127 @@ from clinical_preprocess import find_project_root, relative_posix
 
 DEFAULT_MODEL = DEFAULT_EMBED_MODEL
 INDEX_DIRNAME = "embeddings"
+IDS_FILENAME = "ids.json"
+CHUNKS_RELPATH = ("data", "chunks", "chunks.json")
+
+
+# ---------------------------------------------------------------------------
+# Index <-> chunk-set binding
+#
+# `retrieve` joins the matrix to its metadata BY POSITION: row i of
+# embeddings.npy is record i of embedded_chunks.json. A length check cannot
+# detect a length-preserving change -- a re-sort, a hand-edit, or a re-chunk that
+# happens to land on the same count would pass it and mis-attribute every
+# citation while the scores still looked plausible.
+#
+# So the build records what it was built from and the load refuses to proceed
+# unless that record still holds: the ordered chunk_id list is persisted beside
+# the vectors, and both it and the source chunks.json are digested into
+# index_meta.json.
+# ---------------------------------------------------------------------------
+
+
+def file_sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def chunk_ids_digest(chunk_ids: list[str]) -> str:
+    """SHA-256 over the ordered chunk_id list.
+
+    Order is part of the identity, not incidental to it: the vectors are
+    row-aligned to this list, so a permutation that preserves the set must still
+    fail verification. Each id is newline-terminated rather than concatenated, so
+    no two adjacent ids can be rearranged into the same byte string.
+    """
+    h = hashlib.sha256()
+    for cid in chunk_ids:
+        h.update(str(cid).encode("utf-8"))
+        h.update(b"\n")
+    return h.hexdigest()
+
+
+def verify_index_binding(
+    project_root: Path,
+    meta: dict[str, Any],
+    chunks: list[dict[str, Any]],
+    vectors: np.ndarray | None = None,
+) -> dict[str, Any]:
+    """Assert this index really is the index built from the chunk set on disk.
+
+    Raises RuntimeError on any mismatch, and returns the digests it verified so
+    callers can report them. Anything that loads the index by reading the files
+    directly should call this rather than reimplement the checks.
+    """
+    out_dir = project_root / "data" / INDEX_DIRNAME
+    indexed_ids = [c["chunk_id"] for c in chunks]
+    rebuild = "re-run eval/rebuild_shipped_index.py"
+
+    if vectors is not None and len(indexed_ids) != len(vectors):
+        raise RuntimeError(
+            f"Index metadata and vectors are out of sync: {len(vectors)} vectors vs "
+            f"{len(indexed_ids)} metadata records."
+        )
+
+    # 1. the ordered id list persisted beside the vectors (element-wise, not by length)
+    ids_path = out_dir / IDS_FILENAME
+    if not ids_path.exists():
+        raise RuntimeError(
+            f"Missing {ids_path}: the index does not carry the chunk_id list its vectors "
+            f"are aligned to, so the positional join cannot be checked. {rebuild}."
+        )
+    stored_ids = json.loads(ids_path.read_text(encoding="utf-8"))["chunk_ids"]
+    if stored_ids != indexed_ids:
+        first = next(
+            (i for i, (a, b) in enumerate(zip(stored_ids, indexed_ids)) if a != b),
+            min(len(stored_ids), len(indexed_ids)),
+        )
+        raise RuntimeError(
+            f"{IDS_FILENAME} does not match {meta.get('chunks_file')} element-wise "
+            f"({len(stored_ids)} vs {len(indexed_ids)} ids; first difference at position "
+            f"{first}). The vector<->chunk join is positional, so loading this index would "
+            f"mis-attribute retrieved chunks. {rebuild}."
+        )
+
+    # 2. the digest of that list, stamped into index_meta.json at build time
+    ids_sha = chunk_ids_digest(indexed_ids)
+    recorded_ids_sha = meta.get("indexed_chunk_ids_sha256")
+    if not recorded_ids_sha:
+        raise RuntimeError(
+            f"index_meta.json records no 'indexed_chunk_ids_sha256', so the index does not "
+            f"identify the vectors it holds. {rebuild}."
+        )
+    if recorded_ids_sha != ids_sha:
+        raise RuntimeError(
+            f"Indexed chunk_id list does not match the digest stamped at build time "
+            f"(now {ids_sha[:16]}..., built as {recorded_ids_sha[:16]}...). {rebuild}."
+        )
+
+    # 3. the chunk set the index was built from
+    recorded_source_sha = meta.get("source_chunks_sha256")
+    if not recorded_source_sha:
+        raise RuntimeError(
+            f"index_meta.json records no 'source_chunks_sha256', so nothing proves this "
+            f"index was built from data/chunks/chunks.json. {rebuild}."
+        )
+    chunks_path = project_root.joinpath(*CHUNKS_RELPATH)
+    if not chunks_path.exists():
+        raise RuntimeError(
+            f"Missing {chunks_path}: cannot verify the index against the chunk set it "
+            f"records having been built from."
+        )
+    source_sha = file_sha256(chunks_path)
+    if source_sha != recorded_source_sha:
+        raise RuntimeError(
+            f"data/chunks/chunks.json has changed since this index was built "
+            f"(now {source_sha[:16]}..., built from {recorded_source_sha[:16]}...). The "
+            f"index is stale relative to its own chunk set: {rebuild}."
+        )
+
+    return {
+        "n_indexed": len(indexed_ids),
+        "source_chunks_sha256": source_sha,
+        "indexed_chunk_ids_sha256": ids_sha,
+    }
 
 
 def load_chunks(project_root: Path | None = None) -> dict[str, Any]:
@@ -89,6 +211,13 @@ def save_index(bundle: dict[str, Any], project_root: Path | None = None) -> dict
     vectors_path = out_dir / "embeddings.npy"
     meta_path = out_dir / "index_meta.json"
     chunks_path = out_dir / "embedded_chunks.json"
+    ids_path = out_dir / IDS_FILENAME
+    source_chunks_path = project_root.joinpath(*CHUNKS_RELPATH)
+    if not source_chunks_path.exists():
+        raise FileNotFoundError(
+            f"Missing {source_chunks_path}: the index must record a digest of the chunk set "
+            f"it was built from, so it cannot be written without one."
+        )
     np.save(vectors_path, bundle["vectors"])
     records = []
     for chunk in bundle["chunks"]:
@@ -116,6 +245,27 @@ def save_index(bundle: dict[str, Any], project_root: Path | None = None) -> dict
             }
         )
     chunks_path.write_text(json.dumps(records, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    indexed_ids = [c["chunk_id"] for c in bundle["chunks"]]
+    ids_path.write_text(
+        json.dumps(
+            {
+                "note": (
+                    "Ordered chunk_id list, row-aligned to embeddings.npy. Retrieval joins "
+                    "vectors to metadata by position, so this list is what makes the join "
+                    "checkable: clinical_rag.load_index refuses to load unless it matches "
+                    "embedded_chunks.json element-wise."
+                ),
+                "vectors_file": "embeddings.npy",
+                "chunks_file": "embedded_chunks.json",
+                "n_ids": len(indexed_ids),
+                "chunk_ids_sha256": chunk_ids_digest(indexed_ids),
+                "chunk_ids": indexed_ids,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     meta = {
         "index_type": "numpy_cosine",
         "metric": "cosine",
@@ -128,6 +278,12 @@ def save_index(bundle: dict[str, Any], project_root: Path | None = None) -> dict
         "failed_embeddings": bundle["failed"],
         "vectors_file": "embeddings.npy",
         "chunks_file": "embedded_chunks.json",
+        "ids_file": IDS_FILENAME,
+        # What this index was built FROM, by content rather than by count. A count
+        # match is not identity: two different chunk sets of the same size satisfy it.
+        "source_chunks_file": "data/chunks/chunks.json",
+        "source_chunks_sha256": file_sha256(source_chunks_path),
+        "indexed_chunk_ids_sha256": chunk_ids_digest(indexed_ids),
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
     }
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -136,6 +292,7 @@ def save_index(bundle: dict[str, Any], project_root: Path | None = None) -> dict
         "vectors": relative_posix(vectors_path, project_root),
         "meta": relative_posix(meta_path, project_root),
         "chunks": relative_posix(chunks_path, project_root),
+        "ids": relative_posix(ids_path, project_root),
     }
 
 
@@ -145,13 +302,14 @@ def load_index(project_root: Path | None = None) -> dict[str, Any]:
     meta = json.loads((out_dir / "index_meta.json").read_text(encoding="utf-8"))
     vectors = np.load(out_dir / "embeddings.npy")
     chunks = json.loads((out_dir / "embedded_chunks.json").read_text(encoding="utf-8"))
-    if len(chunks) != len(vectors):
-        raise RuntimeError("Index metadata and vectors are out of sync.")
+    binding = verify_index_binding(project_root, meta, chunks, vectors)
     return {
         "project_root": project_root,
         "meta": meta,
         "vectors": vectors,
         "chunks": chunks,
+        "chunk_ids": [c["chunk_id"] for c in chunks],
+        "binding": binding,
         "model_name": meta["model_name"],
     }
 
