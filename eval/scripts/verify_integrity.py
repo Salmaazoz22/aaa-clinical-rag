@@ -17,9 +17,13 @@ import sys
 from pathlib import Path
 from typing import Any
 
-EVAL_DIR = Path(__file__).resolve().parent
+SCRIPTS_DIR = Path(__file__).resolve().parent
+EVAL_DIR = SCRIPTS_DIR.parent
 ROOT = EVAL_DIR.parent
-sys.path.insert(0, str(EVAL_DIR))
+# ROOT for the installed packages, SCRIPTS_DIR for sibling eval modules.
+for _extra in (str(ROOT), str(SCRIPTS_DIR)):
+    if _extra not in sys.path:
+        sys.path.insert(0, _extra)
 
 from evaluate import evaluate_run, load_gold  # noqa: E402
 
@@ -71,7 +75,7 @@ def main() -> int:
             "all_supported": all(r["source_page_supports_passage"] for r in gold20["validation_report"])})
 
     # 4. no threshold tuning: Policy A's frozen threshold is untouched
-    src = (EVAL_DIR / "experimental_phase7_heldout.py").read_text(encoding="utf-8")
+    src = (SCRIPTS_DIR / "experimental_phase7_heldout.py").read_text(encoding="utf-8")
     m = re.search(r"FROZEN_THRESHOLD\s*=\s*([0-9.]+)", src)
     record("Selective Policy A threshold still frozen at its Phase 6 value (never retuned)",
            bool(m) and m.group(1) == "0.035120", {"threshold_in_code": m.group(1) if m else None})
@@ -85,7 +89,7 @@ def main() -> int:
                         r"|intent_adjustment|_anchor_indices|recommendation_id\s*==\s*[\"']", re.I)
     prod = ["retrieval/index.py", "ingestion/chunking.py",
             "ingestion/preprocess.py", "retrieval/rerank.py",
-            "eval/evaluate.py", "eval/experimental_atomic_chunking.py"]
+            "eval/scripts/evaluate.py", "eval/scripts/experimental_atomic_chunking.py"]
     hits = {f: banned.findall((ROOT / f).read_text(encoding="utf-8")) for f in prod}
     hits = {f: h for f, h in hits.items() if h}
     record("No query-specific / intent / recommendation-ID logic in the pipeline or evaluator",
@@ -171,9 +175,8 @@ def main() -> int:
            {"cells": len(nb["cells"]), "missing_inputs": absent})
 
     # 11. promotion: the shipped configuration is V1 and the artifacts match it
-    sys.path.insert(0, str(ROOT / "notebooks"))
-    import ingestion.chunking as cc  # noqa: E402
-    import experimental_atomic_chunking as ex  # noqa: E402
+    import ingestion.chunking as cc
+    import experimental_atomic_chunking as ex
 
     record("Shipped chunker is the atomic (V1) chunker",
            cc.DEFAULT_CHUNKER == "atomic", {"DEFAULT_CHUNKER": cc.DEFAULT_CHUNKER})

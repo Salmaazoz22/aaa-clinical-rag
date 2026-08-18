@@ -28,9 +28,8 @@ from typing import Any
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-for extra in (str(ROOT), str(ROOT / "notebooks")):
-    if extra not in sys.path:
-        sys.path.insert(0, extra)
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from vectordb.config import load_settings  # noqa: E402
 from vectordb.retriever import QdrantRetriever  # noqa: E402

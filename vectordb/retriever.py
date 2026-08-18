@@ -9,10 +9,10 @@ There is no reranking, no query rewriting, no intent detection, no keyword
 bonus, no filtering and no per-question logic. The retriever cannot see *which*
 question it is answering, which is what makes the frozen evaluation meaningful.
 
-The returned hit dictionaries use the same keys as
-`notebooks/retrieval.index.retrieve`, so anything already consuming local evidence
-(including `eval/evaluate.py`) accepts them unchanged. `text` and `score` are
-added as aliases of `chunk_text` and `similarity_score`.
+The returned hit dictionaries use the same keys as `retrieval.index.retrieve`, so
+anything already consuming local evidence (including `eval/scripts/evaluate.py`)
+accepts them unchanged. `text` and `score` are added as aliases of `chunk_text`
+and `similarity_score`.
 """
 from __future__ import annotations
 
@@ -21,9 +21,8 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-for extra in (str(ROOT), str(ROOT / "notebooks")):
-    if extra not in sys.path:
-        sys.path.insert(0, extra)
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from vectordb.config import QdrantSettings, load_settings, make_client  # noqa: E402
 from vectordb.schema import DEFAULT_TOP_K, EXPECTED_DIM, EXPECTED_MODEL, point_id_for  # noqa: E402

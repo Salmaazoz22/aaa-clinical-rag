@@ -12,13 +12,13 @@ with `931847d` (Qdrant production vector store + migration verification).
 
 - **Retrieval research is finished and frozen.** The evaluation was run, decided and published;
   do not re-run it to replace the numbers. New work gets **new** artifacts.
-- **V1 atomic (page-safe)** is the selected chunking strategy — `notebooks/clinical_atomic_chunking.py`.
+- **V1 atomic (page-safe)** is the selected chunking strategy — `ingestion/atomic_chunking.py`.
   There is now exactly **one** implementation of it; the variants that used to be a forked copy in
-  `eval/experimental_atomic_chunking.py` are parameters on that one function.
+  `eval/scripts/experimental_atomic_chunking.py` are parameters on that one function.
 - **Embedding is frozen**: `abhinand/MedEmbed-base-v0.1`, revision
   `7a90c50263f620dff743eb9794b89a42bfc5d765`. Every load path applies the pin —
   `SentenceTransformer(...)` is constructed in exactly one place,
-  `clinical_chunking.load_embedder`.
+  `ingestion.chunking.load_embedder`.
 - **The index is bound to the chunk set it was built from by content digest**, and the loader
   refuses to open an index whose binding no longer holds. See *Index integrity* below.
 - **Qdrant is the production vector store** (collection `aaa_clinical_v1`), **verified equivalent**
@@ -34,24 +34,24 @@ with `931847d` (Qdrant production vector store + migration verification).
   │  PyMuPDF extraction, cleaning
   ▼
 data/processed/                      pages.json · pages_df.parquet · recommendations.json
-  │  clinical_chunking.run_chunking(strategy="atomic")
-  │    → clinical_atomic_chunking.build_chunks   (structural anchors, page-safe,
+  │  ingestion.chunking.run_chunking(strategy="atomic")
+  │    → ingestion.atomic_chunking.build_chunks   (structural anchors, page-safe,
   │                                               token-budgeted, full provenance)
   ▼
 data/chunks/chunks.json              1,760 chunks produced
-  │  clinical_chunking.validate_chunks → embeddable_chunks
+  │  ingestion.chunking.validate_chunks → embeddable_chunks
   │    (drops references / TOC / title-only / boilerplate / non-guideline;
   │     refuses anything over the 512-token window rather than truncating)
   ▼
 991 indexed chunks
-  │  clinical_rag.build_embeddings — MedEmbed-base-v0.1 @ 7a90c502, L2-normalised
+  │  retrieval.index.build_embeddings — MedEmbed-base-v0.1 @ 7a90c502, L2-normalised
   ▼
 data/embeddings/                     embeddings.npy   991 × 768 float32
                                      embedded_chunks.json   991 payload records
                                      ids.json          991 ordered chunk_ids + digest
                                      index_meta.json   model, revision, dim, digests
   │
-  ├─► clinical_rag.load_index → retrieve      exhaustive numpy cosine, top-10
+  ├─► retrieval.index.load_index → retrieve   exhaustive numpy cosine, top-10
   │       the reproducibility reference; what the frozen evaluation was scored on
   │
   └─► vectordb/ingest.py --recreate           a COPY, not a rebuild
@@ -61,8 +61,8 @@ data/embeddings/                     embeddings.npy   991 × 768 float32
       Qdrant collection `aaa_clinical_v1`    991 points, 768-dim, Cosine, exact
           │
           └─► vectordb/retriever.QdrantRetriever.search()   dense cosine, top-10
-                  same hit keys as clinical_rag.retrieve, so eval/evaluate.py
-                  accepts them unchanged
+                  same hit keys as retrieval.index.retrieve, so
+                  eval/scripts/evaluate.py accepts them unchanged
 ```
 
 Nothing in the retrieval path branches on *which* question is being asked. No reranking, no
@@ -77,20 +77,21 @@ binding is asserted by content instead:
 
 | layer | enforced by | what it asserts |
 |---|---|---|
-| local index | **`clinical_rag.verify_index_binding`** | `ids.json` equals the indexed `chunk_id` list **element-wise**; that list's digest equals `index_meta.indexed_chunk_ids_sha256`; `data/chunks/chunks.json` still hashes to `index_meta.source_chunks_sha256`. Raises `RuntimeError` on any mismatch — the loader refuses to return a mis-joined index. |
+| local index | **`retrieval.index.verify_index_binding`** | `ids.json` equals the indexed `chunk_id` list **element-wise**; that list's digest equals `index_meta.indexed_chunk_ids_sha256`; `data/chunks/chunks.json` still hashes to `index_meta.source_chunks_sha256`. Raises `RuntimeError` on any mismatch — the loader refuses to return a mis-joined index. |
 | Qdrant identity | `vectordb/schema.point_id_for` | `point_id = uuid5(6f1f2b9a-…, chunk_id)` — same `chunk_id` gives the same point ID on every machine, forever. The `chunk_id` is also stored verbatim in the payload. |
 | Qdrant contract | `vectordb/schema.validate_index_bundle` | dimension, model, revision, metric, L2 norms, record/vector counts, no duplicate `chunk_id`, no point-ID collision, no null/NaN in required fields, no token-limit violation. Runs **before** anything is written. |
 | Qdrant ↔ local | `vectordb/verify_migration.py` | one query vector down both paths, 48 frozen questions: same top-1, same top-10 set, same order, scores within 1e-5, zero metadata mismatches. |
 
-`verify_index_binding` is called by `clinical_rag.load_index` (and therefore by
-`vectordb/verify_migration.py`, `eval/evaluate.py`, `eval/experimental_phase7_heldout.py` and
-notebook 03), and directly by `eval/experimental_atomic_chunking.load_production_index`,
-`eval/verify_integrity.py` and `eval/run_stability_checks.py`.
+`verify_index_binding` is called by `retrieval.index.load_index` (and therefore by
+`vectordb/verify_migration.py`, `eval/scripts/evaluate.py`,
+`eval/scripts/experimental_phase7_heldout.py` and notebook 03), and directly by
+`eval/scripts/experimental_atomic_chunking.load_production_index`,
+`eval/scripts/verify_integrity.py` and `eval/scripts/run_stability_checks.py`.
 
 **Known gap:** `vectordb/ingest.py` uses its own `load_local_index()` rather than
-`clinical_rag.load_index`, so the ingestion path — the only one that *writes* to production — is
+`retrieval.index.load_index`, so the ingestion path — the only one that *writes* to production — is
 the one path that does **not** call `verify_index_binding`. Its docstring's claim to load "exactly
-as `clinical_rag.load_index` does" is not accurate. In practice the binding is covered because
+as `retrieval.index.load_index` does" is not accurate. In practice the binding is covered because
 `verify_migration.py` loads through `load_index` and must be run after ingestion, but that ordering
 is convention, not enforcement. Closing it is a two-line change in `ingest.load_local_index`.
 
@@ -109,7 +110,7 @@ is convention, not enforcement. Closing it is a two-line change in `ingest.load_
 | final20 Recall@10 | 0.7833 |
 | final20 Relevant_Top1 / Answering@5 | 11/20 · 16/20 |
 | decision | **ADOPT WITH CAVEATS** |
-| tests | **81 passing** (29 chunking + 12 index binding + 40 vector database) |
+| tests | **156 passing** (29 chunking + 12 index binding + 40 vector database + 75 generation) |
 | integrity gate | **19 pass / 1 fail** — the single failure is the known `final20` freeze-hash limitation (`docs/REFERENCE_COMPARISON.md` §9) |
 
 Evidence: `eval/final_evaluation_results.json`, `eval/runs/final_corrected_v1_final20.json`,
@@ -143,7 +144,7 @@ The index's own binding record, inside `index_meta.json`:
 Three `heldout18` metrics moved **upward** when the V1 rows were recomputed on the shipped
 chunker. This is a correction to a measurement, not a change to the system.
 
-**Cause.** The published V1 rows were originally produced by `eval/experimental_atomic_chunking.py`,
+**Cause.** The published V1 rows were originally produced by `eval/scripts/experimental_atomic_chunking.py`,
 which carried a *second, independent copy* of the atomic chunker. The two drifted: the copy emitted
 **1,764 chunks / 1,004 indexed** where the shipped module emits **1,760 / 991**. The difference is
 the citation-heading fix — numbered *bibliography* lines were being accepted as section headings —
@@ -194,14 +195,14 @@ append-only convention in `docs/REFERENCE_COMPARISON.md` §8b.
 ## Getting started
 
 ```bash
-pip install -r requirements.txt
+pip install -e .                         # installs ingestion/ retrieval/ generation/ vectordb/
 cp .env.example .env                     # never commit .env
 
 docker compose up -d                     # local Qdrant v1.19.0 on :6333
 python vectordb/ingest.py --recreate     # load the 991 existing vectors (~1 s)
 python vectordb/verify_migration.py      # must print EQUIVALENT, 48/48
-python -m pytest tests -q                # 81 tests
-python eval/verify_integrity.py          # 19 pass / 1 known fail
+python -m pytest tests -q                # 156 tests
+python eval/scripts/verify_integrity.py  # 19 pass / 1 known fail
 ```
 
 Query the production store:
@@ -237,7 +238,7 @@ them without reconciling; the answer layer must not paper over that.
 - **embeddings** — model, pinned revision, dimension, normalisation, or the stored vectors;
 - **the index binding** — `ids.json`, the digests in `index_meta.json`, and
   `verify_index_binding`. If the index is rebuilt, all of them are regenerated together by
-  `eval/rebuild_shipped_index.py`; never hand-edit one of them to make a check pass;
+  `eval/scripts/rebuild_shipped_index.py`; never hand-edit one of them to make a check pass;
 - **Qdrant retrieval semantics** — collection config (768/Cosine/exact), the deterministic
   point-ID mapping, and the payload contract;
 - **corpus** — the four guideline PDFs are frozen; no new documents, no web scraping
@@ -249,11 +250,11 @@ If a change to any of the above is genuinely needed, it is an experiment: run it
 frozen gold standards, record it as a new run in `eval/runs/`, and keep the published numbers
 as they are.
 
-`eval/run_final_evaluation.py` is **not** a re-runnable report. Its `baseline_production`
+`eval/scripts/run_final_evaluation.py` is **not** a re-runnable report. Its `baseline_production`
 configuration reads whatever index is in `data/embeddings/`, which is now V1 — so re-running it
 overwrites the historical page-buffer baseline with numbers identical to V1 and destroys the
 comparison the published table rests on. Recompute V1 with
-`eval/run_p1_shipped_chunker_eval.py`, which writes a separate artifact and overwrites nothing.
+`eval/scripts/run_p1_shipped_chunker_eval.py`, which writes a separate artifact and overwrites nothing.
 
 ## Where to read next
 

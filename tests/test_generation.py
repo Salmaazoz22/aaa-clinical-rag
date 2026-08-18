@@ -17,9 +17,8 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-for _extra in (str(ROOT), str(ROOT / "notebooks")):
-    if _extra not in sys.path:
-        sys.path.insert(0, _extra)
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from generation.config import DEFAULT_SCORE_THRESHOLD, GenerationSettings  # noqa: E402
 from generation.parsing import AnswerParseError, parse_answer  # noqa: E402
@@ -544,6 +543,22 @@ def conflict_answer() -> dict:
     return answer
 
 
+def one_sided_answer() -> dict:
+    """A well-formed answer that reports ONLY the adopted 55 mm position.
+
+    `good_answer()` cannot stand in for this. Its recommendation names the 60 mm
+    proposal in order to reject it -- which is the two-sided behaviour this case
+    exists to detect the *absence* of -- so asserting "60" not in its prose
+    asserts the opposite of what the fixture says.
+    """
+    answer = good_answer()
+    answer["recommendation"] = (
+        "Elective repair is considered at a maximum aortic diameter of 55 mm "
+        "(5.5 cm) in the retrieved guidelines."
+    )
+    return answer
+
+
 class TestConflictingEvidence:
     def test_both_positions_are_presented_with_their_own_citations(self):
         chunks = [ESVS_CONFLICT, NICE_THRESHOLD]
@@ -570,7 +585,7 @@ class TestConflictingEvidence:
 
     def test_one_sided_answer_is_detectable(self):
         """Silently picking 55 mm is the failure mode this case exists to catch."""
-        one_sided = good_answer()  # mentions 55 only, no evidence_conflicts
+        one_sided = one_sided_answer()  # mentions 55 only, no evidence_conflicts
         prose = answer_prose(one_sided)
         assert "55" in prose
         assert "60" not in prose

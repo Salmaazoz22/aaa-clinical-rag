@@ -56,7 +56,7 @@ The superseded row is retained above rather than deleted. Artifact:
 `eval/runs/p1_shipped_chunker_all_sets.json`, which records both sets of numbers, the per-question
 detail, and a control confirming `final20` still reproduces
 `eval/runs/final_corrected_v1_final20.json` exactly. The two chunker implementations have since
-been collapsed into one (`notebooks/clinical_atomic_chunking.py`); see
+been collapsed into one (`ingestion/atomic_chunking.py`); see
 `docs/REFERENCE_COMPARISON.md`.
 
 **Decision: ADOPT WITH CAVEATS** (`eval/final_recommendation.md`). V1 is the first change in the
@@ -103,7 +103,7 @@ V1's gain is unchanged with and without the confound, on all three sets. V2's is
 |---|---|
 | Guidelines | USPSTF 2019 · NICE NG156 · ESVS 2024 · SVS 2018 |
 | Pages | 249 |
-| Chunker | **atomic / structure-driven (V1)** — `notebooks/clinical_atomic_chunking.py` |
+| Chunker | **atomic / structure-driven (V1)** — `ingestion/atomic_chunking.py` |
 | Chunks | 1,760 total → **991 indexed** (references, contents pages, boilerplate and title-only slides are labelled and excluded, never deleted) |
 | Embedding | `abhinand/MedEmbed-base-v0.1`, revision `7a90c50263f620dff743eb9794b89a42bfc5d765` |
 | Vectors | 991 × 768, float32, L2-normalised |
@@ -187,23 +187,32 @@ query embedding 39.5 ms, end-to-end 51.1 ms; collection 10.0 MiB, container ~92 
 ```
 data/                     PDFs, extracted pages, chunks, embeddings (the shipped V1 index)
   archive_baseline_index/   the previous page-buffer index, preserved intact
-notebooks/                pipeline modules + notebooks
-  clinical_preprocess.py    PDF -> pages, sections, recommendations
-  clinical_chunking.py      token budget, validation, chunker selection
-  clinical_atomic_chunking.py  ** the shipped chunker (V1, structure-driven) **
-  clinical_rag.py           embeddings, index, retrieval
-  clinical_rerank.py        optional cross-encoder (NOT wired into production)
+ingestion/                ** corpus -> chunks **
+  preprocess.py             PDF -> pages, sections, recommendations
+  chunking.py               token budget, validation, chunker selection
+  atomic_chunking.py        ** the shipped chunker (V1, structure-driven) **
+retrieval/                ** chunks -> ranked evidence **
+  index.py                  embeddings, local index, retrieval
+  rerank.py                 optional cross-encoder (NOT wired into production)
+generation/               ** evidence -> cited answer (see docs/generation.md) **
+  safety.py                 pre-retrieval patient-specific gate
+  pipeline.py               retrieve -> threshold -> prompt -> generate -> validate
+  prompts.py · parsing.py · providers.py · refusal.py · schema.py · validator.py
+notebooks/                notebooks only; the pipeline modules moved to the packages above
   final_evaluation.ipynb    ** the presentation notebook, 23 sections **
-eval/                     gold standards, evaluator, experiments, evidence
+  build_final_notebook.py   generates final_evaluation.ipynb
+eval/                     gold standards, evidence, and the frozen artifacts
   gold_standard.json          10 questions   (frozen)
   gold_standard_heldout.json  18 questions   (frozen)
   gold_standard_final20.json  20 questions   (frozen; SHA in .sha256)
-  evaluate.py                 the frozen, retriever-agnostic evaluator
   final_evidence.json         per-query retrieved evidence (pre-promotion index)
-  runs/final_corrected_v1_final20.json  evidence for the SHIPPED config
   final_evaluation_results.json
   experiment_history.json     23 experiments
+  scripts/                    every evaluation / audit / integrity tool
+    evaluate.py                 the frozen, retriever-agnostic evaluator
+  generation/                 the generation eval: set, results, report, citation review
   runs/                       every historical run, preserved
+    final_corrected_v1_final20.json  evidence for the SHIPPED config
 vectordb/                 ** production vector database (Qdrant) — infrastructure only **
   config.py                 env-driven settings; no credential in code
   schema.py                 collection schema, deterministic point IDs, ingest validation
@@ -211,11 +220,12 @@ vectordb/                 ** production vector database (Qdrant) — infrastruct
   retriever.py              dense cosine top-10 from Qdrant (no rerank, no LLM)
   verify_migration.py       local vs Qdrant equivalence -> eval/qdrant_migration_verification.json
   benchmark.py              latency + footprint -> eval/qdrant_performance.json
+pyproject.toml            installs the packages: pip install -e .
 docker-compose.yml        local Qdrant only; the project itself is not containerised
-docs/                     HANDOFF.md ** start here ** · vector_database.md
+docs/                     HANDOFF.md ** start here ** · vector_database.md · generation.md
                           experiment_history.md · presentation_story.md
                           PROJECT_B_LESSONS.md · limitations.md · deployment_readiness.md
-tests/                    69 tests (29 pipeline + 40 vector database)
+tests/                    156 tests (29 chunking + 12 index binding + 40 vectordb + 75 generation)
 aaa-clinical-ragnour/     Project B - EXTERNAL read-only reference. Not a dependency,
                           not published to git.
 aaa-clinical-raggehad/    A separate person's project variant. Untouched, not published to git.
@@ -224,17 +234,17 @@ aaa-clinical-raggehad/    A separate person's project variant. Untouched, not pu
 ## Reproduce
 
 ```bash
-pip install -r requirements.txt
+pip install -e .                                       # installs ingestion/ retrieval/ generation/ vectordb/
 
-python eval/evaluate.py --label baseline        # shipped config, original 10
-python eval/run_final_evaluation.py             # baseline vs V1 vs V2, all 3 sets (~45 min CPU)
-python eval/rescore_conservative.py             # removes the page-overlap confound (instant)
-python eval/audit_corpus_and_questions.py       # corpus + question audits
-python eval/run_stability_checks.py             # 16 stability / readiness checks
-python eval/verify_integrity.py                 # 19 integrity checks
-python eval/rebuild_shipped_index.py            # rebuild data/chunks + data/embeddings
-python eval/build_experiment_history.py         # regenerates history JSON + markdown
-python -m pytest tests -q                       # 69 tests
+python eval/scripts/evaluate.py --label baseline       # shipped config, original 10
+python eval/scripts/run_final_evaluation.py            # baseline vs V1 vs V2, all 3 sets (~45 min CPU)
+python eval/scripts/rescore_conservative.py            # removes the page-overlap confound (instant)
+python eval/scripts/audit_corpus_and_questions.py      # corpus + question audits
+python eval/scripts/run_stability_checks.py            # 16 stability / readiness checks
+python eval/scripts/verify_integrity.py                # 19 integrity checks
+python eval/scripts/rebuild_shipped_index.py           # rebuild data/chunks + data/embeddings
+python eval/scripts/build_experiment_history.py        # regenerates history JSON + markdown
+python -m pytest tests -q                              # 156 tests
 ```
 
 **Open the presentation notebook** (already executed; outputs are committed):

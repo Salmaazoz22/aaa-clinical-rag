@@ -12,4 +12,4 @@ dynamic = ["dependencies"]
 dependencies = {file = ["requirements.txt"]}
 
 [tool.setuptools.packages.find]
-include = ["ingestion*", "retrieval*", "generation*", "vectordb*"]
+include = ["api*", "ingestion*", "retrieval*", "generation*", "vectordb*"]

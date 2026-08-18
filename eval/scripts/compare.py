@@ -9,7 +9,7 @@ import json
 import sys
 from pathlib import Path
 
-RUNS = Path(__file__).resolve().parent / "runs"
+RUNS = Path(__file__).resolve().parent.parent / "runs"
 KEYS = ["P@1", "P@3", "P@5", "MRR", "Recall@5", "Recall@10", "Relevant_Top1", "Answering@5"]
 
 

@@ -145,8 +145,8 @@ Experiment 12 chunking is **structure-driven**: the document is cut at structura
 (`Recommendation N`, numbered recommendation IDs, numbered section headings) and a recommendation
 stays whole, under the same hard token budget.
 
-**V1 is now what ships** (`clinical_chunking.DEFAULT_CHUNKER = "atomic"`,
-`notebooks/clinical_atomic_chunking.py`). The table below is the Experiment 12 comparison; the
+**V1 is now what ships** (`ingestion.chunking.DEFAULT_CHUNKER = "atomic"`,
+`ingestion/atomic_chunking.py`). The table below is the Experiment 12 comparison; the
 live index built from the shipped chunker is reported in sections 4 and 7."""))
 A(code('''prof = pd.DataFrame([{
     "variant": n,
@@ -170,8 +170,7 @@ oversized chunk be silently truncated at encode time.
 
 This is the single clearest engineering difference from Project B, which enforces no token budget
 and silently discards 83,516 tokens across 143 of its 452 indexed chunks."""))
-A(code('''sys.path.insert(0, str(ROOT / "notebooks"))
-import clinical_chunking as cc
+A(code('''import ingestion.chunking as cc
 
 idx = load("data/embeddings/embedded_chunks.json")
 limit = INDEXMETA["token_limit"]
@@ -209,7 +208,7 @@ query -> MedEmbed-base-v0.1 (pinned revision) -> L2-normalised vector
 ```
 
 There is no second stage in the production path. The optional cross-encoder
-(`notebooks/clinical_rerank.py`) exists but is **not wired in**, and the selective reranking
+(`retrieval/rerank.py`) exists but is **not wired in**, and the selective reranking
 policy is experimental — see section 12 and `docs/limitations.md`."""))
 
 # 9
@@ -455,7 +454,7 @@ print('"n/a" means: ' + HISTORY["unavailable_marker"])'''))
 # 19
 A(md("## 19. Stability and reproducibility"))
 A(code('''if STABILITY is None:
-    print("eval/stability_report.json not present -- run: python eval/run_stability_checks.py")
+    print("eval/stability_report.json not present -- run: python eval/scripts/run_stability_checks.py")
 else:
     print("summary:", STABILITY["summary"])
     st = pd.DataFrame([{"check": c["check"][:66], "category": c["category"],

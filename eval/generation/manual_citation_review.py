@@ -23,13 +23,15 @@ import sys
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parents[1]
-for _extra in (str(ROOT), str(ROOT / "notebooks")):
-    if _extra not in sys.path:
-        sys.path.insert(0, _extra)
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-RESULTS = ROOT / "eval" / "generation_eval_results.json"
-OUT = ROOT / "eval" / "manual_citation_review.md"
+# This script and its artifacts live together in eval/generation/, so the paths
+# are derived from this file's own directory rather than from eval/ root.
+GEN_DIR = Path(__file__).resolve().parent
+RESULTS = GEN_DIR / "generation_eval_results.json"
+OUT = GEN_DIR / "manual_citation_review.md"
 
 
 def _claims_for(record: dict[str, Any]) -> list[dict[str, Any]]:

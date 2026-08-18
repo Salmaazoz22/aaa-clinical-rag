@@ -39,9 +39,8 @@ from typing import Any
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-for extra in (str(ROOT), str(ROOT / "notebooks"), str(ROOT / "eval")):
-    if extra not in sys.path:
-        sys.path.insert(0, extra)
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from vectordb.config import load_settings  # noqa: E402
 from vectordb.retriever import QdrantRetriever  # noqa: E402
@@ -68,8 +67,8 @@ def load_queries() -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for name, path in DATASETS.items():
         if name == "original10":
-            # The original 10 live in code, exactly as `eval/run_final_evaluation.py`
-            # resolves them.
+            # The original 10 live in code, exactly as
+            # `eval/scripts/run_final_evaluation.py` resolves them.
             for qid, query in enumerate(cr.CLINICAL_QUERIES, start=1):
                 out.append({"dataset": name, "query_id": qid, "query": query})
             continue

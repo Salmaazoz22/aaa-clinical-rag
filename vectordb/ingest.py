@@ -28,9 +28,8 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-for _extra in (str(ROOT), str(ROOT / "notebooks")):
-    if _extra not in sys.path:
-        sys.path.insert(0, _extra)
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from vectordb.config import QdrantSettings, load_settings, make_client  # noqa: E402
 from vectordb.schema import (  # noqa: E402

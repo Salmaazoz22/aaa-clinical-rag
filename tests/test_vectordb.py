@@ -22,9 +22,8 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-for extra in (str(ROOT), str(ROOT / "notebooks")):
-    if extra not in sys.path:
-        sys.path.insert(0, extra)
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 qdrant_client = pytest.importorskip("qdrant_client", reason="qdrant-client not installed")
 from qdrant_client import models  # noqa: E402

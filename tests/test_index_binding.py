@@ -17,7 +17,8 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "notebooks"))
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import retrieval.index as cr  # noqa: E402
 
@@ -29,7 +30,7 @@ def _needs_shipped_index():
     for p in (CHUNKS_PATH, INDEX_DIR / "index_meta.json", INDEX_DIR / "embedded_chunks.json",
               INDEX_DIR / "embeddings.npy"):
         if not p.exists():
-            pytest.skip(f"{p.name} not built; run eval/rebuild_shipped_index.py first")
+            pytest.skip(f"{p.name} not built; run eval/scripts/rebuild_shipped_index.py first")
 
 
 # --------------------------------------------------------------------------

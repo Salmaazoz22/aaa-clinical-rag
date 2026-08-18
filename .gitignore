@@ -54,3 +54,5 @@ qdrant_storage/
 aaa-clinical-ragnour/
 aaa-clinical-raggehad/
 for ground truth code/
+*.egg-info/
+__pycache__/

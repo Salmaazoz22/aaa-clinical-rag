@@ -28,7 +28,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
-EVAL_DIR = Path(__file__).resolve().parent
+SCRIPTS_DIR = Path(__file__).resolve().parent
+EVAL_DIR = SCRIPTS_DIR.parent
 ROOT = EVAL_DIR.parent
 GOLD_PATH = EVAL_DIR / "gold_standard.json"
 
@@ -180,9 +181,8 @@ def evaluate_run(runs: dict[int, list[dict[str, Any]]], gold: dict[str, Any]) ->
 # ---------------------------------------------------------------------------
 
 def run_retrieval(top_k: int = 10, rerank: bool = False, candidates: int = 30) -> dict[str, Any]:
-    sys.path.insert(0, str(ROOT / "notebooks"))
-    import ingestion.chunking as cc  # noqa: E402
-    import retrieval.index as cr  # noqa: E402
+    import ingestion.chunking as cc
+    import retrieval.index as cr
 
     index = cr.load_index(ROOT)
     # `cc.load_embedder` applies the revision pin. Constructing SentenceTransformer

@@ -34,9 +34,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
-EVAL_DIR = Path(__file__).resolve().parent
+SCRIPTS_DIR = Path(__file__).resolve().parent
+EVAL_DIR = SCRIPTS_DIR.parent
 ROOT = EVAL_DIR.parent
-sys.path.insert(0, str(ROOT / "notebooks"))
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import numpy as np  # noqa: E402
 

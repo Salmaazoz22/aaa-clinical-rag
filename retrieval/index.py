@@ -75,7 +75,7 @@ def verify_index_binding(
     """
     out_dir = project_root / "data" / INDEX_DIRNAME
     indexed_ids = [c["chunk_id"] for c in chunks]
-    rebuild = "re-run eval/rebuild_shipped_index.py"
+    rebuild = "re-run eval/scripts/rebuild_shipped_index.py"
 
     if vectors is not None and len(indexed_ids) != len(vectors):
         raise RuntimeError(
@@ -252,7 +252,7 @@ def save_index(bundle: dict[str, Any], project_root: Path | None = None) -> dict
                 "note": (
                     "Ordered chunk_id list, row-aligned to embeddings.npy. Retrieval joins "
                     "vectors to metadata by position, so this list is what makes the join "
-                    "checkable: clinical_rag.load_index refuses to load unless it matches "
+                    "checkable: retrieval.index.load_index refuses to load unless it matches "
                     "embedded_chunks.json element-wise."
                 ),
                 "vectors_file": "embeddings.npy",

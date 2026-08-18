@@ -31,19 +31,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parents[1]
-for _extra in (str(ROOT), str(ROOT / "notebooks")):
-    if _extra not in sys.path:
-        sys.path.insert(0, _extra)
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from generation.config import load_settings  # noqa: E402
 from generation.pipeline import answer_question  # noqa: E402
 from generation.providers import ProviderError, build_provider  # noqa: E402
 from generation.validator import answer_prose, conflict_position_count  # noqa: E402
 
-EVAL_SET = ROOT / "eval" / "generation_eval_set.json"
-RESULTS = ROOT / "eval" / "generation_eval_results.json"
-REPORT = ROOT / "eval" / "generation_eval_report.md"
+# This script and its artifacts live together in eval/generation/, so the paths
+# are derived from this file's own directory rather than from eval/ root.
+GEN_DIR = Path(__file__).resolve().parent
+EVAL_SET = GEN_DIR / "generation_eval_set.json"
+RESULTS = GEN_DIR / "generation_eval_results.json"
+REPORT = GEN_DIR / "generation_eval_report.md"
 
 
 def full_text(answer: dict[str, Any]) -> str:

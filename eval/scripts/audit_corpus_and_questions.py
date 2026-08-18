@@ -21,10 +21,13 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-EVAL_DIR = Path(__file__).resolve().parent
+SCRIPTS_DIR = Path(__file__).resolve().parent
+EVAL_DIR = SCRIPTS_DIR.parent
 ROOT = EVAL_DIR.parent
-sys.path.insert(0, str(ROOT / "notebooks"))
-sys.path.insert(0, str(EVAL_DIR))
+# ROOT for the installed packages, SCRIPTS_DIR for sibling eval modules.
+for _extra in (str(ROOT), str(SCRIPTS_DIR)):
+    if _extra not in sys.path:
+        sys.path.insert(0, _extra)
 
 from evaluate import is_relevant, load_gold, normalise  # noqa: E402
 

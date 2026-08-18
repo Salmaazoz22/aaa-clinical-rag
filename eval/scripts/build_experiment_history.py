@@ -13,7 +13,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-EVAL_DIR = Path(__file__).resolve().parent
+SCRIPTS_DIR = Path(__file__).resolve().parent
+EVAL_DIR = SCRIPTS_DIR.parent
 ROOT = EVAL_DIR.parent
 RUNS = EVAL_DIR / "runs"
 NA = "Not available in preserved artifact."

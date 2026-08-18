@@ -62,12 +62,12 @@
       "status": "pass",
       "detail": {
         "files_scanned": [
-          "notebooks/clinical_rag.py",
-          "notebooks/clinical_chunking.py",
-          "notebooks/clinical_preprocess.py",
-          "notebooks/clinical_rerank.py",
-          "eval/evaluate.py",
-          "eval/experimental_atomic_chunking.py"
+          "retrieval/index.py",
+          "ingestion/chunking.py",
+          "ingestion/preprocess.py",
+          "retrieval/rerank.py",
+          "eval/scripts/evaluate.py",
+          "eval/scripts/experimental_atomic_chunking.py"
         ],
         "violations": {}
       }
@@ -133,7 +133,7 @@
       "status": "pass",
       "detail": {
         "experimental_module": true,
-        "production_module": "clinical_atomic_chunking always rejects citation headings"
+        "production_module": "ingestion.atomic_chunking always rejects citation headings"
       }
     },
     {
@@ -154,7 +154,7 @@
         "n_indexed": 991,
         "source_chunks_sha256": "82faf28fb81b599f5a6ad4bcda5845d19963e2e46790f0357b1d52dc3952f0d2",
         "indexed_chunk_ids_sha256": "b48e5ec5a3164d106cf69d36bda831b1f8564f4132aedeb1c652be12a649fd47",
-        "verified_by": "clinical_rag.verify_index_binding (the loader's own check)"
+        "verified_by": "retrieval.index.verify_index_binding (the loader's own check)"
       }
     },
     {

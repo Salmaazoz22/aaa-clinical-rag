@@ -838,7 +838,7 @@ def print_chunk_samples(
 
 # Which chunker `run_chunking` ships. "atomic" is the production default adopted
 # after Experiment 12 and the final corrected validation on final20; it cuts at
-# structural anchors and keeps recommendations whole (clinical_atomic_chunking).
+# structural anchors and keeps recommendations whole (ingestion.atomic_chunking).
 # "page_buffer" is the historical chunker preserved in `build_chunks` above --
 # it is what produced data/archive_baseline_index/ and every pre-Experiment-12
 # evaluation, and it is kept so those results stay reproducible.

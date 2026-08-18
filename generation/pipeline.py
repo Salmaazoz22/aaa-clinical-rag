@@ -34,9 +34,8 @@ from pathlib import Path
 from typing import Any, Sequence
 
 ROOT = Path(__file__).resolve().parents[1]
-for _extra in (str(ROOT), str(ROOT / "notebooks")):
-    if _extra not in sys.path:
-        sys.path.insert(0, _extra)
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from generation.config import GenerationSettings, load_settings  # noqa: E402
 from generation.parsing import parse_answer  # noqa: E402

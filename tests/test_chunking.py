@@ -10,7 +10,8 @@ import pandas as pd
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "notebooks"))
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import ingestion.chunking as cc  # noqa: E402
 

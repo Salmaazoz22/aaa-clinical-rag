@@ -10,7 +10,7 @@ import hashlib
 import json
 from pathlib import Path
 
-EVAL_DIR = Path(__file__).resolve().parent
+EVAL_DIR = Path(__file__).resolve().parent.parent
 ROOT = EVAL_DIR.parent
 
 FROZEN_GOLD = [
@@ -46,7 +46,7 @@ PIPELINE = [
     "retrieval/index.py",
     "retrieval/rerank.py",
     "notebooks/final_evaluation.ipynb",
-    "eval/evaluate.py",
+    "eval/scripts/evaluate.py",
     "tests/test_chunking.py",
 ]
 SOURCE_PDFS = [
