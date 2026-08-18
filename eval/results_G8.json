@@ -1,0 +1,427 @@
+{
+  "summary": {
+    "eval_set_id": "aaa-generation-eval-v1",
+    "run_utc": "2026-08-18T11:45:21.540689+00:00",
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "top_k": 3,
+    "score_threshold": 0.75,
+    "temperature": 0.0,
+    "n_questions": 1,
+    "n_passed": 0,
+    "n_provider_errors": 0,
+    "n_refused": 0,
+    "n_validator_ok": 1,
+    "n_hallucinated_citations": 0,
+    "by_category": {
+      "conflicting": {
+        "n": 1,
+        "passed": 0
+      }
+    }
+  },
+  "records": [
+    {
+      "question": {
+        "id": "G8",
+        "category": "conflicting",
+        "question": "Is the diameter threshold for considering elective repair of an abdominal aortic aneurysm 55 mm or 60 mm?",
+        "expected": "answer",
+        "must_mention": [
+          "55",
+          "60"
+        ],
+        "must_not_mention": [],
+        "expected_documents": [
+          "ESVS_2024"
+        ],
+        "min_conflict_positions": 2,
+        "notes": "THE documented conflicting-evidence case. The corpus records the 55 mm threshold (USPSTF/NICE/SVS/ESVS) alongside the NAAASP-derived proposal to raise it to 60 mm on CTA, which the ESVS writing committee explicitly declines to adopt. Both positions must be presented with their own citations; silently reporting only 55 mm is a failure even though 55 mm is the currently recommended value."
+      },
+      "result": {
+        "query": "Is the diameter threshold for considering elective repair of an abdominal aortic aneurysm 55 mm or 60 mm?",
+        "settings": {
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b",
+          "base_url": "https://api.groq.com/openai/v1",
+          "api_key_supplied": true,
+          "top_k": 3,
+          "score_threshold": 0.75,
+          "temperature": 0.0,
+          "max_output_tokens": 4000,
+          "timeout_s": 180.0
+        },
+        "safety": {
+          "blocked": false,
+          "signals": [],
+          "rule": null,
+          "detail": null
+        },
+        "refused": false,
+        "refusal": null,
+        "answer": {
+          "recommendation": "The ESVS 2024 guideline recommends a diameter threshold of 55 mm for considering elective repair of abdominal aortic aneurysm in men (and 50 mm for women with complex AAAs). Although some data have suggested raising the threshold to 60 mm, the guideline does not adopt that threshold.",
+          "supporting_evidence": [
+            {
+              "claim": "Men with an abdominal aortic aneurysm 55 mm should be considered for elective repair.",
+              "chunk_id": "ESVS_2024__p27-28__c0282",
+              "excerpt": "Men with an abdominal aortic aneurysm ‡ 55 mm should be considered for elective repair."
+            },
+            {
+              "claim": "The guideline issues a strong negative recommendation for repair of AAA <55 mm and downgrades the threshold for considering repair in men to 55 mm.",
+              "chunk_id": "ESVS_2024__p26-26__c0278",
+              "excerpt": "the GWC has chosen to issue a new strong negative recommendation of elective repair of AAA < 55 mm, and to downgrade the recommendation on the threshold for considering repair in men ... i.e., 55 mm."
+            },
+            {
+              "claim": "Patients with complex abdominal aortic aneurysms may be considered for elective repair at 55 mm in men.",
+              "chunk_id": "ESVS_2024__p73-73__c0653",
+              "excerpt": "Patients with complex abdominal aortic aneurysms may be considered for elective repair at a diameter of ‡ 55 mm in men ..."
+            }
+          ],
+          "citations": [
+            {
+              "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms★",
+              "section": "There is anecdotal evidence that rapid aneurysm growth",
+              "page": 27,
+              "chunk_id": "ESVS_2024__p27-28__c0282",
+              "retrieval_score": 0.8513444,
+              "excerpt": "Men with an abdominal aortic aneurysm ‡ 55 mm should be considered for elective repair."
+            },
+            {
+              "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms★",
+              "section": "ABDOMINAL AORTIC ANEURYSM",
+              "page": 26,
+              "chunk_id": "ESVS_2024__p26-26__c0278",
+              "retrieval_score": 0.83322036,
+              "excerpt": "the GWC has chosen to issue a new strong negative recommendation of elective repair of AAA < 55 mm, and to downgrade the recommendation on the threshold for considering repair in men ... i.e., 55 mm."
+            },
+            {
+              "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms★",
+              "section": "Complex AAAs are estimated to constitute about 15 e",
+              "page": 73,
+              "chunk_id": "ESVS_2024__p73-73__c0653",
+              "retrieval_score": 0.82327724,
+              "excerpt": "Patients with complex abdominal aortic aneurysms may be considered for elective repair at a diameter of ‡ 55 mm in men ..."
+            }
+          ],
+          "confidence": "Medium",
+          "disclaimer": "This is an evidence-retrieval prototype over four abdominal aortic aneurysm guidelines and is not clinically validated. It summarises retrieved guideline text only, does not provide patient-specific diagnosis, treatment or dosing, and must not be used to make clinical decisions. Verify every statement against the cited source document and apply clinical judgement."
+        },
+        "citations_resolved": [
+          {
+            "chunk_id": "ESVS_2024__p27-28__c0282",
+            "resolved": true,
+            "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+            "document_id": "ESVS_2024",
+            "section": "There is anecdotal evidence that rapid aneurysm growth",
+            "page": 27,
+            "page_start": 27,
+            "page_end": 28,
+            "retrieval_score": 0.8513444,
+            "rank": 1,
+            "recommendation_id": "22",
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "ESVS_2024_AAA_Guidelines.pdf",
+            "model_excerpt": "Men with an abdominal aortic aneurysm ‡ 55 mm should be considered for elective repair."
+          },
+          {
+            "chunk_id": "ESVS_2024__p26-26__c0278",
+            "resolved": true,
+            "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+            "document_id": "ESVS_2024",
+            "section": "ABDOMINAL AORTIC ANEURYSM",
+            "page": 26,
+            "page_start": 26,
+            "page_end": 26,
+            "retrieval_score": 0.83322036,
+            "rank": 2,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "ESVS_2024_AAA_Guidelines.pdf",
+            "model_excerpt": "the GWC has chosen to issue a new strong negative recommendation of elective repair of AAA < 55 mm, and to downgrade the recommendation on the threshold for considering repair in men ... i.e., 55 mm."
+          },
+          {
+            "chunk_id": "ESVS_2024__p73-73__c0653",
+            "resolved": true,
+            "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+            "document_id": "ESVS_2024",
+            "section": "Complex AAAs are estimated to constitute about 15 e",
+            "page": 73,
+            "page_start": 73,
+            "page_end": 73,
+            "retrieval_score": 0.82327724,
+            "rank": 3,
+            "recommendation_id": "116",
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "ESVS_2024_AAA_Guidelines.pdf",
+            "model_excerpt": "Patients with complex abdominal aortic aneurysms may be considered for elective repair at a diameter of ‡ 55 mm in men ..."
+          }
+        ],
+        "documents_cited": [
+          "ESVS_2024"
+        ],
+        "validation": {
+          "ok": true,
+          "is_refusal": false,
+          "n_errors": 0,
+          "n_warnings": 5,
+          "codes": [
+            "citation_metadata_mismatch",
+            "citation_metadata_mismatch",
+            "excerpt_stitched",
+            "citation_metadata_mismatch",
+            "excerpt_stitched"
+          ],
+          "findings": [
+            {
+              "code": "citation_metadata_mismatch",
+              "severity": "warning",
+              "message": "cited document does not match the retrieved chunk's document",
+              "location": "citations[0].document",
+              "chunk_id": "ESVS_2024__p27-28__c0282",
+              "expected": "ESVS_2024",
+              "actual": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms★"
+            },
+            {
+              "code": "citation_metadata_mismatch",
+              "severity": "warning",
+              "message": "cited document does not match the retrieved chunk's document",
+              "location": "citations[1].document",
+              "chunk_id": "ESVS_2024__p26-26__c0278",
+              "expected": "ESVS_2024",
+              "actual": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms★"
+            },
+            {
+              "code": "excerpt_stitched",
+              "severity": "warning",
+              "message": "excerpt joins non-contiguous fragments with an ellipsis; each fragment is checked separately, but rule C5 asks for a contiguous quote",
+              "location": "citations[1]",
+              "chunk_id": "ESVS_2024__p26-26__c0278"
+            },
+            {
+              "code": "citation_metadata_mismatch",
+              "severity": "warning",
+              "message": "cited document does not match the retrieved chunk's document",
+              "location": "citations[2].document",
+              "chunk_id": "ESVS_2024__p73-73__c0653",
+              "expected": "ESVS_2024",
+              "actual": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms★"
+            },
+            {
+              "code": "excerpt_stitched",
+              "severity": "warning",
+              "message": "excerpt joins non-contiguous fragments with an ellipsis; each fragment is checked separately, but rule C5 asks for a contiguous quote",
+              "location": "supporting_evidence[1].excerpt",
+              "chunk_id": "ESVS_2024__p26-26__c0278"
+            }
+          ],
+          "retrieved_chunk_ids": [
+            "ESVS_2024__p27-28__c0282",
+            "ESVS_2024__p26-26__c0278",
+            "ESVS_2024__p73-73__c0653"
+          ],
+          "cited_chunk_ids": [
+            "ESVS_2024__p27-28__c0282",
+            "ESVS_2024__p26-26__c0278",
+            "ESVS_2024__p73-73__c0653"
+          ],
+          "hallucinated_chunk_ids": [],
+          "uncited_claims": []
+        },
+        "retrieval": {
+          "n_retrieved": 3,
+          "n_used": 3,
+          "n_dropped_below_threshold": 0,
+          "used_chunk_ids": [
+            "ESVS_2024__p27-28__c0282",
+            "ESVS_2024__p26-26__c0278",
+            "ESVS_2024__p73-73__c0653"
+          ],
+          "dropped": [],
+          "hits": [
+            {
+              "rank": 1,
+              "chunk_id": "ESVS_2024__p27-28__c0282",
+              "similarity_score": 0.8513444,
+              "document_id": "ESVS_2024",
+              "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+              "section": "There is anecdotal evidence that rapid aneurysm growth",
+              "page": 27,
+              "page_start": 27,
+              "page_end": 28,
+              "recommendation_id": "22",
+              "recommendation_grade": null,
+              "evidence_level": null,
+              "text_preview": "Recommendation 22\nChanged\nMen with an abdominal aortic aneurysm ‡ 55 mm should be considered for elective repair.\nClass\nLevel\nReferences\nToE\nIIa\nC\nOliver-Williams et al. (2019),117\nFilardo et al. (2015)265\nTable 8. Studies on rupture risk o"
+            },
+            {
+              "rank": 2,
+              "chunk_id": "ESVS_2024__p26-26__c0278",
+              "similarity_score": 0.83322036,
+              "document_id": "ESVS_2024",
+              "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+              "section": "ABDOMINAL AORTIC ANEURYSM",
+              "page": 26,
+              "page_start": 26,
+              "page_end": 26,
+              "recommendation_id": null,
+              "recommendation_grade": null,
+              "evidence_level": null,
+              "text_preview": "On the contrary, based on the NAAASP data it has been suggested to raise the diameter threshold to 60 mm when based on\nCTA.254 Although it is possible that the threshold should be raised in the future, the GWC does not believe there is suf-"
+            },
+            {
+              "rank": 3,
+              "chunk_id": "ESVS_2024__p73-73__c0653",
+              "similarity_score": 0.82327724,
+              "document_id": "ESVS_2024",
+              "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+              "section": "Complex AAAs are estimated to constitute about 15 e",
+              "page": 73,
+              "page_start": 73,
+              "page_end": 73,
+              "recommendation_id": "116",
+              "recommendation_grade": null,
+              "evidence_level": null,
+              "text_preview": "Recommendation 116\nChanged\nPatients with complex abdominal aortic aneurysms may be considered for elective repair at a diameter of ‡ 55 mm in men and ‡ 50 mm in women, taking into account ﬁtness for repair, aneurysm anatomy, and patient pre"
+            }
+          ]
+        },
+        "generation": {
+          "completion": {
+            "provider": "groq",
+            "model": "openai/gpt-oss-120b",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 3675,
+              "completion_tokens": 1802,
+              "total_tokens": 5477
+            },
+            "latency_s": 5.765,
+            "response_chars": 3353,
+            "had_reasoning_stream": true
+          },
+          "parse_meta": {
+            "had_reasoning_block": false,
+            "had_code_fence": false,
+            "had_text_outside_object": false
+          },
+          "disclaimer_normalised": false
+        }
+      },
+      "scoring": {
+        "checks": {
+          "refusal_expectation": {
+            "pass": true,
+            "detail": "expected an answer, got an answer"
+          },
+          "validator": {
+            "pass": true,
+            "detail": "0 error(s), 5 warning(s): ['citation_metadata_mismatch', 'citation_metadata_mismatch', 'excerpt_stitched', 'citation_metadata_mismatch', 'excerpt_stitched']"
+          },
+          "must_mention": {
+            "pass": true,
+            "detail": "all present",
+            "missing": [],
+            "also_absent_from_excerpts": []
+          },
+          "conflict_positions": {
+            "pass": false,
+            "detail": "0 position(s) reported, need >= 2; documents cited: ['ESVS_2024']",
+            "positions": 0
+          }
+        },
+        "passed": false,
+        "n_checks": 4,
+        "n_failed": 1
+      },
+      "manual_review": {
+        "recommendation": "The ESVS 2024 guideline recommends a diameter threshold of 55 mm for considering elective repair of abdominal aortic aneurysm in men (and 50 mm for women with complex AAAs). Although some data have suggested raising the threshold to 60 mm, the guideline does not adopt that threshold.",
+        "confidence": "Medium",
+        "claims": [
+          {
+            "claim": "Men with an abdominal aortic aneurysm 55 mm should be considered for elective repair.",
+            "chunk_id": "ESVS_2024__p27-28__c0282"
+          },
+          {
+            "claim": "The guideline issues a strong negative recommendation for repair of AAA <55 mm and downgrades the threshold for considering repair in men to 55 mm.",
+            "chunk_id": "ESVS_2024__p26-26__c0278"
+          },
+          {
+            "claim": "Patients with complex abdominal aortic aneurysms may be considered for elective repair at 55 mm in men.",
+            "chunk_id": "ESVS_2024__p73-73__c0653"
+          }
+        ],
+        "citations_resolved": [
+          {
+            "chunk_id": "ESVS_2024__p27-28__c0282",
+            "resolved": true,
+            "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+            "document_id": "ESVS_2024",
+            "section": "There is anecdotal evidence that rapid aneurysm growth",
+            "page": 27,
+            "page_start": 27,
+            "page_end": 28,
+            "retrieval_score": 0.8513444,
+            "rank": 1,
+            "recommendation_id": "22",
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "ESVS_2024_AAA_Guidelines.pdf",
+            "model_excerpt": "Men with an abdominal aortic aneurysm ‡ 55 mm should be considered for elective repair."
+          },
+          {
+            "chunk_id": "ESVS_2024__p26-26__c0278",
+            "resolved": true,
+            "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+            "document_id": "ESVS_2024",
+            "section": "ABDOMINAL AORTIC ANEURYSM",
+            "page": 26,
+            "page_start": 26,
+            "page_end": 26,
+            "retrieval_score": 0.83322036,
+            "rank": 2,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "ESVS_2024_AAA_Guidelines.pdf",
+            "model_excerpt": "the GWC has chosen to issue a new strong negative recommendation of elective repair of AAA < 55 mm, and to downgrade the recommendation on the threshold for considering repair in men ... i.e., 55 mm."
+          },
+          {
+            "chunk_id": "ESVS_2024__p73-73__c0653",
+            "resolved": true,
+            "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+            "document_id": "ESVS_2024",
+            "section": "Complex AAAs are estimated to constitute about 15 e",
+            "page": 73,
+            "page_start": 73,
+            "page_end": 73,
+            "retrieval_score": 0.82327724,
+            "rank": 3,
+            "recommendation_id": "116",
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "ESVS_2024_AAA_Guidelines.pdf",
+            "model_excerpt": "Patients with complex abdominal aortic aneurysms may be considered for elective repair at a diameter of ‡ 55 mm in men ..."
+          }
+        ],
+        "documents_cited": [
+          "ESVS_2024"
+        ],
+        "chunks_sent": [
+          "ESVS_2024__p27-28__c0282",
+          "ESVS_2024__p26-26__c0278",
+          "ESVS_2024__p73-73__c0653"
+        ],
+        "chunks_dropped_below_threshold": [],
+        "questions_for_the_reviewer": [
+          "Does every sentence of the recommendation trace to one of the cited chunks?",
+          "Is each citation the chunk that actually contains its claim?",
+          "If this is a refusal: does it name what was found, what is missing, and what would answer it?"
+        ]
+      }
+    }
+  ]
+}

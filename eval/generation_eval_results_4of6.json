@@ -1,0 +1,430 @@
+{
+  "summary": {
+    "eval_set_id": "aaa-generation-eval-v1",
+    "run_utc": "2026-08-18T11:42:51.185711+00:00",
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "top_k": 5,
+    "score_threshold": 0.75,
+    "temperature": 0.0,
+    "n_questions": 1,
+    "n_passed": 1,
+    "n_provider_errors": 0,
+    "n_refused": 1,
+    "n_validator_ok": 1,
+    "n_hallucinated_citations": 0,
+    "by_category": {
+      "out_of_scope": {
+        "n": 1,
+        "passed": 1
+      }
+    }
+  },
+  "records": [
+    {
+      "question": {
+        "id": "G14",
+        "category": "out_of_scope",
+        "question": "What are the screening recommendations for thoracic aortic aneurysm?",
+        "expected": "refuse",
+        "must_mention": [],
+        "must_not_mention": [],
+        "acceptable_refusal_reasons": [
+          "all_scores_below_threshold",
+          "evidence_not_specific_enough"
+        ],
+        "notes": "The specification's 'topically related but not specific enough' case. Retrieval will return high-scoring ABDOMINAL aneurysm screening chunks, so the score floor alone may not refuse this -- the model has to notice the question asks about a different vessel segment. This is the sharpest test of rule R1(b) in the set."
+      },
+      "result": {
+        "query": "What are the screening recommendations for thoracic aortic aneurysm?",
+        "settings": {
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b",
+          "base_url": "https://api.groq.com/openai/v1",
+          "api_key_supplied": true,
+          "top_k": 5,
+          "score_threshold": 0.75,
+          "temperature": 0.0,
+          "max_output_tokens": 4000,
+          "timeout_s": 180.0
+        },
+        "safety": {
+          "blocked": false,
+          "signals": [],
+          "rule": null,
+          "detail": null
+        },
+        "refused": true,
+        "refusal": {
+          "reason": "evidence_not_specific_enough",
+          "gate": "model"
+        },
+        "answer": {
+          "recommendation": "The retrieved guideline evidence is insufficient to answer this question. The available guideline excerpts discuss screening recommendations for abdominal aortic aneurysm (AAA) but do not address thoracic aortic aneurysm screening. Evidence covering AAA screening includes ultrasound screening in men and women with risk factors, as described in the SVS, NICE, USPSTF, and other guidelines. A source that specifically addresses thoracic aortic aneurysm screening would be needed to answer the question.",
+          "supporting_evidence": [
+            {
+              "claim": "The retrieved guideline excerpts provide recommendations for abdominal aortic aneurysm (AAA) screening, not thoracic aortic aneurysm screening.",
+              "chunk_id": "SVS_2018__p15-15__c0014",
+              "excerpt": "We recommend a one-time ultrasound screening for AAAs in men or women 65 to 75 years of age with a history of tobacco use."
+            },
+            {
+              "claim": "Guidelines recommend ultrasound as the preferred modality for AAA screening.",
+              "chunk_id": "NICE_NG156__p29-29__c0112",
+              "excerpt": "Aortic ultrasound is recommended because it is the standard technique used in clinical practice and in the screening programme."
+            },
+            {
+              "claim": "USPSTF and related societies recommend one-time AAA screening in men aged 65‑75 who have ever smoked.",
+              "chunk_id": "USPSTF_2019__p6-6__c0071",
+              "excerpt": "The American College of Cardiology and the American Heart Association jointly recommend 1-time screening for AAA with ... ultrasonography in men aged 65 to 75 years who have ever smoked..."
+            }
+          ],
+          "citations": [
+            {
+              "document": "Care of Patients with an Abdominal Aortic Aneurysm",
+              "section": "Aneurysm imaging",
+              "page": 15,
+              "chunk_id": "SVS_2018__p15-15__c0014",
+              "retrieval_score": 0.787531,
+              "excerpt": "We recommend a one-time ultrasound screening for AAAs in men or women 65 to 75 years of age with a history of tobacco use."
+            },
+            {
+              "document": "Abdominal aortic aneurysm: diagnosis and management",
+              "section": "Rationale and impact",
+              "page": 29,
+              "chunk_id": "NICE_NG156__p29-29__c0112",
+              "retrieval_score": 0.78543603,
+              "excerpt": "Aortic ultrasound is recommended because it is the standard technique used in clinical practice and in the screening programme."
+            },
+            {
+              "document": "Screening for Abdominal Aortic Aneurysm: US Preventive Services Task Force Recommendation Statement",
+              "section": "Treatment",
+              "page": 6,
+              "chunk_id": "USPSTF_2019__p6-6__c0071",
+              "retrieval_score": 0.770458,
+              "excerpt": "The American College of Cardiology and the American Heart Association jointly recommend 1-time screening for AAA with ... ultrasonography in men aged 65 to 75 years who have ever smoked..."
+            }
+          ],
+          "confidence": "Insufficient Evidence",
+          "disclaimer": "This is an evidence-retrieval prototype over four abdominal aortic aneurysm guidelines and is not clinically validated. It summarises retrieved guideline text only, does not provide patient-specific diagnosis, treatment or dosing, and must not be used to make clinical decisions. Verify every statement against the cited source document and apply clinical judgement."
+        },
+        "citations_resolved": [
+          {
+            "chunk_id": "SVS_2018__p15-15__c0014",
+            "resolved": true,
+            "document": "Care of Patients with an Abdominal Aortic Aneurysm",
+            "document_id": "SVS_2018",
+            "section": "Aneurysm imaging",
+            "page": 15,
+            "page_start": 15,
+            "page_end": 15,
+            "retrieval_score": 0.787531,
+            "rank": 1,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": "A",
+            "source_file": "SVS_Guideline_AAA_Slides_0.pdf",
+            "model_excerpt": "We recommend a one-time ultrasound screening for AAAs in men or women 65 to 75 years of age with a history of tobacco use."
+          },
+          {
+            "chunk_id": "NICE_NG156__p29-29__c0112",
+            "resolved": true,
+            "document": "Abdominal aortic aneurysm: diagnosis and management",
+            "document_id": "NICE_NG156",
+            "section": "Rationale and impact",
+            "page": 29,
+            "page_start": 29,
+            "page_end": 29,
+            "retrieval_score": 0.78543603,
+            "rank": 2,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "abdominal-aortic-aneurysm-diagnosis-and-management-pdf-66141843642565.pdf",
+            "model_excerpt": "Aortic ultrasound is recommended because it is the standard technique used in clinical practice and in the screening programme."
+          },
+          {
+            "chunk_id": "USPSTF_2019__p6-6__c0071",
+            "resolved": true,
+            "document": "Screening for Abdominal Aortic Aneurysm: US Preventive Services Task Force Recommendation Statement",
+            "document_id": "USPSTF_2019",
+            "section": "Treatment",
+            "page": 6,
+            "page_start": 6,
+            "page_end": 6,
+            "retrieval_score": 0.770458,
+            "rank": 5,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "abdom-aortic-aneurysm-screening-final-rs.pdf",
+            "model_excerpt": "The American College of Cardiology and the American Heart Association jointly recommend 1-time screening for AAA with ... ultrasonography in men aged 65 to 75 years who have ever smoked..."
+          }
+        ],
+        "documents_cited": [
+          "SVS_2018",
+          "NICE_NG156",
+          "USPSTF_2019"
+        ],
+        "validation": {
+          "ok": true,
+          "is_refusal": true,
+          "n_errors": 0,
+          "n_warnings": 2,
+          "codes": [
+            "excerpt_stitched",
+            "excerpt_stitched"
+          ],
+          "findings": [
+            {
+              "code": "excerpt_stitched",
+              "severity": "warning",
+              "message": "excerpt joins non-contiguous fragments with an ellipsis; each fragment is checked separately, but rule C5 asks for a contiguous quote",
+              "location": "citations[2]",
+              "chunk_id": "USPSTF_2019__p6-6__c0071"
+            },
+            {
+              "code": "excerpt_stitched",
+              "severity": "warning",
+              "message": "excerpt joins non-contiguous fragments with an ellipsis; each fragment is checked separately, but rule C5 asks for a contiguous quote",
+              "location": "supporting_evidence[2].excerpt",
+              "chunk_id": "USPSTF_2019__p6-6__c0071"
+            }
+          ],
+          "retrieved_chunk_ids": [
+            "SVS_2018__p15-15__c0014",
+            "NICE_NG156__p29-29__c0112",
+            "USPSTF_2019__p1-1__c0001",
+            "ESVS_2024__p19-19__c0201",
+            "USPSTF_2019__p6-6__c0071"
+          ],
+          "cited_chunk_ids": [
+            "SVS_2018__p15-15__c0014",
+            "NICE_NG156__p29-29__c0112",
+            "USPSTF_2019__p6-6__c0071"
+          ],
+          "hallucinated_chunk_ids": [],
+          "uncited_claims": []
+        },
+        "retrieval": {
+          "n_retrieved": 5,
+          "n_used": 5,
+          "n_dropped_below_threshold": 0,
+          "used_chunk_ids": [
+            "SVS_2018__p15-15__c0014",
+            "NICE_NG156__p29-29__c0112",
+            "USPSTF_2019__p1-1__c0001",
+            "ESVS_2024__p19-19__c0201",
+            "USPSTF_2019__p6-6__c0071"
+          ],
+          "dropped": [],
+          "hits": [
+            {
+              "rank": 1,
+              "chunk_id": "SVS_2018__p15-15__c0014",
+              "similarity_score": 0.787531,
+              "document_id": "SVS_2018",
+              "document": "Care of Patients with an Abdominal Aortic Aneurysm",
+              "section": "Aneurysm imaging",
+              "page": 15,
+              "page_start": 15,
+              "page_end": 15,
+              "recommendation_id": null,
+              "recommendation_grade": null,
+              "evidence_level": "A",
+              "text_preview": "Aneurysm imaging\nRecommendation\nLevel of recommendation\nQuality of evidence\nWe recommend using ultrasound, when feasible, as the preferred imaging modality for aneurysm screening and surveillance.\n1\nA\nWe suggest that the maximum aneurysm di"
+            },
+            {
+              "rank": 2,
+              "chunk_id": "NICE_NG156__p29-29__c0112",
+              "similarity_score": 0.78543603,
+              "document_id": "NICE_NG156",
+              "document": "Abdominal aortic aneurysm: diagnosis and management",
+              "section": "Rationale and impact",
+              "page": 29,
+              "page_start": 29,
+              "page_end": 29,
+              "recommendation_id": null,
+              "recommendation_grade": null,
+              "evidence_level": null,
+              "text_preview": "Rationale and impact\nIdentifying asymptomatic abdominal aortic aneurysms\nWhy the committee made the recommendations\nRecommendations 1.1.1 to 1.1.6\nThe committee were mindful that the NHS abdominal aortic aneurysm (AAA) screening programme d"
+            },
+            {
+              "rank": 3,
+              "chunk_id": "USPSTF_2019__p1-1__c0001",
+              "similarity_score": 0.77099395,
+              "document_id": "USPSTF_2019",
+              "document": "Screening for Abdominal Aortic Aneurysm: US Preventive Services Task Force Recommendation Statement",
+              "section": "Screening for Abdominal Aortic Aneurysm",
+              "page": 1,
+              "page_start": 1,
+              "page_end": 1,
+              "recommendation_id": null,
+              "recommendation_grade": null,
+              "evidence_level": null,
+              "text_preview": "Screening for Abdominal Aortic Aneurysm\nUS Preventive Services Task Force Recommendation Statement\nUS Preventive Services Task Force\nIMPORTANCE An abdominal aortic aneurysm (AAA) is typically defined as aortic enlargement with a diameter of"
+            },
+            {
+              "rank": 4,
+              "chunk_id": "ESVS_2024__p19-19__c0201",
+              "similarity_score": 0.77065426,
+              "document_id": "ESVS_2024",
+              "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+              "section": "Recommendation 9",
+              "page": 19,
+              "page_start": 19,
+              "page_end": 19,
+              "recommendation_id": null,
+              "recommendation_grade": null,
+              "evidence_level": null,
+              "text_preview": "3.3. Screening for abdominal aortic aneurysm\nThere have been four randomised trials of population based screening for AAA in men in the UK, Denmark, and\nAustralia127e129 and one small trial of screening in women in the UK130 (Table 5). The "
+            },
+            {
+              "rank": 5,
+              "chunk_id": "USPSTF_2019__p6-6__c0071",
+              "similarity_score": 0.770458,
+              "document_id": "USPSTF_2019",
+              "document": "Screening for Abdominal Aortic Aneurysm: US Preventive Services Task Force Recommendation Statement",
+              "section": "Treatment",
+              "page": 6,
+              "page_start": 6,
+              "page_end": 6,
+              "recommendation_id": null,
+              "recommendation_grade": null,
+              "evidence_level": null,
+              "text_preview": "• Studies examining the efficacy of screening and treatment in diverse populations (eg, older adults, women, and racial/ethnic groups) are needed to inform the need for specific recommendations in subpopulations of Americans.\nRecommendation"
+            }
+          ]
+        },
+        "generation": {
+          "completion": {
+            "provider": "groq",
+            "model": "openai/gpt-oss-120b",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 4097,
+              "completion_tokens": 1459,
+              "total_tokens": 5556
+            },
+            "latency_s": 4.669,
+            "response_chars": 2963,
+            "had_reasoning_stream": true
+          },
+          "parse_meta": {
+            "had_reasoning_block": false,
+            "had_code_fence": false,
+            "had_text_outside_object": false
+          },
+          "disclaimer_normalised": false
+        }
+      },
+      "scoring": {
+        "checks": {
+          "refusal_expectation": {
+            "pass": true,
+            "detail": "expected a refusal, got a refusal"
+          },
+          "refusal_reason": {
+            "pass": true,
+            "detail": "reason='evidence_not_specific_enough', acceptable=['all_scores_below_threshold', 'evidence_not_specific_enough']"
+          },
+          "validator": {
+            "pass": true,
+            "detail": "0 error(s), 2 warning(s): ['excerpt_stitched', 'excerpt_stitched']"
+          }
+        },
+        "passed": true,
+        "n_checks": 3,
+        "n_failed": 0
+      },
+      "manual_review": {
+        "recommendation": "The retrieved guideline evidence is insufficient to answer this question. The available guideline excerpts discuss screening recommendations for abdominal aortic aneurysm (AAA) but do not address thoracic aortic aneurysm screening. Evidence covering AAA screening includes ultrasound screening in men and women with risk factors, as described in the SVS, NICE, USPSTF, and other guidelines. A source that specifically addresses thoracic aortic aneurysm screening would be needed to answer the question.",
+        "confidence": "Insufficient Evidence",
+        "claims": [
+          {
+            "claim": "The retrieved guideline excerpts provide recommendations for abdominal aortic aneurysm (AAA) screening, not thoracic aortic aneurysm screening.",
+            "chunk_id": "SVS_2018__p15-15__c0014"
+          },
+          {
+            "claim": "Guidelines recommend ultrasound as the preferred modality for AAA screening.",
+            "chunk_id": "NICE_NG156__p29-29__c0112"
+          },
+          {
+            "claim": "USPSTF and related societies recommend one-time AAA screening in men aged 65‑75 who have ever smoked.",
+            "chunk_id": "USPSTF_2019__p6-6__c0071"
+          }
+        ],
+        "citations_resolved": [
+          {
+            "chunk_id": "SVS_2018__p15-15__c0014",
+            "resolved": true,
+            "document": "Care of Patients with an Abdominal Aortic Aneurysm",
+            "document_id": "SVS_2018",
+            "section": "Aneurysm imaging",
+            "page": 15,
+            "page_start": 15,
+            "page_end": 15,
+            "retrieval_score": 0.787531,
+            "rank": 1,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": "A",
+            "source_file": "SVS_Guideline_AAA_Slides_0.pdf",
+            "model_excerpt": "We recommend a one-time ultrasound screening for AAAs in men or women 65 to 75 years of age with a history of tobacco use."
+          },
+          {
+            "chunk_id": "NICE_NG156__p29-29__c0112",
+            "resolved": true,
+            "document": "Abdominal aortic aneurysm: diagnosis and management",
+            "document_id": "NICE_NG156",
+            "section": "Rationale and impact",
+            "page": 29,
+            "page_start": 29,
+            "page_end": 29,
+            "retrieval_score": 0.78543603,
+            "rank": 2,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "abdominal-aortic-aneurysm-diagnosis-and-management-pdf-66141843642565.pdf",
+            "model_excerpt": "Aortic ultrasound is recommended because it is the standard technique used in clinical practice and in the screening programme."
+          },
+          {
+            "chunk_id": "USPSTF_2019__p6-6__c0071",
+            "resolved": true,
+            "document": "Screening for Abdominal Aortic Aneurysm: US Preventive Services Task Force Recommendation Statement",
+            "document_id": "USPSTF_2019",
+            "section": "Treatment",
+            "page": 6,
+            "page_start": 6,
+            "page_end": 6,
+            "retrieval_score": 0.770458,
+            "rank": 5,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "abdom-aortic-aneurysm-screening-final-rs.pdf",
+            "model_excerpt": "The American College of Cardiology and the American Heart Association jointly recommend 1-time screening for AAA with ... ultrasonography in men aged 65 to 75 years who have ever smoked..."
+          }
+        ],
+        "documents_cited": [
+          "SVS_2018",
+          "NICE_NG156",
+          "USPSTF_2019"
+        ],
+        "chunks_sent": [
+          "SVS_2018__p15-15__c0014",
+          "NICE_NG156__p29-29__c0112",
+          "USPSTF_2019__p1-1__c0001",
+          "ESVS_2024__p19-19__c0201",
+          "USPSTF_2019__p6-6__c0071"
+        ],
+        "chunks_dropped_below_threshold": [],
+        "questions_for_the_reviewer": [
+          "Does every sentence of the recommendation trace to one of the cited chunks?",
+          "Is each citation the chunk that actually contains its claim?",
+          "If this is a refusal: does it name what was found, what is missing, and what would answer it?"
+        ]
+      }
+    }
+  ]
+}

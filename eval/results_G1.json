@@ -1,0 +1,417 @@
+{
+  "summary": {
+    "eval_set_id": "aaa-generation-eval-v1",
+    "run_utc": "2026-08-18T11:48:32.906506+00:00",
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "top_k": 5,
+    "score_threshold": 0.75,
+    "temperature": 0.0,
+    "n_questions": 1,
+    "n_passed": 1,
+    "n_provider_errors": 0,
+    "n_refused": 0,
+    "n_validator_ok": 1,
+    "n_hallucinated_citations": 0,
+    "by_category": {
+      "answerable": {
+        "n": 1,
+        "passed": 1
+      }
+    }
+  },
+  "records": [
+    {
+      "question": {
+        "id": "G1",
+        "category": "answerable",
+        "question": "What are the recommendations for screening for abdominal aortic aneurysm?",
+        "expected": "answer",
+        "must_mention": [
+          "65",
+          "ultrasound"
+        ],
+        "must_not_mention": [],
+        "expected_documents": [
+          "USPSTF_2019",
+          "SVS_2018",
+          "ESVS_2024",
+          "NICE_NG156"
+        ],
+        "notes": "Core answerable case. Frozen retrieval scores this question's top-1 at 0.839 with a relevant rank-1 chunk, so the generation layer has good evidence and no excuse for a vague answer."
+      },
+      "result": {
+        "query": "What are the recommendations for screening for abdominal aortic aneurysm?",
+        "settings": {
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b",
+          "base_url": "https://api.groq.com/openai/v1",
+          "api_key_supplied": true,
+          "top_k": 5,
+          "score_threshold": 0.75,
+          "temperature": 0.0,
+          "max_output_tokens": 4000,
+          "timeout_s": 180.0
+        },
+        "safety": {
+          "blocked": false,
+          "signals": [],
+          "rule": null,
+          "detail": null
+        },
+        "refused": false,
+        "refusal": null,
+        "answer": {
+          "recommendation": "Guidelines recommend one‑time abdominal ultrasound screening for abdominal aortic aneurysm in high‑risk adults, especially those aged 65‑75 years with a history of tobacco use, first‑degree relatives of patients with AAA, and other high‑risk groups; ultrasound is the preferred screening modality.",
+          "supporting_evidence": [
+            {
+              "claim": "SVS 2018 recommends a one‑time ultrasound screening for AAAs in men or women 65 to 75 years of age with a history of tobacco use (and similar screening for first‑degree relatives and older adults with tobacco use).",
+              "chunk_id": "SVS_2018__p15-15__c0014",
+              "excerpt": "We recommend a one-time ultrasound screening for AAAs in men or women 65 to 75 years of age with a history of tobacco use."
+            },
+            {
+              "claim": "ESVS 2024 recommends ultrasound screening for early detection of AAA in high‑risk populations.",
+              "chunk_id": "ESVS_2024__p21-21__c0222",
+              "excerpt": "Ultrasound screening for the early detection of abdominal aortic aneurysm is recommended in high risk populations* to reduce death from aneurysm rupture."
+            },
+            {
+              "claim": "NICE NG156 states that aortic ultrasound is recommended as the standard technique for AAA screening.",
+              "chunk_id": "NICE_NG156__p29-29__c0112",
+              "excerpt": "Aortic ultrasound is recommended because it is the standard technique used in clinical practice and in the screening programme."
+            }
+          ],
+          "citations": [
+            {
+              "document": "Care of Patients with an Abdominal Aortic Aneurysm",
+              "section": "Aneurysm imaging",
+              "page": 15,
+              "chunk_id": "SVS_2018__p15-15__c0014",
+              "retrieval_score": 0.8385203,
+              "excerpt": "We recommend a one-time ultrasound screening for AAAs in men or women 65 to 75 years of age with a history of tobacco use."
+            },
+            {
+              "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms",
+              "section": "ABDOMINAL AORTIC ANEURYSM",
+              "page": 21,
+              "chunk_id": "ESVS_2024__p21-21__c0222",
+              "retrieval_score": 0.82044685,
+              "excerpt": "Ultrasound screening for the early detection of abdominal aortic aneurysm is recommended in high risk populations* to reduce death from aneurysm rupture."
+            },
+            {
+              "document": "Abdominal aortic aneurysm: diagnosis and management",
+              "section": "Rationale and impact",
+              "page": 29,
+              "chunk_id": "NICE_NG156__p29-29__c0112",
+              "retrieval_score": 0.8342799,
+              "excerpt": "Aortic ultrasound is recommended because it is the standard technique used in clinical practice and in the screening programme."
+            }
+          ],
+          "confidence": "High",
+          "disclaimer": "This is an evidence-retrieval prototype over four abdominal aortic aneurysm guidelines and is not clinically validated. It summarises retrieved guideline text only, does not provide patient-specific diagnosis, treatment or dosing, and must not be used to make clinical decisions. Verify every statement against the cited source document and apply clinical judgement.",
+          "evidence_conflicts": []
+        },
+        "citations_resolved": [
+          {
+            "chunk_id": "SVS_2018__p15-15__c0014",
+            "resolved": true,
+            "document": "Care of Patients with an Abdominal Aortic Aneurysm",
+            "document_id": "SVS_2018",
+            "section": "Aneurysm imaging",
+            "page": 15,
+            "page_start": 15,
+            "page_end": 15,
+            "retrieval_score": 0.8385203,
+            "rank": 1,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": "A",
+            "source_file": "SVS_Guideline_AAA_Slides_0.pdf",
+            "model_excerpt": "We recommend a one-time ultrasound screening for AAAs in men or women 65 to 75 years of age with a history of tobacco use."
+          },
+          {
+            "chunk_id": "ESVS_2024__p21-21__c0222",
+            "resolved": true,
+            "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+            "document_id": "ESVS_2024",
+            "section": "ABDOMINAL AORTIC ANEURYSM",
+            "page": 21,
+            "page_start": 21,
+            "page_end": 21,
+            "retrieval_score": 0.82044685,
+            "rank": 3,
+            "recommendation_id": "11",
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "ESVS_2024_AAA_Guidelines.pdf",
+            "model_excerpt": "Ultrasound screening for the early detection of abdominal aortic aneurysm is recommended in high risk populations* to reduce death from aneurysm rupture."
+          },
+          {
+            "chunk_id": "NICE_NG156__p29-29__c0112",
+            "resolved": true,
+            "document": "Abdominal aortic aneurysm: diagnosis and management",
+            "document_id": "NICE_NG156",
+            "section": "Rationale and impact",
+            "page": 29,
+            "page_start": 29,
+            "page_end": 29,
+            "retrieval_score": 0.8342799,
+            "rank": 2,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "abdominal-aortic-aneurysm-diagnosis-and-management-pdf-66141843642565.pdf",
+            "model_excerpt": "Aortic ultrasound is recommended because it is the standard technique used in clinical practice and in the screening programme."
+          }
+        ],
+        "documents_cited": [
+          "SVS_2018",
+          "ESVS_2024",
+          "NICE_NG156"
+        ],
+        "validation": {
+          "ok": true,
+          "is_refusal": false,
+          "n_errors": 0,
+          "n_warnings": 0,
+          "codes": [],
+          "findings": [],
+          "retrieved_chunk_ids": [
+            "SVS_2018__p15-15__c0014",
+            "NICE_NG156__p29-29__c0112",
+            "ESVS_2024__p21-21__c0222",
+            "USPSTF_2019__p1-1__c0001",
+            "USPSTF_2019__p3-3__c0030"
+          ],
+          "cited_chunk_ids": [
+            "SVS_2018__p15-15__c0014",
+            "ESVS_2024__p21-21__c0222",
+            "NICE_NG156__p29-29__c0112"
+          ],
+          "hallucinated_chunk_ids": [],
+          "uncited_claims": []
+        },
+        "retrieval": {
+          "n_retrieved": 5,
+          "n_used": 5,
+          "n_dropped_below_threshold": 0,
+          "used_chunk_ids": [
+            "SVS_2018__p15-15__c0014",
+            "NICE_NG156__p29-29__c0112",
+            "ESVS_2024__p21-21__c0222",
+            "USPSTF_2019__p1-1__c0001",
+            "USPSTF_2019__p3-3__c0030"
+          ],
+          "dropped": [],
+          "hits": [
+            {
+              "rank": 1,
+              "chunk_id": "SVS_2018__p15-15__c0014",
+              "similarity_score": 0.8385203,
+              "document_id": "SVS_2018",
+              "document": "Care of Patients with an Abdominal Aortic Aneurysm",
+              "section": "Aneurysm imaging",
+              "page": 15,
+              "page_start": 15,
+              "page_end": 15,
+              "recommendation_id": null,
+              "recommendation_grade": null,
+              "evidence_level": "A",
+              "text_preview": "Aneurysm imaging\nRecommendation\nLevel of recommendation\nQuality of evidence\nWe recommend using ultrasound, when feasible, as the preferred imaging modality for aneurysm screening and surveillance.\n1\nA\nWe suggest that the maximum aneurysm di"
+            },
+            {
+              "rank": 2,
+              "chunk_id": "NICE_NG156__p29-29__c0112",
+              "similarity_score": 0.8342799,
+              "document_id": "NICE_NG156",
+              "document": "Abdominal aortic aneurysm: diagnosis and management",
+              "section": "Rationale and impact",
+              "page": 29,
+              "page_start": 29,
+              "page_end": 29,
+              "recommendation_id": null,
+              "recommendation_grade": null,
+              "evidence_level": null,
+              "text_preview": "Rationale and impact\nIdentifying asymptomatic abdominal aortic aneurysms\nWhy the committee made the recommendations\nRecommendations 1.1.1 to 1.1.6\nThe committee were mindful that the NHS abdominal aortic aneurysm (AAA) screening programme d"
+            },
+            {
+              "rank": 3,
+              "chunk_id": "ESVS_2024__p21-21__c0222",
+              "similarity_score": 0.82044685,
+              "document_id": "ESVS_2024",
+              "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+              "section": "ABDOMINAL AORTIC ANEURYSM",
+              "page": 21,
+              "page_start": 21,
+              "page_end": 21,
+              "recommendation_id": "11",
+              "recommendation_grade": null,
+              "evidence_level": null,
+              "text_preview": "Recommendation 11\nChanged\nUltrasound screening for the early detection of abdominal aortic aneurysm is recommended in high risk populations* to reduce death from aneurysm rupture.\nClass\nLevel\nReferences\nToE\nI\nA\nLederle et al. (2000),99\nWanh"
+            },
+            {
+              "rank": 4,
+              "chunk_id": "USPSTF_2019__p1-1__c0001",
+              "similarity_score": 0.8125136,
+              "document_id": "USPSTF_2019",
+              "document": "Screening for Abdominal Aortic Aneurysm: US Preventive Services Task Force Recommendation Statement",
+              "section": "Screening for Abdominal Aortic Aneurysm",
+              "page": 1,
+              "page_start": 1,
+              "page_end": 1,
+              "recommendation_id": null,
+              "recommendation_grade": null,
+              "evidence_level": null,
+              "text_preview": "Screening for Abdominal Aortic Aneurysm\nUS Preventive Services Task Force Recommendation Statement\nUS Preventive Services Task Force\nIMPORTANCE An abdominal aortic aneurysm (AAA) is typically defined as aortic enlargement with a diameter of"
+            },
+            {
+              "rank": 5,
+              "chunk_id": "USPSTF_2019__p3-3__c0030",
+              "similarity_score": 0.80289865,
+              "document_id": "USPSTF_2019",
+              "document": "Screening for Abdominal Aortic Aneurysm: US Preventive Services Task Force Recommendation Statement",
+              "section": "Treatment",
+              "page": 3,
+              "page_start": 3,
+              "page_end": 3,
+              "recommendation_id": null,
+              "recommendation_grade": null,
+              "evidence_level": null,
+              "text_preview": "To determine whether this service is appropriate, patients and clinicians should consider the patient’s medical history, family history, other risk factors, and personal values.\n2.\nAAA indicates abdominal aortic aneurysm; USPSTF, US Prevent"
+            }
+          ]
+        },
+        "generation": {
+          "completion": {
+            "provider": "groq",
+            "model": "openai/gpt-oss-120b",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 4002,
+              "completion_tokens": 1936,
+              "total_tokens": 5938
+            },
+            "latency_s": 5.521,
+            "response_chars": 3167,
+            "had_reasoning_stream": true
+          },
+          "parse_meta": {
+            "had_reasoning_block": false,
+            "had_code_fence": false,
+            "had_text_outside_object": false
+          },
+          "disclaimer_normalised": false
+        }
+      },
+      "scoring": {
+        "checks": {
+          "refusal_expectation": {
+            "pass": true,
+            "detail": "expected an answer, got an answer"
+          },
+          "validator": {
+            "pass": true,
+            "detail": "0 error(s), 0 warning(s): []"
+          },
+          "must_mention": {
+            "pass": true,
+            "detail": "all present",
+            "missing": [],
+            "also_absent_from_excerpts": []
+          }
+        },
+        "passed": true,
+        "n_checks": 3,
+        "n_failed": 0
+      },
+      "manual_review": {
+        "recommendation": "Guidelines recommend one‑time abdominal ultrasound screening for abdominal aortic aneurysm in high‑risk adults, especially those aged 65‑75 years with a history of tobacco use, first‑degree relatives of patients with AAA, and other high‑risk groups; ultrasound is the preferred screening modality.",
+        "confidence": "High",
+        "claims": [
+          {
+            "claim": "SVS 2018 recommends a one‑time ultrasound screening for AAAs in men or women 65 to 75 years of age with a history of tobacco use (and similar screening for first‑degree relatives and older adults with tobacco use).",
+            "chunk_id": "SVS_2018__p15-15__c0014"
+          },
+          {
+            "claim": "ESVS 2024 recommends ultrasound screening for early detection of AAA in high‑risk populations.",
+            "chunk_id": "ESVS_2024__p21-21__c0222"
+          },
+          {
+            "claim": "NICE NG156 states that aortic ultrasound is recommended as the standard technique for AAA screening.",
+            "chunk_id": "NICE_NG156__p29-29__c0112"
+          }
+        ],
+        "citations_resolved": [
+          {
+            "chunk_id": "SVS_2018__p15-15__c0014",
+            "resolved": true,
+            "document": "Care of Patients with an Abdominal Aortic Aneurysm",
+            "document_id": "SVS_2018",
+            "section": "Aneurysm imaging",
+            "page": 15,
+            "page_start": 15,
+            "page_end": 15,
+            "retrieval_score": 0.8385203,
+            "rank": 1,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": "A",
+            "source_file": "SVS_Guideline_AAA_Slides_0.pdf",
+            "model_excerpt": "We recommend a one-time ultrasound screening for AAAs in men or women 65 to 75 years of age with a history of tobacco use."
+          },
+          {
+            "chunk_id": "ESVS_2024__p21-21__c0222",
+            "resolved": true,
+            "document": "Editor's Choice -- European Society for Vascular Surgery (ESVS) 2024 Clinical Practice Guidelines on the Management of Abdominal Aorto-Iliac Artery Aneurysms&#x2606;",
+            "document_id": "ESVS_2024",
+            "section": "ABDOMINAL AORTIC ANEURYSM",
+            "page": 21,
+            "page_start": 21,
+            "page_end": 21,
+            "retrieval_score": 0.82044685,
+            "rank": 3,
+            "recommendation_id": "11",
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "ESVS_2024_AAA_Guidelines.pdf",
+            "model_excerpt": "Ultrasound screening for the early detection of abdominal aortic aneurysm is recommended in high risk populations* to reduce death from aneurysm rupture."
+          },
+          {
+            "chunk_id": "NICE_NG156__p29-29__c0112",
+            "resolved": true,
+            "document": "Abdominal aortic aneurysm: diagnosis and management",
+            "document_id": "NICE_NG156",
+            "section": "Rationale and impact",
+            "page": 29,
+            "page_start": 29,
+            "page_end": 29,
+            "retrieval_score": 0.8342799,
+            "rank": 2,
+            "recommendation_id": null,
+            "recommendation_grade": null,
+            "evidence_level": null,
+            "source_file": "abdominal-aortic-aneurysm-diagnosis-and-management-pdf-66141843642565.pdf",
+            "model_excerpt": "Aortic ultrasound is recommended because it is the standard technique used in clinical practice and in the screening programme."
+          }
+        ],
+        "documents_cited": [
+          "SVS_2018",
+          "ESVS_2024",
+          "NICE_NG156"
+        ],
+        "chunks_sent": [
+          "SVS_2018__p15-15__c0014",
+          "NICE_NG156__p29-29__c0112",
+          "ESVS_2024__p21-21__c0222",
+          "USPSTF_2019__p1-1__c0001",
+          "USPSTF_2019__p3-3__c0030"
+        ],
+        "chunks_dropped_below_threshold": [],
+        "questions_for_the_reviewer": [
+          "Does every sentence of the recommendation trace to one of the cited chunks?",
+          "Is each citation the chunk that actually contains its claim?",
+          "If this is a refusal: does it name what was found, what is missing, and what would answer it?"
+        ]
+      }
+    }
+  ]
+}
