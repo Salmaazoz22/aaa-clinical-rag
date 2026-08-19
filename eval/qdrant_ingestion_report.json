@@ -13,6 +13,12 @@
     "dir": "data/embeddings",
     "chunks_file": "embedded_chunks.json",
     "vectors_file": "embeddings.npy",
+    "binding_verified_by": "retrieval.index.verify_index_binding (via retrieval.index.load_index)",
+    "binding": {
+      "n_indexed": 991,
+      "source_chunks_sha256": "82faf28fb81b599f5a6ad4bcda5845d19963e2e46790f0357b1d52dc3952f0d2",
+      "indexed_chunk_ids_sha256": "b48e5ec5a3164d106cf69d36bda831b1f8564f4132aedeb1c652be12a649fd47"
+    },
     "n_records": 991,
     "n_vectors": 991,
     "embedding_dim": 768,
@@ -36,6 +42,6 @@
     "distance": "Cosine",
     "status": "green"
   },
-  "ingestion_seconds": 2.895,
-  "points_per_second": 342.4
+  "ingestion_seconds": 2.094,
+  "points_per_second": 473.2
 }
