@@ -13,3 +13,12 @@ dependencies = {file = ["requirements.txt"]}
 
 [tool.setuptools.packages.find]
 include = ["api*", "ingestion*", "retrieval*", "generation*", "vectordb*"]
+
+# Scope collection to this project's own tests. The sibling directories
+# (aaa-clinical-ragnour/, aaa-clinical-raggehad/) are other people's projects
+# that happen to live inside this folder and are git-ignored; without this,
+# pytest walks into them and their test_chunking.py collides with ours by
+# module basename. Nothing here changes, skips, or relaxes a single test.
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["aaa-clinical-ragnour", "aaa-clinical-raggehad", ".git", "__pycache__", "data", "eval"]

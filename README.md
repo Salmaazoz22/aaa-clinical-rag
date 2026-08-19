@@ -182,6 +182,79 @@ query embedding 39.5 ms, end-to-end 51.1 ms; collection 10.0 MiB, container ~92 
 
 ---
 
+## API and demo UI
+
+Two layers sit on top of the pipeline, and neither contains any of it.
+
+```
+Browser → Streamlit (ui/) → HTTP → FastAPI (api/) → generation.pipeline.answer_question
+                                                     → safety gate
+                                                     → MedEmbed → Qdrant
+                                                     → evidence threshold
+                                                     → LLM
+                                                     → citation validator
+```
+
+`api/` is a transport layer: it calls `answer_question` as-is and serialises the
+`GenerationResult` it gets back. `ui/` is an HTTP client: nothing under it imports
+`generation`, `retrieval`, `vectordb` or `ingestion`, and `tests/test_ui.py` asserts that by
+parsing every UI source. There is exactly one retrieval implementation in this project.
+
+### Endpoints
+
+| endpoint | returns |
+| --- | --- |
+| `GET /health` | API, Qdrant, index and LLM-key status |
+| `GET /v1/meta` | pinned model + revision, collection, dimensions, chunk count, index digests |
+| `POST /v1/answer` | the full audit record for one question, refusals included |
+| `GET /v1/chunks/{chunk_id}` | one chunk's stored payload, for citation audit |
+| `GET /v1/corpus` | the four guideline documents, with live per-document chunk counts |
+| `GET /v1/evaluation` | the frozen evaluation artifacts, verbatim, with the SHA-256 of the bytes read |
+
+`/v1/corpus` and `/v1/evaluation` exist so the UI can display corpus and metric values without
+hardcoding them. They read frozen artifacts off disk and return them unchanged — they have no
+way to produce any other number.
+
+An upstream failure is never dressed up as an answer: a missing API key is `503`, an
+unparseable or failed model call is `502`, and an invalid question is `400`. No placeholder,
+cached or ungrounded answer is ever substituted.
+
+### Running it
+
+```bash
+pip install -r requirements.txt
+cp .env.example .env                     # never commit .env
+
+docker compose up -d                     # Qdrant :6333  (or set QDRANT_LOCAL_PATH for embedded mode)
+python vectordb/ingest.py --recreate     # migrate the 991 frozen vectors
+
+uvicorn api.main:app --host 127.0.0.1 --port 8000    # terminal 1 — OpenAPI docs at /docs
+streamlit run ui/app.py                              # terminal 2 — http://localhost:8501
+```
+
+The UI reads `CLINICAL_RAG_API_URL` to reach a backend elsewhere; it defaults to
+`http://127.0.0.1:8000`. With the API down it shows a "backend unavailable" page explaining how
+to start it, never a stack trace.
+
+Retrieval, the safety gate and the evidence threshold need no LLM key. Only a question that
+passes every gate reaches the model, so the refusal behaviour is fully demonstrable without one.
+
+### UI pages
+
+| page | what it shows |
+| --- | --- |
+| **Ask** | answer, confidence, citation count and validator verdict; retrieved evidence with per-chunk similarity and full text; the evidence → answer trace; retrieval-score bars against the evidence floor; validator findings; run provenance; the raw API response |
+| **Evaluation** | the frozen retrieval metrics for all three question sets, every configuration, labelled frozen and served from `/v1/evaluation` with artifact digests |
+| **Safety & Abstention** | five example questions *executed live*, showing which gate fired and why |
+| **Architecture** | the request path as implemented, drawn from live configuration values |
+| **Guidelines & Sources** | the four documents, from extraction metadata, with live chunk counts |
+| **Technical Details** | each component, and why it is there rather than the obvious alternative |
+
+Clinical answers are never cached. Static metadata is, keyed on the backend address so
+repointing the UI cannot serve the previous backend's provenance.
+
+---
+
 ## Layout
 
 ```
@@ -194,6 +267,13 @@ ingestion/                ** corpus -> chunks **
 retrieval/                ** chunks -> ranked evidence **
   index.py                  embeddings, local index, retrieval
   rerank.py                 optional cross-encoder (NOT wired into production)
+api/                      ** FastAPI transport layer — no core logic **
+  main.py                   health, meta, answer, chunk, corpus, evaluation
+ui/                       ** Streamlit demo client — HTTP only, imports no pipeline **
+  app.py                    entry point, navigation
+  api_client.py             the only place the UI talks to the backend
+  theme.py · components.py  design system and render primitives
+  views/                    one module per page
 generation/               ** evidence -> cited answer (see docs/generation.md) **
   safety.py                 pre-retrieval patient-specific gate
   pipeline.py               retrieve -> threshold -> prompt -> generate -> validate
