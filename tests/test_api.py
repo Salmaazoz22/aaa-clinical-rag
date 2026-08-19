@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Tests for the FastAPI service layer (api/main.py).
 
+
 Uses FastAPI's TestClient (no real Qdrant or LLM needed).
 The retriever and answer_question are patched so these tests are:
   - fast (no network, no embedding model)
