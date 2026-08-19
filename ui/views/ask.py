@@ -177,7 +177,7 @@ def _composer(ctx: Context) -> None:
         st.text_area("Question", key=Q, placeholder=PLACEHOLDER, height=96,
                      label_visibility="collapsed")
 
-        chip_col, ctrl_col = st.columns([3, 2], gap="medium")
+        chip_col, ctrl_col = st.columns([1.9, 2], gap="medium")
 
         with chip_col:
             labels = [d.label for d in DEMOS]
@@ -189,7 +189,7 @@ def _composer(ctx: Context) -> None:
                 st.rerun()
 
         with ctrl_col:
-            pop, ask_col, clr_col = st.columns([1.1, 1, 1], gap="small")
+            pop, ask_col, clr_col = st.columns([1.5, 1, 1], gap="small")
             with pop:
                 with st.popover("Retrieval", width="stretch"):
                     c.write('<div class="eyebrow">Request parameters</div>'
@@ -513,9 +513,11 @@ def render(ctx: Context) -> None:
         if result is not None:
             _evidence_rail(result, ctx)
         elif error is not None:
-            c.write('<div class="rail-head"><div class="row"><span class="eyebrow">Evidence</span>'
-                    '<span class="mono tiny">—</span></div></div>')
-            c.write(c.skeleton("evidence", 2))
+            # Deliberately nothing here. A skeleton in this slot was shimmering
+            # for evidence that had already failed to arrive — decoration that
+            # actively implies loading when nothing is loading. The error panel
+            # in the answer column already says what happened and what to do.
+            pass
         else:
             _empty_right(ctx)
 

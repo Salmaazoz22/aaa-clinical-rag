@@ -161,7 +161,7 @@ h3 { font-size: 1.25rem; }
    AAA management uses diameter against 3.0 / 5.5 cm.
    =========================================================================== */
 
-.caliper { position: relative; width: 100%; padding: 22px 0 16px; }
+.caliper { position: relative; width: 100%; padding: 22px 0 30px; }
 .caliper.idle { opacity: .4; }
 
 .caliper .rule {
@@ -204,7 +204,7 @@ h3 { font-size: 1.25rem; }
 @keyframes drop { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } }
 
 .caliper-legend {
-  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px;
+  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px;
   font-size: .6875rem; color: var(--muted);
 }
 .caliper-legend .k { display: inline-flex; align-items: center; gap: 5px; }
@@ -497,14 +497,26 @@ table.grid tr.hl td:first-child { color: var(--contrast); }
 [data-testid="stSidebar"] {
   background: var(--slate);
   border-right: 0;
-  width: var(--rail-w) !important;
-  min-width: var(--rail-w) !important;
+}
+/* Fixed rail width, but only where there is room for it. `!important` is scoped
+   to this media query so the narrow-screen block below can release it. */
+@media (min-width: 781px) {
+  [data-testid="stSidebar"] {
+    width: var(--rail-w) !important;
+    min-width: var(--rail-w) !important;
+  }
 }
 [data-testid="stSidebar"] [data-testid="stSidebarUserContent"] { padding: 24px 20px 20px; }
 [data-testid="stSidebarNav"] { display: none; }
-[data-testid="stSidebar"] * { color: var(--muted-dark); }
-[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #FFF; }
-[data-testid="stSidebarCollapseButton"] button { color: var(--muted-dark) !important; }
+/* Set colour on the elements that carry text, never with a descendant
+   wildcard. A `* { color: ... }` here would win over every button rule below,
+   which is how the nav's active label ended up muted instead of white — the
+   same failure mode as the [class*="st-"] rule this file bans. */
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] li,
+[data-testid="stSidebar"] label { color: var(--muted-dark); }
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: var(--surface); }
+[data-testid="stSidebarCollapseButton"] button { color: var(--muted-dark); }
 
 /* Material icon spans: protect the ligature. This is belt-and-braces — the UI
    supplies its own inline SVG — but any Streamlit-internal icon left in place
@@ -516,6 +528,18 @@ table.grid tr.hl td:first-child { color: var(--contrast); }
 
 /* Buttons. Defect 2.2: every variant declares bg, text, border and all states.
    No global colour rule may reach these. */
+/* Streamlit wraps a button's label five levels deep, ending in a <p>. A colour
+   set on <button> therefore does not reach the text on its own.
+   `.stApp` is part of this selector for SPECIFICITY, not for scoping: the base
+   typography rule `.stApp p` is (0,2,0), so a plain `[data-testid^=...] *` at
+   (0,1,0) loses and the label keeps the page's ink colour — which on the ink
+   primary button is invisible. That is exactly defect 2.2, and it reappears the
+   moment this selector is weakened. (0,3,0) wins deterministically.
+   Scoped to buttons only — never a page-wide wildcard. */
+.stApp [data-testid^="stBaseButton"],
+.stApp [data-testid^="stBaseButton"] *,
+.stApp [data-testid^="stBaseButton"] p { color: inherit; }
+
 [data-testid="stBaseButton-secondary"],
 [data-testid="stBaseButton-primary"] {
   border-radius: var(--r-control);
@@ -523,7 +547,7 @@ table.grid tr.hl td:first-child { color: var(--contrast); }
   transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
   min-height: 38px;
 }
-[data-testid="stBaseButton-primary"] {
+.stApp [data-testid="stBaseButton-primary"] {
   background: var(--ink); color: #FFFFFF; border: 1px solid var(--ink);
 }
 [data-testid="stBaseButton-primary"]:hover:not(:disabled) {
@@ -533,7 +557,7 @@ table.grid tr.hl td:first-child { color: var(--contrast); }
 [data-testid="stBaseButton-primary"]:active:not(:disabled) { background: #05090B; color: #FFFFFF; }
 [data-testid="stBaseButton-primary"]:disabled { background: var(--line); color: var(--muted); border-color: var(--line); }
 
-[data-testid="stBaseButton-secondary"] {
+.stApp [data-testid="stBaseButton-secondary"] {
   background: transparent; color: var(--ink); border: 1px solid var(--line);
 }
 [data-testid="stBaseButton-secondary"]:hover:not(:disabled) {
@@ -543,7 +567,7 @@ table.grid tr.hl td:first-child { color: var(--contrast); }
 [data-testid="stBaseButton-secondary"]:disabled { color: var(--muted); border-color: var(--line); background: transparent; }
 
 /* ghost button inside the dark rail */
-[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] {
+.stApp [data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] {
   background: transparent; color: #FFFFFF; border: 1px solid var(--line-dark); width: 100%;
 }
 [data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover:not(:disabled) {
@@ -583,8 +607,10 @@ table.grid tr.hl td:first-child { color: var(--contrast); }
 [data-testid="stExpander"] summary [data-testid="stIconMaterial"] { display: none; }
 [data-testid="stExpander"] summary svg { color: var(--muted); }
 
-/* popover */
-[data-testid="stPopover"] button { border-radius: var(--r-control); }
+/* popover — the trigger label must not wrap; a two-line "Retrie/val" is worse
+   than a slightly wider control. */
+[data-testid="stPopover"] button { border-radius: var(--r-control); white-space: nowrap; }
+[data-testid="stPopover"] button p { white-space: nowrap; }
 
 /* tabs */
 [data-testid="stTabs"] button[role="tab"] {
@@ -625,16 +651,23 @@ a:focus-visible, button:focus-visible, textarea:focus-visible,
 
 @media (max-width: 780px) {
   [data-testid="stMain"] [data-testid="stMainBlockContainer"] { padding: 16px 16px 48px; }
-  [data-testid="stSidebar"] { width: 72px !important; min-width: 72px !important; }
-  [data-testid="stSidebar"] .nav-label,
-  [data-testid="stSidebar"] .rail-brand .sub,
-  [data-testid="stSidebar"] .tele .name { display: none; }
+
+  /* Below this width Streamlit switches the sidebar to a fixed overlay behind
+     its own collapse control. Forcing a width here fights that: the rail ends
+     up painted over the canvas with its content clipped, and the telemetry
+     labels wrap one character per line. So the width override is released and
+     Streamlit's own behaviour is allowed to run — the rail becomes a drawer,
+     which is the right pattern at this size anyway. */
+  [data-testid="stSidebar"] { width: auto; min-width: 0; }
+
   .canvas-head { flex-direction: column; align-items: flex-start; height: auto; gap: 4px;
                  padding-bottom: 12px; }
   .canvas-head .meta { text-align: left; }
   .stages { flex-wrap: wrap; gap: 8px; }
   .stage { flex: 1 1 45%; }
   .stage .conn { display: none; }
+  .dl { grid-template-columns: 1fr; }
+  .tile .v { font-size: 1.6rem; }
 }
 
 /* ===========================================================================

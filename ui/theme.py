@@ -24,7 +24,9 @@ from ui import tokens
 
 ROOT = Path(__file__).resolve().parents[1]
 CSS_PATH = ROOT / "assets" / "theme.css"
-FAVICON = ROOT / "static" / "favicon.png"
+#: Streamlit serves `static/` from the directory holding the ENTRYPOINT script,
+#: not from the project root — which is why this lives under ui/.
+FAVICON = Path(__file__).resolve().parent / "static" / "favicon.png"
 
 _TOKEN_MARKER = "/* @@TOKENS@@ */"
 

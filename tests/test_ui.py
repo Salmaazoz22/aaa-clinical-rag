@@ -157,7 +157,7 @@ def test_fonts_are_self_hosted():
     """No external font request during a live demo."""
     for name in ("InstrumentSans-Variable", "SourceSerif4-Variable",
                  "IBMPlexMono-Regular", "IBMPlexMono-Medium"):
-        path = ROOT / "static" / "fonts" / f"{name}.woff2"
+        path = UI_DIR / "static" / "fonts" / f"{name}.woff2"
         assert path.exists(), f"{name}.woff2 missing"
         assert path.read_bytes()[:4] == b"wOF2", f"{name} is not valid woff2"
 

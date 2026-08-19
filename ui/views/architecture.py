@@ -14,7 +14,10 @@ from typing import Any
 from ui import components as c
 from ui.shell import Context
 
-W, BOX_W, BOX_H, GAP = 940, 260, 54, 30
+#: Boxes are wide enough for their longest mono sublabel. Measured, not guessed:
+#: "answers ONLY from the chunks it was sent" is 40 characters at 10.5px mono,
+#: which needs ~250px plus the 16px inset on each side.
+W, BOX_W, BOX_H, GAP = 940, 320, 54, 30
 X = (W - BOX_W) / 2
 
 # Layer colours name a role, not a decoration.

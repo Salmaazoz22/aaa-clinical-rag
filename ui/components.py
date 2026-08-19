@@ -128,17 +128,27 @@ def nav_icon_css(pages: Sequence[tuple[str, str]], active: str) -> str:
 
 
 _NAV_BASE_CSS = """
+.stApp [data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] p { color: var(--muted-dark); }
 [data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] {
   justify-content: flex-start; text-align: left; height: 40px; min-height: 40px;
   border: 0; background: transparent; color: var(--muted-dark);
   font-size: .9375rem; font-weight: 400; padding: 0 10px; border-radius: var(--r-control);
-  position: relative; width: 100%;
+  position: relative; width: 100%; white-space: nowrap; overflow: hidden;
+}
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] p { white-space: nowrap; }
+.stApp [data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover,
+.stApp [data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover p {
+  color: var(--surface);
 }
 [data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover {
-  background: rgba(255,255,255,.04); color: var(--surface); border: 0;
+  background: rgba(255,255,255,.04); border: 0;
+}
+.stApp [class*="st-key-nav-"][class*="-active"] [data-testid="stBaseButton-secondary"],
+.stApp [class*="st-key-nav-"][class*="-active"] [data-testid="stBaseButton-secondary"] p {
+  color: var(--surface); font-weight: 500;
 }
 [class*="st-key-nav-"][class*="-active"] [data-testid="stBaseButton-secondary"] {
-  color: var(--surface); background: rgba(224,168,85,.10); font-weight: 500;
+  background: rgba(224,168,85,.10);
 }
 [class*="st-key-nav-"][class*="-active"] [data-testid="stBaseButton-secondary"]::after {
   content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px;
