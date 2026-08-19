@@ -28,6 +28,7 @@ from typing import Any, Iterable, Sequence
 
 import streamlit as st
 
+from ui.branding import PRODUCT_NAME, PRODUCT_TAGLINE
 from ui.icons import icon
 
 # ---------------------------------------------------------------------------
@@ -80,7 +81,8 @@ def nav_rail(pages: Sequence[tuple[str, str]], active: str) -> str | None:
     write(
         '<div class="rail-brand">'
         '<div class="bar"></div>'
-        '<div><div class="mark">AAA</div><div class="sub">Clinical RAG</div></div>'
+        f'<div><div class="mark">{PRODUCT_NAME}</div>'
+        f'<div class="sub">{PRODUCT_TAGLINE}</div></div>'
         "</div>"
     )
 

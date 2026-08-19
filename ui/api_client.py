@@ -37,9 +37,36 @@ META_TIMEOUT = 30
 HEALTH_TIMEOUT = 8
 
 
+#: The setting name, used identically as an environment variable and as a
+#: Streamlit secret. One name, so the deployment note has one thing to say.
+API_URL_SETTING = "CLINICAL_RAG_API_URL"
+
+
+def _secret(name: str) -> str:
+    """Read one Streamlit secret, tolerating the common case of having none.
+
+    `st.secrets` raises when no secrets file exists, which is the normal state
+    for a local `streamlit run`. That is not an error here: it just means the
+    setting is not being supplied that way.
+    """
+    try:
+        value = st.secrets.get(name)
+    except Exception:  # noqa: BLE001 - no secrets file, or an unreadable one
+        return ""
+    return str(value).strip() if value else ""
+
+
 def base_url() -> str:
-    """Where the API lives. Overridable without touching code."""
-    return (os.environ.get("CLINICAL_RAG_API_URL") or DEFAULT_BASE_URL).rstrip("/")
+    """Where the API lives. Overridable without touching code.
+
+    Checked in order: a Streamlit secret, then an environment variable, then the
+    localhost default. The secret comes first because that is the only channel a
+    Streamlit Community Cloud deployment has — and the localhost default is
+    exactly wrong there, since nothing is listening on the container's own
+    127.0.0.1. Set `CLINICAL_RAG_API_URL` to the deployed API's public URL.
+    """
+    configured = _secret(API_URL_SETTING) or os.environ.get(API_URL_SETTING) or DEFAULT_BASE_URL
+    return configured.rstrip("/")
 
 
 # ---------------------------------------------------------------------------

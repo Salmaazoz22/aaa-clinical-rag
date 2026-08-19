@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-"""Streamlit frontend for the AAA Clinical RAG API. HTTP client only."""
+"""Clinova X — Streamlit frontend for the Clinical RAG API. HTTP client only."""

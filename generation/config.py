@@ -82,6 +82,14 @@ MAX_CHUNK_CHARS = 0  # 0 = no truncation
 
 DEFAULT_ENABLE_FALLBACK = True
 
+# The fallback provider is, by default, "whichever supported provider is not the
+# primary". Naming one explicitly (GENERATION_FALLBACK_PROVIDER) and pinning its
+# model (GENERATION_FALLBACK_MODEL) is what makes a retired model slug a `.env`
+# edit rather than a code change -- the failure mode that silently disabled the
+# fallback when `deepseek/deepseek-r1:free` was withdrawn from OpenRouter.
+DEFAULT_FALLBACK_PROVIDER = ""
+DEFAULT_FALLBACK_MODEL = ""
+
 
 def _as_float(value: str | None, default: float) -> float:
     if value is None or value.strip() == "":
@@ -115,6 +123,8 @@ class GenerationSettings:
     max_output_tokens: int
     timeout: float
     enable_fallback: bool = DEFAULT_ENABLE_FALLBACK
+    fallback_provider: str = DEFAULT_FALLBACK_PROVIDER
+    fallback_model: str = DEFAULT_FALLBACK_MODEL
 
     def describe(self) -> dict[str, object]:
         """Description safe to print or persist. Carries no secret material."""
@@ -129,6 +139,8 @@ class GenerationSettings:
             "max_output_tokens": self.max_output_tokens,
             "timeout_s": self.timeout,
             "enable_fallback": self.enable_fallback,
+            "fallback_provider": self.fallback_provider or None,
+            "fallback_model": self.fallback_model or None,
         }
 
 
@@ -141,7 +153,7 @@ def load_settings(env_file: Path | None = None, provider: str | None = None) -> 
     """
     # Imported here to keep the module import graph acyclic: providers.py reads
     # this module's defaults for its own registry.
-    from generation.providers import resolve_provider_spec
+    from generation.providers import resolve_model, resolve_provider_spec
 
     load_dotenv_into_environ(env_file or (ROOT / ".env"))
 
@@ -150,7 +162,7 @@ def load_settings(env_file: Path | None = None, provider: str | None = None) -> 
 
     # A model override is allowed but the provider's pinned model is the default,
     # so an unset variable can never silently change which model was evaluated.
-    model = os.environ.get("GENERATION_MODEL") or spec.model
+    model = os.environ.get("GENERATION_MODEL") or resolve_model(spec)
 
     return GenerationSettings(
         provider=spec.name,
@@ -163,4 +175,6 @@ def load_settings(env_file: Path | None = None, provider: str | None = None) -> 
         max_output_tokens=_as_int(os.environ.get("GENERATION_MAX_OUTPUT_TOKENS"), DEFAULT_MAX_OUTPUT_TOKENS),
         timeout=_as_float(os.environ.get("GENERATION_TIMEOUT"), DEFAULT_TIMEOUT),
         enable_fallback=_as_bool(os.environ.get("GENERATION_ENABLE_FALLBACK"), DEFAULT_ENABLE_FALLBACK),
+        fallback_provider=(os.environ.get("GENERATION_FALLBACK_PROVIDER") or DEFAULT_FALLBACK_PROVIDER).strip().lower(),
+        fallback_model=(os.environ.get("GENERATION_FALLBACK_MODEL") or DEFAULT_FALLBACK_MODEL).strip(),
     )

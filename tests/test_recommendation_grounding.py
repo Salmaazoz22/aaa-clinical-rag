@@ -453,8 +453,14 @@ class TestRecommendationGroundingViaValidator:
 
     # ---- check is a WARNING, not an error -----------------------------------
 
-    def test_grounding_failure_is_warning_not_error(self):
-        """The grounding check must not fail report.ok — it is advisory."""
+    def test_lexical_grounding_finding_is_a_warning(self):
+        """The *lexical* overlap check stays advisory: its own severity is warning.
+
+        It is deliberately loose (MIN_GROUNDING_TOKENS = 2), so on its own it may
+        not be right often enough to fail an answer. Fabricated prose is failed by
+        E_RECOMMENDATION_UNSUPPORTED_FACT instead, which is checked against the
+        full text of the cited chunks -- see the test below.
+        """
         esvs_ex = "repair 55 mm"
         recommendation = (
             "Repair at 55 mm is noted. "
@@ -468,10 +474,29 @@ class TestRecommendationGroundingViaValidator:
         answer = _answer(recommendation, citations=citations, evidence=evidence)
         report = validate_answer(answer, [_hit(CHUNK_ESVS, _ESVS_TEXT)])
         assert report.has(W_RECOMMENDATION_UNSUPPORTED_SENTENCE)
-        assert report.ok, (
-            "W_RECOMMENDATION_UNSUPPORTED_SENTENCE must not fail report.ok "
-            "(it is a warning requiring human review, not a hard rule violation)"
+        lexical = [f for f in report.findings if f.code == W_RECOMMENDATION_UNSUPPORTED_SENTENCE]
+        assert all(not f.is_error for f in lexical), (
+            "W_RECOMMENDATION_UNSUPPORTED_SENTENCE is advisory and must stay a warning"
         )
+
+    def test_fabricated_prose_fails_the_report(self):
+        """A recommendation asserting invented facts must NOT report ok=True."""
+        from generation.validator import E_RECOMMENDATION_UNSUPPORTED_FACT
+
+        esvs_ex = "repair 55 mm"
+        recommendation = (
+            "Repair at 55 mm is noted. "
+            "Completely fabricated claim about lunar surgery protocol requirements."
+        )
+        evidence = [{"claim": "c", "chunk_id": CHUNK_ESVS, "excerpt": esvs_ex}]
+        citations = [
+            {"document": "ESVS_2024", "section": "s", "page": 1,
+             "chunk_id": CHUNK_ESVS, "retrieval_score": 0.90, "excerpt": esvs_ex}
+        ]
+        answer = _answer(recommendation, citations=citations, evidence=evidence)
+        report = validate_answer(answer, [_hit(CHUNK_ESVS, _ESVS_TEXT)])
+        assert report.has(E_RECOMMENDATION_UNSUPPORTED_FACT)
+        assert not report.ok
 
     # ---- existing checks are untouched (additive) ---------------------------
 

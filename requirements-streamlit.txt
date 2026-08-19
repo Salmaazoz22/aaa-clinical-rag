@@ -1,0 +1,14 @@
+# Frontend-only dependencies.
+#
+# `ui/` is a pure HTTP client: it has no embedding model, no vector store handle
+# and no copy of the generation pipeline (enforced by tests/test_ui.py). So it
+# needs neither sentence-transformers nor PyTorch, which the root
+# requirements.txt pulls in for the BACKEND.
+#
+# Streamlit Community Cloud installs the root requirements.txt when one exists,
+# so this file is not picked up automatically from this repository. It is the
+# dependency set for the UI-only deployment route described in
+# docs/DEPLOYMENT.md §5 — a branch or repo carrying ui/, assets/, .streamlit/
+# and this file.
+streamlit>=1.36
+requests>=2.31

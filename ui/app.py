@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""AAA Clinical RAG — Streamlit frontend.
+"""Clinova X — Streamlit frontend.
 
     streamlit run ui/app.py
 

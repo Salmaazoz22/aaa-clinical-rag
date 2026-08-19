@@ -194,7 +194,11 @@ class TestAnswer:
         ):
             r = client.post("/v1/answer", json={"question": "Q"})
         assert r.status_code == 503
-        assert "API key" in r.json()["detail"]
+        # The provider's own message is logged, not returned: it can name the
+        # vendor, the account and the upstream body.
+        detail = r.json()["detail"]
+        assert "not configured" in detail
+        assert "groq" not in detail
 
     def test_answer_500_on_unexpected_error(self):
         with (
@@ -301,7 +305,12 @@ class TestUpstreamFailureMapping:
         ):
             r = client.post("/v1/answer", json={"question": "Q"})
         assert r.status_code == 502
-        assert "429" in r.json()["detail"]
+        # The upstream body is operator diagnostics, never caller-facing: a Groq
+        # 429 carries the account organisation id and billing links.
+        from generation.providers import SAFE_PROVIDER_MESSAGE
+
+        assert r.json()["detail"] == SAFE_PROVIDER_MESSAGE
+        assert "429" not in r.text
 
     def test_missing_api_key_still_wins_over_provider_error(self):
         """MissingAPIKeyError is a ProviderError subclass; it must keep its 503."""

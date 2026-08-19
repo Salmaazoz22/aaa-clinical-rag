@@ -693,3 +693,46 @@ def test_no_placeholder_text_ships(page: str):
     text = _visible_text([m.value for m in at.markdown], md)
     for marker in ("lorem ipsum", "@@TOKENS@@", "TODO", "FIXME", "{{", "}}"):
         assert marker not in text, f"{page} contains {marker!r}"
+
+
+# ---------------------------------------------------------------------------
+# Product branding
+# ---------------------------------------------------------------------------
+#
+# The product is "Clinova X". The name is defined once in `ui/branding.py` and
+# read from there by everything that shows it, so a rename cannot leave a stale
+# name on a page nobody happened to open. "AAA" stays wherever it names the
+# condition — it is a diagnosis, not branding.
+
+class TestProductBranding:
+    def test_the_product_name_is_clinova_x(self):
+        from ui.branding import PRODUCT_NAME, PRODUCT_TAGLINE
+
+        assert PRODUCT_NAME == "Clinova X"
+        assert PRODUCT_TAGLINE == "Clinical Evidence Intelligence"
+
+    def test_the_page_title_carries_the_product_name(self):
+        from ui.branding import page_title
+
+        assert page_title("Ask") == "Ask · Clinova X"
+        assert page_title("") == "Clinova X"
+
+    def test_theme_page_config_uses_the_branding_title(self, monkeypatch):
+        from ui import theme
+
+        seen = {}
+        monkeypatch.setattr(theme.st, "set_page_config", lambda **kw: seen.update(kw))
+        theme.page_config("Evaluation")
+        assert seen["page_title"] == "Evaluation · Clinova X"
+
+    def test_the_rail_wordmark_is_the_product_name(self):
+        """The sidebar brand block is built from `ui/branding.py`, not a literal."""
+        source = (ROOT / "ui" / "components.py").read_text(encoding="utf-8")
+        brand_block = source[source.index('<div class="rail-brand">'):]
+        brand_block = brand_block[: brand_block.index("</div>\"")]
+        assert "PRODUCT_NAME" in brand_block and "PRODUCT_TAGLINE" in brand_block
+
+    def test_no_ui_module_still_shows_the_old_product_name(self):
+        """Only branding occurrences: the backend service keeps its own name."""
+        for path in sorted((ROOT / "ui").rglob("*.py")):
+            assert "AAA Clinical RAG" not in path.read_text(encoding="utf-8"), path

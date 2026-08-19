@@ -52,6 +52,12 @@ from generation.schema import (
     is_refusal,
 )
 from generation.emergency import EmergencyVerdict, screen_emergency
+from generation.guideline_scope import (
+    CorpusEditions,
+    GuidelineScopeVerdict,
+    load_corpus_editions,
+    screen_guideline_edition,
+)
 from generation.validator import (
     Finding,
     ValidationReport,
@@ -67,6 +73,7 @@ __all__ = [
     "AnswerParseError",
     "CONFIDENCE_VALUES",
     "Completion",
+    "CorpusEditions",
     "DEFAULT_SCORE_THRESHOLD",
     "DEFAULT_TOP_K",
     "DISCLAIMER",
@@ -94,6 +101,7 @@ __all__ = [
     "conflict_position_count",
     "documents_cited",
     "is_refusal",
+    "load_corpus_editions",
     "load_settings",
     "parse_answer",
     "resolve_citations",
@@ -103,5 +111,7 @@ __all__ = [
     "validate_answer",
     # emergency gate (A1)
     "EmergencyVerdict",
+    "GuidelineScopeVerdict",
     "screen_emergency",
+    "screen_guideline_edition",
 ]

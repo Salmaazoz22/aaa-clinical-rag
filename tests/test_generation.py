@@ -816,8 +816,11 @@ class TestParsing:
 
 class TestProviders:
     def test_the_two_required_models_are_pinned(self):
+        # The OpenRouter pin moved off `deepseek/deepseek-r1:free` when the vendor
+        # withdrew it: a retired slug 404s on every call, which silently disabled
+        # the cross-provider fallback. See tests/test_provider_fallback.py.
         assert PROVIDER_SPECS["groq"].model == "openai/gpt-oss-120b"
-        assert PROVIDER_SPECS["openrouter"].model == "deepseek/deepseek-r1:free"
+        assert PROVIDER_SPECS["openrouter"].model == "openai/gpt-oss-20b:free"
         assert PROVIDER_SPECS["groq"].key_env == "GROQ_API_KEY"
         assert PROVIDER_SPECS["openrouter"].key_env == "OPENROUTER_API_KEY"
 

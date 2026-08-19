@@ -59,3 +59,9 @@ __pycache__/
 
 # Self-hosted fonts and favicon are committed on purpose (see static/), so the
 # demo has no external font dependency. Nothing else in static/ is generated.
+
+# Streamlit secrets — never commit. The `secrets.*` rule above already catches
+# the real file; the template holds variable NAMES only and is committed on
+# purpose, exactly as .env.example is.
+.streamlit/secrets.toml
+!.streamlit/secrets.toml.example

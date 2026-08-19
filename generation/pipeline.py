@@ -39,6 +39,7 @@ if str(ROOT) not in sys.path:
 
 from generation.config import GenerationSettings, load_settings  # noqa: E402
 from generation.emergency import screen_emergency  # noqa: E402
+from generation.guideline_scope import screen_guideline_edition  # noqa: E402
 from generation.parsing import parse_answer  # noqa: E402
 from generation.prompts import SYSTEM_PROMPT, build_messages  # noqa: E402
 from generation.providers import LLMProvider, build_provider  # noqa: E402
@@ -47,6 +48,7 @@ from generation.safety import screen_query  # noqa: E402
 from generation.schema import (  # noqa: E402
     DISCLAIMER,
     REFUSAL_BELOW_THRESHOLD,
+    REFUSAL_GUIDELINE_UNAVAILABLE,
     REFUSAL_NO_CHUNKS,
     REFUSAL_NOT_SPECIFIC,
     REFUSAL_PATIENT_SPECIFIC,
@@ -110,6 +112,7 @@ class GenerationResult:
     query: str
     settings: dict[str, Any]
     safety: dict[str, Any]
+    guideline_scope: dict[str, Any] = field(default_factory=dict)
     retrieved: list[dict[str, Any]] = field(default_factory=list)
     used_chunk_ids: list[str] = field(default_factory=list)
     dropped_chunks: list[dict[str, Any]] = field(default_factory=list)
@@ -133,6 +136,7 @@ class GenerationResult:
             "query": self.query,
             "settings": self.settings,
             "safety": self.safety,
+            "guideline_scope": self.guideline_scope,
             "refused": self.refused,
             "refusal": self.refusal,
             "answer": self.answer,
@@ -199,6 +203,13 @@ def answer_question(
     verdict = screen_query(query)
     result.safety = verdict.to_dict()
 
+    # --- gate 0.5: a guideline edition the corpus does not contain ----------
+    # Decided from the corpus manifest, not by the model: retrieval scores high
+    # on "the 2026 ESVS guideline" precisely because every indexed chunk is an
+    # ESVS passage on that topic, so the similarity floor cannot catch it.
+    edition_verdict = screen_guideline_edition(query)
+    result.guideline_scope = edition_verdict.to_dict()
+
     if retriever is None:
         from vectordb.retriever import QdrantRetriever
 
@@ -245,6 +256,17 @@ def answer_question(
         # Deliberately refused with no citations and no model call: see
         # generation/refusal.build_refusal.
         return finish_refusal(REFUSAL_PATIENT_SPECIFIC, f"safety:{verdict.rule}", ())
+
+    if edition_verdict.blocked:
+        # The retrieved passages ARE cited here, unlike the two gates above: they
+        # are the editions that exist, and naming them is how the refusal shows
+        # the reader what can be asked for instead.
+        return finish_refusal(
+            REFUSAL_GUIDELINE_UNAVAILABLE,
+            "guideline_scope",
+            hits,
+            refusal_detail=edition_verdict.detail,
+        )
 
     # --- gate 1: nothing retrieved at all ----------------------------------
     if not hits:

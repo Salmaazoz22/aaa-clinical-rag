@@ -21,6 +21,7 @@ from pathlib import Path
 import streamlit as st
 
 from ui import tokens
+from ui.branding import page_title
 
 ROOT = Path(__file__).resolve().parents[1]
 CSS_PATH = ROOT / "assets" / "theme.css"
@@ -52,7 +53,7 @@ def page_config(title: str) -> None:
     """`st.set_page_config` with a real favicon file — never an emoji."""
     icon = str(FAVICON) if FAVICON.exists() else None
     st.set_page_config(
-        page_title=f"{title} · AAA Clinical RAG",
+        page_title=page_title(title),
         page_icon=icon,
         layout="wide",
         initial_sidebar_state="expanded",

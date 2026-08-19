@@ -41,7 +41,11 @@ if str(ROOT) not in sys.path:
 from generation.config import load_settings as load_generation_settings  # noqa: E402
 from generation.parsing import AnswerParseError  # noqa: E402
 from generation.pipeline import answer_question  # noqa: E402
-from generation.providers import MissingAPIKeyError, ProviderError  # noqa: E402
+from generation.providers import (  # noqa: E402
+    SAFE_PROVIDER_MESSAGE,
+    MissingAPIKeyError,
+    ProviderError,
+)
 from vectordb.retriever import QdrantRetriever  # noqa: E402
 from vectordb.schema import (  # noqa: E402
     COLLECTION_DISTANCE,
@@ -316,9 +320,16 @@ def answer(req: AnswerRequest) -> dict[str, Any]:
             threshold=req.threshold,
         )
     except MissingAPIKeyError as exc:
+        # The variable NAME is safe to state and is what an operator needs; the
+        # exception text is logged rather than returned, on the same rule as
+        # every other upstream failure below.
+        log.error("LLM provider API key not configured: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"LLM provider API key not configured: {exc}",
+            detail=(
+                "The language model provider is not configured for this deployment, "
+                "so no answer can be generated."
+            ),
         ) from exc
     except AnswerParseError as exc:
         # AnswerParseError subclasses ValueError, so it MUST be caught before
@@ -326,26 +337,39 @@ def answer(req: AnswerRequest) -> dict[str, Any]:
         # that is not a JSON answer object (truncated, or prose) -- an upstream
         # failure, not a bad request. No answer is synthesised: the caller is
         # told generation failed.
+        log.error("Model returned an unparseable answer: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"The language model did not return a parseable answer: {exc}",
+            detail=(
+                "The language model did not return an answer in the required format, "
+                "so nothing was produced. No answer was fabricated in its place."
+            ),
         ) from exc
     except ProviderError as exc:
         # Rate limit, timeout, refused connection, empty completion. Upstream,
         # so 502 rather than 500 -- and again, never a fabricated answer.
+        #
+        # The exception text names the vendor, the model, the HTTP status and the
+        # upstream body, which for a rate limit carries the account organisation
+        # id and billing URLs. That is operator diagnostics, not caller-facing
+        # content: it is logged here and replaced with SAFE_PROVIDER_MESSAGE in
+        # the response.
+        log.error("LLM provider call failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"LLM provider call failed: {exc}",
+            detail=SAFE_PROVIDER_MESSAGE,
         ) from exc
     except ValueError as exc:
         # pipeline.answer_question raises ValueError for an empty/invalid query,
         # and the retriever for one over the length limit.
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
-        # Qdrant connection error, network timeout, etc.
+        # Qdrant connection error, network timeout, etc. Same rule: the detail is
+        # logged, the caller is told what happened without the internals.
+        log.exception("Unhandled error while answering a question")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(exc),
+            detail="The question could not be answered because of an internal error.",
         ) from exc
 
     return result.to_dict()

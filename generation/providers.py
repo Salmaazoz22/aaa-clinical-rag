@@ -19,7 +19,14 @@ per-provider class + factory), which is the right decomposition. What changed:
 Switching provider is one line in `.env`:
 
     GENERATION_PROVIDER=groq          # openai/gpt-oss-120b, fast iteration
-    GENERATION_PROVIDER=openrouter    # deepseek/deepseek-r1:free, final answers
+    GENERATION_PROVIDER=openrouter    # openai/gpt-oss-20b:free, second opinion
+
+When `GENERATION_ENABLE_FALLBACK` is on (the default), the provider that is NOT
+selected becomes the secondary, and `FallbackProvider` tries it when the primary
+raises. Every model slug is overridable from the environment
+(`GENERATION_MODEL`, `GROQ_MODEL`, `OPENROUTER_MODEL`) so a retired slug is a
+`.env` edit, not a code change -- which is exactly the failure this layer hit
+when `deepseek/deepseek-r1:free` was withdrawn.
 """
 from __future__ import annotations
 
@@ -45,6 +52,20 @@ class MissingAPIKeyError(ProviderError):
     pass
 
 
+#: What a caller outside this process is told when a model call fails.
+#:
+#: A `ProviderError` message is written for the operator: it carries the vendor,
+#: the model slug, the HTTP status and the upstream JSON body -- which, for a
+#: rate limit, includes the account's organisation id and billing links. None of
+#: that belongs in an HTTP response or on a screen, and none of it helps the
+#: person who asked a clinical question. The detail goes to the log; the caller
+#: gets this.
+SAFE_PROVIDER_MESSAGE = (
+    "The language model service is temporarily unavailable, so no answer was "
+    "generated. Nothing has been fabricated in its place. Please try again shortly."
+)
+
+
 @dataclass(frozen=True)
 class ProviderSpec:
     """Everything that differs between the two supported providers."""
@@ -58,6 +79,12 @@ class ProviderSpec:
     #: When it does not, the JSON contract survives only as a prompt instruction
     #: and `generation/parsing.py` has to do the work.
     supports_json_mode: bool
+
+    #: Environment variable that overrides `model` for this provider. Exists so a
+    #: model slug the vendor retires can be replaced without a code change --
+    #: including when the provider is acting as the fallback, which
+    #: `GENERATION_MODEL` cannot reach because that names the *primary*.
+    model_env: str = ""
 
     #: `max_tokens` is deprecated on some OpenAI-compatible endpoints and
     #: rejected on others, so the parameter name is part of the spec.
@@ -79,6 +106,7 @@ PROVIDER_SPECS: dict[str, ProviderSpec] = {
         base_url="https://api.groq.com/openai/v1",
         model="openai/gpt-oss-120b",
         key_env="GROQ_API_KEY",
+        model_env="GROQ_MODEL",
         supports_json_mode=True,
         max_tokens_param="max_completion_tokens",
         is_reasoning_model=True,
@@ -86,10 +114,19 @@ PROVIDER_SPECS: dict[str, ProviderSpec] = {
     "openrouter": ProviderSpec(
         name="openrouter",
         base_url="https://openrouter.ai/api/v1",
-        model="deepseek/deepseek-r1:free",
+        # `deepseek/deepseek-r1:free` was retired by OpenRouter and now 404s on
+        # every call ("This model is unavailable for free"), which silently
+        # disabled the cross-provider fallback: a Groq rate-limit became a 502
+        # instead of a second attempt. Pinned here to the free gpt-oss sibling of
+        # the Groq primary -- same model family, same OpenAI-compatible contract,
+        # same prompt behaviour -- and overridable with OPENROUTER_MODEL when a
+        # deployment wants a different (or paid) slug.
+        model="openai/gpt-oss-20b:free",
         key_env="OPENROUTER_API_KEY",
-        # DeepSeek-R1 via OpenRouter has no reliable JSON mode, so the schema is
-        # enforced by the prompt and by the parser, not by the endpoint.
+        model_env="OPENROUTER_MODEL",
+        # OpenRouter's free tier does not honour `response_format` uniformly
+        # across providers, so the schema is enforced by the prompt and by the
+        # parser, not by the endpoint.
         supports_json_mode=False,
         max_tokens_param="max_tokens",
         headers_from_env=(("HTTP-Referer", "OPENROUTER_SITE_URL"), ("X-Title", "OPENROUTER_APP_NAME")),
@@ -274,8 +311,21 @@ class FallbackProvider(LLMProvider):
                 ) from secondary_exc
 
 
+def resolve_model(spec: ProviderSpec) -> str:
+    """The model slug in force for `spec`: its per-provider env override, or the pin.
+
+    Read for the *secondary* provider as well as the primary, which is the point:
+    when a vendor retires a slug, the fallback can be repaired from `.env` alone.
+    """
+    if spec.model_env:
+        override = (os.environ.get(spec.model_env) or "").strip()
+        if override:
+            return override
+    return spec.model
+
+
 def build_provider(settings: "GenerationSettings" | None = None) -> LLMProvider:
-    """Build the provider selected by configuration."""
+    """Build the provider selected by configuration, with its fallback attached."""
     if settings is None:
         from generation.config import load_settings
 
@@ -294,7 +344,14 @@ def build_provider(settings: "GenerationSettings" | None = None) -> LLMProvider:
     if not getattr(settings, "enable_fallback", False):
         return primary
 
-    secondary_name = "openrouter" if spec.name != "openrouter" else "groq"
+    secondary_name = getattr(settings, "fallback_provider", "") or (
+        "openrouter" if spec.name != "openrouter" else "groq"
+    )
+    if secondary_name == spec.name:
+        # A fallback to the same endpoint would not survive the failure that
+        # triggered it (a rate limit, a dead slug), so there is nothing to add.
+        return primary
+
     secondary_spec = resolve_provider_spec(secondary_name)
     secondary_key = os.environ.get(secondary_spec.key_env) or ""
     if not secondary_key:
@@ -302,7 +359,7 @@ def build_provider(settings: "GenerationSettings" | None = None) -> LLMProvider:
 
     secondary = OpenAICompatibleProvider(
         spec=secondary_spec,
-        model=secondary_spec.model,
+        model=getattr(settings, "fallback_model", "") or resolve_model(secondary_spec),
         api_key=secondary_key,
         temperature=settings.temperature,
         max_output_tokens=settings.max_output_tokens,

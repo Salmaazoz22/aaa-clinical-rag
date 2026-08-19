@@ -25,10 +25,16 @@ from generation.schema import (
     CONFIDENCE_INSUFFICIENT,
     DISCLAIMER,
     REFUSAL_BELOW_THRESHOLD,
+    REFUSAL_GUIDELINE_UNAVAILABLE,
     REFUSAL_MESSAGE,
     REFUSAL_NO_CHUNKS,
     REFUSAL_PATIENT_SPECIFIC,
     REFUSAL_POTENTIAL_EMERGENCY,
+)
+
+#: The sentence a caller can match on to detect an unavailable-edition refusal.
+GUIDELINE_UNAVAILABLE_MESSAGE = (
+    "The requested guideline edition is not available in the indexed evidence corpus."
 )
 
 
@@ -139,6 +145,21 @@ def build_refusal(
             "guidelines recommend for the relevant population, diameter band, or repair "
             "modality. The individual decision belongs with the treating clinician, in a "
             "multidisciplinary team discussion where indicated."
+        )
+    elif reason == REFUSAL_GUIDELINE_UNAVAILABLE:
+        missing = (
+            GUIDELINE_UNAVAILABLE_MESSAGE
+            + " "
+            + (detail.capitalize() + ". " if detail else "")
+            + "Answering from a different edition would attribute recommendations to a "
+            "document this system has never read, so the question is refused rather "
+            "than answered from the editions that are indexed."
+        )
+        would_answer = (
+            "The same question can be answered against an edition that is indexed. "
+            "This corpus contains ESVS 2024, NICE NG156, SVS 2018 and USPSTF 2019; ask "
+            "for one of those, or drop the edition from the question to be answered "
+            "from whichever indexed guideline addresses it."
         )
     elif reason == REFUSAL_POTENTIAL_EMERGENCY:
         missing = (
