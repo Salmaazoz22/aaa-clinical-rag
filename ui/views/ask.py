@@ -22,6 +22,8 @@ from ui.api_client import ApiError
 from ui.demo_questions import DEMOS
 from ui.icons import icon
 from ui.shell import Context
+from ui.pdf_highlighter import render_highlighted_pdf_page
+from ui.transcription import transcribe_audio_bytes
 
 Q = "ask_question"
 RESULT = "ask_result"
@@ -172,8 +174,43 @@ def _submit(question: str, top_k: int | None, threshold: float | None) -> None:
 def _composer(ctx: Context) -> None:
     st.session_state.setdefault(Q, "")
 
+    # Check if an example pill was selected in previous rerun before text_area is instantiated
+    picked_demo = st.session_state.get("ask_demo")
+    if picked_demo:
+        demo = next((d for d in DEMOS if d.label == picked_demo), None)
+        if demo:
+            st.session_state[Q] = demo.question
+        st.session_state["ask_demo"] = None
+
     with st.container(key="composer"):
         c.write('<div class="eyebrow">Clinical question</div>')
+
+        # Voice input popover (Speech-to-Text)
+        voice_popover = st.popover("Voice Input / Speech-to-Text", width="stretch")
+        with voice_popover:
+            c.write(
+                '<div class="eyebrow">Record Voice Question</div>'
+                '<div class="tiny" style="margin:4px 0 8px">1. Record your clinical question.<br>'
+                '2. Click <b>Convert Voice to Text</b> below.<br>'
+                '3. Verify/edit the text in the input box before submitting.</div>'
+            )
+            audio_file = st.audio_input("Record clinical question", key="ask_voice_input")
+            if audio_file is not None:
+                if st.button("Convert Voice to Text", type="primary", key="btn_transcribe_voice", width="stretch"):
+                    audio_bytes = audio_file.read()
+                    if audio_bytes:
+                        with st.spinner("Transcribing audio..."):
+                            txt, err = transcribe_audio_bytes(
+                                audio_bytes, filename=getattr(audio_file, "name", "voice.wav")
+                            )
+                            if txt:
+                                st.session_state[Q] = txt
+                                st.success("Transcribed! Verify or edit the question below before clicking Ask.")
+                            elif err:
+                                st.warning(err)
+                    else:
+                        st.warning("Please record audio before converting.")
+
         st.text_area("Question", key=Q, placeholder=PLACEHOLDER, height=96,
                      label_visibility="collapsed")
 
@@ -181,12 +218,7 @@ def _composer(ctx: Context) -> None:
 
         with chip_col:
             labels = [d.label for d in DEMOS]
-            picked = st.pills("Examples", labels, key="ask_demo", label_visibility="collapsed")
-            if picked:
-                demo = next(d for d in DEMOS if d.label == picked)
-                st.session_state[Q] = demo.question
-                st.session_state["ask_demo"] = None
-                st.rerun()
+            st.pills("Examples", labels, key="ask_demo", label_visibility="collapsed")
 
         with ctrl_col:
             pop, ask_col, clr_col = st.columns([1.5, 1, 1], gap="small")
@@ -294,6 +326,26 @@ def _evidence_rail(result: dict[str, Any], ctx: Context) -> None:
             year=years.get(str(hit.get("document_id"))),
             passage=passage, passage_note=note, expanded=is_open,
         ))
+
+        # Render PDF source page preview with highlighted bounding box
+        doc_id = str(hit.get("document_id") or hit.get("source_file") or "")
+        page_num = hit.get("page_number") or hit.get("page_start") or 1
+        if isinstance(page_num, str) and page_num.isdigit():
+            page_num = int(page_num)
+        elif not isinstance(page_num, int):
+            page_num = 1
+
+        with st.expander(f"View Source PDF Page {page_num} (Highlight)", expanded=False):
+            img_bytes = render_highlighted_pdf_page(doc_id, page_number=page_num, excerpt=passage)
+            if img_bytes:
+                st.image(
+                    img_bytes,
+                    caption=f"Source PDF Page {page_num} ({doc_id}) — Highlighted Evidence",
+                    use_container_width=True,
+                )
+            else:
+                c.write('<div class="tiny" style="color:var(--text-muted)">PDF page preview unavailable.</div>')
+
         if len(passage) > 320:
             label = "Collapse passage" if is_open else "Expand passage"
             if st.button(label, key=f"exp-{chunk_id}", width="stretch"):
@@ -341,7 +393,7 @@ _REFUSAL_COPY = {
         "usually retrieves a passage that addresses it directly.",
     ),
     "potential_emergency_presentation": (
-        "⚠ Potential emergency — seek immediate care",
+        "Potential emergency — seek immediate care",
         "This query describes symptoms that may indicate a medical emergency. "
         "This system cannot assess whether this is an emergency and must not be used in place of "
         "emergency medical evaluation. No guideline text has been cited here — doing so would "
@@ -578,6 +630,14 @@ def _detail_tabs(result: dict[str, Any]) -> None:
             tone = {"ok": "verified", "warn": "neutral", "bad": "caution"}[states[i]]
             word = {"ok": "verified", "warn": "verified with warnings",
                     "bad": "not verified"}[states[i]]
+            doc_id = str(record.get("document_id") or citation.get("document") or citation.get("source_file") or "")
+            page_num = record.get("page_number") or record.get("page_start") or citation.get("page") or 1
+            if isinstance(page_num, str) and page_num.isdigit():
+                page_num = int(page_num)
+            elif not isinstance(page_num, int):
+                page_num = 1
+            excerpt = str(citation.get("excerpt") or "")
+
             c.write(
                 f'<div class="panel" style="padding:16px;margin-bottom:8px">'
                 f'<div style="display:flex;justify-content:space-between;gap:10px">'
@@ -592,8 +652,19 @@ def _detail_tabs(result: dict[str, Any]) -> None:
                 ])
                 + (f'<div class="serif" style="font-size:.95rem;line-height:1.55;margin-top:10px;'
                    f'border-left:2px solid var(--line);padding-left:12px">'
-                   f'{c.esc(citation.get("excerpt"))}</div>' if citation.get("excerpt") else "")
+                   f'{c.esc(excerpt)}</div>' if excerpt else "")
                 + "</div>")
+
+            with st.expander(f"View Source PDF Page {page_num} (Highlighted Citation [{i+1}])", expanded=False):
+                img_bytes = render_highlighted_pdf_page(doc_id, page_number=page_num, excerpt=excerpt)
+                if img_bytes:
+                    st.image(
+                        img_bytes,
+                        caption=f"Source PDF Page {page_num} ({doc_id}) — Citation [{i+1}]",
+                        use_container_width=True,
+                    )
+                else:
+                    c.write('<div class="tiny" style="color:var(--text-muted)">PDF page preview unavailable.</div>')
 
     with raw_tab:
         payload = json.dumps(result, indent=2, ensure_ascii=False)
