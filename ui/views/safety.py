@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Safety & Abstention.
+"""Safety & abstention — a rule table with a live "try it" per rule.
 
-The examples on this page are *run*, not described. Each button sends its
-question to `POST /v1/answer` and renders what the API actually returned —
-which gate fired, which signals matched, what the similarity scores were. The
-two refusal gates need no language model, so this page is fully functional even
-when no LLM key is configured.
+The rules are described on the left and executed on the right. Clicking a rule's
+chip loads its triggering question into the Ask composer and runs it, so the
+claim is demonstrated rather than asserted. Both refusal gates run before any
+model call, so this page is fully functional with no LLM key.
 """
 from __future__ import annotations
 
@@ -13,257 +12,154 @@ from typing import Any
 
 import streamlit as st
 
-from ui import api_client, components as ui
+from ui import api_client, components as c
 from ui.api_client import ApiError
+from ui.shell import Context
 
-STATE = "safety_demo_result"
+STATE = "safety_runs"
 
-EXAMPLES = [
+RULES: tuple[dict[str, Any], ...] = (
     {
-        "key": "general",
-        "title": "General guideline question",
-        "question": "At what maximum diameter is elective repair recommended for a man with an asymptomatic fusiform abdominal aortic aneurysm?",
-        "outcome": "Answered — if the evidence supports it",
-        "tone": "good",
-        "why": (
-            "Nothing about this question is patient-specific: it asks what the guidelines state "
-            "for a described population. It passes the safety gate, and whether it is answered "
-            "then depends entirely on whether retrieved evidence clears the floor. "
-            "Reaching the model requires an LLM key."
-        ),
-    },
-    {
-        "key": "patient",
-        "title": "Patient-specific treatment question",
+        "id": "B1",
+        "rule": "An individual is named as the subject",
+        "why": "\"my patient\", \"this patient\", a relative, or a title plus surname. Unambiguous "
+               "on its own, so it blocks without needing a second signal.",
         "question": "My patient is a 72-year-old man with a 5.2 cm aneurysm. Should I operate on him?",
-        "outcome": "Refused before retrieval reaches a model",
-        "tone": "warn",
-        "why": (
-            "Three signals fire at once: an explicit patient reference, an individual's "
-            "demographics, and an individual-directed ask. The refusal is built locally, so the "
-            "patient's details are never sent to a third-party API — and the refusal deliberately "
-            "carries no citations, because offering guideline text as an answer to a question "
-            "about an individual is the thing the gate exists to prevent."
-        ),
+        "expect": "safety",
     },
     {
-        "key": "dosing",
-        "title": "Dosing question about an individual",
-        "question": "What dose of statin should I start my patient on before his aneurysm repair?",
-        "outcome": "Refused — dosing request plus individual-directed ask",
-        "tone": "warn",
-        "why": (
-            "A dosing question with no individual attached is <b>not</b> blocked — "
-            "\"what statin dose do the guidelines recommend?\" is a general question about the "
-            "corpus and gets answered, or refused for lack of evidence. Refusing it on safety "
-            "grounds would hide the fact that the corpus carries no dosing guidance. It is the "
-            "combination with an individual that blocks."
-        ),
+        "id": "B2",
+        "rule": "A diagnosis is requested for an individual",
+        "why": "\"does he have\", \"is this an aneurysm\", \"what is the diagnosis\". Reporting what "
+               "a guideline says is not the same as diagnosing a person.",
+        "question": "Does my father have a ruptured aneurysm?",
+        "expect": "safety",
     },
     {
-        "key": "unrelated",
-        "title": "Unrelated question",
+        "id": "B3",
+        "rule": "An individual's demographics plus an ask about what to do for them",
+        "why": "Age in years is the signal, not a measurement — \"45 mm\" and \"aged 65 to 75\" "
+               "describe populations, not a person.",
+        "question": "A 68-year-old man has a 5.8 cm aneurysm — should we operate?",
+        "expect": "safety",
+    },
+    {
+        "id": "B4",
+        "rule": "A dosing request plus an individual-directed ask",
+        "why": "A dosing question with no individual attached is NOT blocked. \"What statin dose do "
+               "the guidelines recommend?\" is a question about the corpus and gets answered, or "
+               "refused for lack of evidence. It is the combination that blocks.",
+        "question": "What dose of statin should I start my patient on before repair?",
+        "expect": "safety",
+    },
+    {
+        "id": "floor",
+        "rule": "No passage clears the evidence floor",
+        "why": "A dense retriever always returns something. Retrieval runs, returns its nearest "
+               "neighbours, and none clears the similarity floor — so the system refuses and names "
+               "the passages it examined and rejected.",
         "question": "What is the best recipe for sourdough bread?",
-        "outcome": "Refused by the evidence threshold",
-        "tone": "warn",
-        "why": (
-            "Retrieval still returns its nearest neighbours — a dense retriever always returns "
-            "something. None of them clears the similarity floor, so the system refuses and names "
-            "the passages it examined and rejected. This is the failure mode most RAG demos hide."
-        ),
+        "expect": "threshold",
     },
     {
-        "key": "out_of_corpus",
-        "title": "Clinical, but outside the corpus",
+        "id": "floor",
+        "rule": "Clinical, but outside this corpus",
+        "why": "A real clinical question on a topic these four guidelines do not cover. Scores land "
+               "higher than for an unrelated question but still below the floor. This is the case a "
+               "similarity threshold earns its keep on.",
         "question": "What is the recommended insulin dose for type 2 diabetes?",
-        "outcome": "Refused by the evidence threshold",
-        "tone": "warn",
-        "why": (
-            "A real clinical question, plausibly worded, on a topic this corpus does not cover. "
-            "Scores land higher than for an unrelated question but still below the floor. This is "
-            "the case a similarity threshold earns its keep on."
-        ),
+        "expect": "threshold",
     },
-]
-
-PRINCIPLES = [
-    ("Refusal is a first-class outcome",
-     "A refusal is a successful response with its own reason code and gate, not an error and not "
-     "a failure. The UI styles it distinctly from an error for exactly that reason."),
-    ("A refusal says what it looked at",
-     "Every threshold refusal names the passages it examined, their documents and their "
-     "similarity scores, so a reader can confirm the gap is real rather than take the refusal on "
-     "trust. Those citations are built from the retriever's own records and cannot be fabricated."),
-    ("Two layers, neither sufficient alone",
-     "The pattern gate catches the unambiguous cases before the model is called. The system "
-     "prompt instructs the model to refuse the same class of request, which catches paraphrases "
-     "the gate misses. This is a conservative gate, not a classifier, and it will miss things."),
-    ("Confidence is a label, never a number",
-     "Four fixed values: High, Medium, Low, Insufficient Evidence. No percentage is emitted, "
-     "because there is no calculation behind one — a percentage would be false precision about "
-     "how well a dense retriever's top-5 supports a clinical claim."),
-    ("The disclaimer is attached to everything",
-     "Including refusals. It is normalised rather than trusted: if the model returns a different "
-     "version it is replaced, and the substitution is recorded as a validator finding."),
-]
+)
 
 
-def render(health: dict[str, Any] | None) -> None:
-    st.markdown("# Safety & Abstention")
-    st.markdown(
-        '<p class="footnote" style="font-size:0.95rem;max-width:72ch">This system does not answer '
-        "every question it is asked. Two gates can stop a question before it reaches a model, and "
-        "the model itself can decline after reading the evidence. Every example below is executed "
-        "live against the API — the results are real, not illustrations.</p>",
-        unsafe_allow_html=True,
-    )
-
-    llm = (health or {}).get("llm") or {}
-    if not llm.get("configured"):
-        ui.notice(
-            "info",
-            "Both refusal gates work without an LLM key",
-            "<p class='footnote'>The safety gate and the evidence threshold refuse before any "
-            "model call, so every refusal example on this page runs fully right now. The "
-            "general-question example will reach the generation step and report that live "
-            "generation is unavailable — which is itself the correct behaviour: no answer is "
-            "invented in its place.</p>",
-        )
-
-    st.markdown('<hr class="rule">', unsafe_allow_html=True)
-    st.markdown("## Run the gates")
-
-    st.session_state.setdefault(STATE, {})
-
-    for example in EXAMPLES:
-        _example(example)
-
-    st.markdown('<hr class="rule">', unsafe_allow_html=True)
-    st.markdown("## The rules behind it")
-    cols = st.columns(2, gap="large")
-    for index, (title, body) in enumerate(PRINCIPLES):
-        with cols[index % 2]:
-            st.markdown(
-                f'<div class="card"><div class="card-label">{ui.esc(title)}</div>'
-                f'<div class="footnote" style="font-size:0.85rem;line-height:1.65">{body}</div>'
-                f"</div>",
-                unsafe_allow_html=True,
-            )
-
-    st.markdown('<hr class="rule">', unsafe_allow_html=True)
-    ui.notice(
-        "warn",
-        "What this is not",
-        "<p>This is an evidence-retrieval prototype over four abdominal aortic aneurysm "
-        "guidelines. It is not clinically validated, it does not provide patient-specific "
-        "diagnosis, treatment or dosing, and it must not be used to make clinical decisions. "
-        "The safety gate is a conservative pattern matcher, not a classifier: it catches the "
-        "unambiguous cases and will miss paraphrases.</p>",
-    )
+def _run(index: int, question: str) -> None:
+    runs = st.session_state.setdefault(STATE, {})
+    try:
+        runs[index] = {"result": api_client.answer(question)}
+    except ApiError as error:
+        runs[index] = {"error": error}
 
 
-def _example(example: dict[str, Any]) -> None:
-    key = example["key"]
-    tone_cls = {"good": "ok", "warn": "warn", "bad": "bad"}[example["tone"]]
-
-    st.markdown(
-        f'<div class="card tight" style="margin-bottom:0.5rem">'
-        f'<div class="ev-head"><span class="badge {tone_cls}">{ui.esc(example["outcome"])}</span>'
-        f'<span class="ev-doc">{ui.esc(example["title"])}</span></div>'
-        f'<div class="footnote" style="margin-top:0.6rem;font-family:Georgia,serif;'
-        f'font-size:0.92rem;color:#13171E">“{ui.esc(example["question"])}”</div>'
-        f'<div class="footnote" style="margin-top:0.6rem">{example["why"]}</div></div>',
-        unsafe_allow_html=True,
-    )
-
-    cols = st.columns([1, 4])
-    if cols[0].button("Run this", key=f"safety_{key}", width="stretch"):
-        with st.spinner("Calling POST /v1/answer…"):
-            try:
-                st.session_state[STATE][key] = {"result": api_client.answer(example["question"])}
-            except ApiError as error:
-                st.session_state[STATE][key] = {"error": error}
-
-    stored = st.session_state[STATE].get(key)
-    if stored:
-        if "error" in stored:
-            _error_outcome(stored["error"])
+def _outcome(entry: dict[str, Any], ctx: Context) -> None:
+    if "error" in entry:
+        error = entry["error"]
+        if error.status_code == 503 and "API key" in str(error.detail or ""):
+            c.write(c.error_state(
+                "Reached generation — no key configured",
+                "<p>The question passed both gates, so an answer would have to come from the model. "
+                "The API reports the failure rather than returning a placeholder.</p>", glyph="alert"))
         else:
-            _result_outcome(stored["result"])
+            c.write(c.error_state("Request failed", f"<p>{c.esc(error.message)}</p>"))
+        return
 
-    st.markdown('<div style="height:1.4rem"></div>', unsafe_allow_html=True)
-
-
-def _error_outcome(error: ApiError) -> None:
-    if error.status_code == 503 and "API key" in str(error.detail or ""):
-        ui.notice(
-            "warn",
-            "Reached the generation step — live generation unavailable",
-            f"<p class='footnote'>{ui.esc(error.detail)}</p>"
-            "<p class='footnote'><b>This is the correct outcome</b>: the question passed both "
-            "gates, so an answer would have to come from the model. With no key, the API reports "
-            "the failure. It does not return a placeholder, a cached answer, or ungrounded text.</p>",
-        )
-    elif error.status_code == 502:
-        ui.notice(
-            "bad",
-            "The model did not return a usable answer",
-            f"<p class='footnote'>{ui.esc(error.detail or error.message)}</p>"
-            "<p class='footnote'>No answer is shown, because there is no answer.</p>",
-        )
-    else:
-        ui.backend_unavailable(error)
-
-
-def _result_outcome(result: dict[str, Any]) -> None:
+    result = entry["result"]
     safety = result.get("safety") or {}
     retrieval = result.get("retrieval") or {}
     refusal = result.get("refusal") or {}
-    refused = bool(result.get("refused"))
     hits = retrieval.get("hits") or []
-    top1 = hits[0].get("similarity_score") if hits else None
-    floor = (result.get("settings") or {}).get("score_threshold")
+    threshold = float((result.get("settings") or {}).get("score_threshold") or ctx.threshold)
+    completion = (result.get("generation") or {}).get("completion")
 
-    tiles = [
-        ui.stat("Outcome", "REFUSED" if refused else "ANSWERED",
-                str(refusal.get("gate") or "") if refused else "reached the model",
-                "amber" if refused else "green"),
-        ui.stat("Safety gate", "BLOCKED" if safety.get("blocked") else "passed",
-                f"rule {safety.get('rule')}" if safety.get("rule") else "no rule fired",
-                "amber" if safety.get("blocked") else "green"),
-        ui.stat("Top-1 similarity", f"{float(top1):.4f}" if top1 is not None else "—",
-                f"floor = {floor}",
-                "green" if (top1 is not None and floor is not None and top1 >= floor) else "amber"),
-        ui.stat("Chunks used", f"{retrieval.get('n_used', 0)}/{retrieval.get('n_retrieved', 0)}",
-                f"{retrieval.get('n_dropped_below_threshold', 0)} withheld"),
+    pills = [
+        c.status_pill("REFUSED" if result.get("refused") else "ANSWERED",
+                      "caution" if result.get("refused") else "verified"),
+        c.status_pill(f"gate: {refusal.get('gate') or '—'}", "neutral"),
+        c.status_pill("model not called" if completion is None else "model called",
+                      "verified" if completion is None else "neutral"),
     ]
-    ui.stat_row(tiles)
+    c.write(f'<div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0">{"".join(pills)}</div>')
 
-    signals = safety.get("signals") or []
-    if signals:
-        chips = "".join(
-            f'<span class="check {"n" if safety.get("blocked") else "o"}">{ui.esc(s)}</span>'
-            for s in signals
-        )
-        st.markdown(
-            f'<div class="card tight" style="margin-top:0.7rem">'
-            f'<div class="card-label">Safety signals matched</div>'
-            f'<div class="checks">{chips}</div>'
-            + (f'<div class="footnote" style="margin-top:0.6rem">'
-               f'{ui.esc(safety.get("detail"))}</div>' if safety.get("detail") else "")
-            + "</div>",
-            unsafe_allow_html=True,
-        )
+    if safety.get("signals"):
+        chips = "".join(c.status_pill(s, "caution") for s in safety["signals"])
+        c.write(f'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">{chips}</div>')
 
-    with st.expander("What the API actually returned", expanded=False):
-        answer = result.get("answer") or {}
-        recommendation = str(answer.get("recommendation") or "").strip()
-        if recommendation:
-            st.markdown(
-                f'<div class="answer{" refused" if refused else ""}">'
-                f'<div class="body"><p>{ui.esc(recommendation)}</p></div></div>',
-                unsafe_allow_html=True,
-            )
-        ui.pipeline_trace(result)
-        if hits:
-            ui.score_bars(result)
+    if hits:
+        scores = [h.get("similarity_score", 0.0) for h in hits]
+        labels = [str(h.get("document_id")) for h in hits]
+        c.write(f'<div class="panel">{c.caliper(scores, threshold, "at-rest", labels=labels)}</div>')
+
+
+def render(ctx: Context) -> None:
+    c.write(c.empty_state(
+        "The system does not answer every question it is asked",
+        "<p>Two gates can stop a question before it reaches a model, and the model itself can "
+        "decline after reading the evidence. Every rule below is <b>executed live</b> against the "
+        "API — the results are real, not illustrations.</p>"
+        "<p>Both refusal gates run before any model call, so this page works with no LLM key.</p>",
+        glyph="safety"))
+
+    runs = st.session_state.setdefault(STATE, {})
+
+    for i, rule in enumerate(RULES):
+        c.write('<hr class="hair">')
+        left, right = st.columns([3, 2], gap="large")
+
+        with left:
+            badge = c.status_pill(f"rule {rule['id']}", "caution") if rule["expect"] == "safety" \
+                else c.status_pill("evidence floor", "caution")
+            c.write(
+                f'<div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">'
+                f'{badge}<span style="font-weight:600;font-size:.9375rem">{c.esc(rule["rule"])}</span></div>'
+                f'<div style="font-size:.875rem;line-height:1.6;color:var(--muted);margin-top:8px;'
+                f'max-width:68ch">{c.esc(rule["why"])}</div>'
+                f'<div class="serif" style="font-size:.95rem;margin-top:12px;border-left:2px solid '
+                f'var(--line);padding-left:12px">{c.esc(rule["question"])}</div>')
+
+        with right:
+            if st.button("Run this rule", key=f"safety-run-{i}", width="stretch"):
+                with st.spinner(""):
+                    _run(i, rule["question"])
+                st.rerun()
+            if i in runs:
+                _outcome(runs[i], ctx)
+            else:
+                c.write('<div class="tiny" style="margin-top:8px">Not run yet.</div>')
+
+    c.write('<hr class="hair">')
+    c.write(c.error_state(
+        "What this is not",
+        "<p>The safety gate is a conservative pattern matcher, not a classifier: it catches the "
+        "unambiguous cases and will miss paraphrases. The backstop is a system-prompt rule "
+        "instructing the model to refuse the same class of request. Both layers are needed and "
+        "neither is sufficient alone.</p>", glyph="alert"))

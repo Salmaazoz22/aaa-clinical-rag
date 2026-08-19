@@ -1,139 +1,101 @@
 # -*- coding: utf-8 -*-
-"""Guidelines & Sources.
+"""Guidelines & sources — one card per corpus document.
 
-Every field on this page comes from `GET /v1/corpus`, which serves
-`data/processed/document_metadata.json` — the metadata the extraction step
-recorded from the PDFs themselves. Nothing here is written by hand: no invented
-URL, no guessed year, no organisation name that is not stated in the source
-document. Per-document chunk counts are counted in the live Qdrant collection.
+Every field comes from `GET /v1/corpus`, which serves the metadata the
+extraction step recorded from the PDFs themselves. Nothing is written by hand:
+no invented URL, no guessed year, no organisation name that is not stated in the
+source document. Chunk counts are counted in the live Qdrant collection.
 """
 from __future__ import annotations
 
 from typing import Any
 
-import streamlit as st
-
-from ui import api_client, components as ui
+from ui import api_client, components as c
 from ui.api_client import ApiError
+from ui.shell import Context
 
 
-def render(health: dict[str, Any] | None) -> None:
-    st.markdown("# Guidelines & Sources")
-    st.markdown(
-        '<p class="footnote" style="font-size:0.95rem;max-width:70ch">The authoritative corpus '
-        "this system can answer from. It can answer from nothing else — a question outside these "
-        "documents is refused, not approximated.</p>",
-        unsafe_allow_html=True,
-    )
-
-    try:
-        corpus = api_client.corpus()
-    except ApiError as error:
-        ui.backend_unavailable(error)
-        return
-
-    documents = corpus.get("documents") or []
-    total = corpus.get("total_indexed_chunks")
-
-    ui.stat_row([
-        ui.stat("Guidelines", corpus.get("n_documents"), "authoritative source documents", "accent"),
-        ui.stat("Indexed chunks", f"{total:,}" if total else "—",
-                f"counted in {corpus.get('chunk_counts_source')}", "green"),
-        ui.stat("Pages", sum(int(d.get("page_count") or 0) for d in documents),
-                "across all four documents"),
-        ui.stat("Years covered",
-                _year_span(documents), "publication years"),
-    ])
-
-    st.markdown('<hr class="rule">', unsafe_allow_html=True)
-
-    for doc in sorted(documents, key=lambda d: -(d.get("indexed_chunks") or 0)):
-        _document_card(doc, total)
-
-    st.markdown('<hr class="rule">', unsafe_allow_html=True)
-    ui.notice(
-        "info",
-        "How this corpus is weighted",
-        "<p>Chunk counts are proportional to document length, not to authority. The ESVS 2024 "
-        "guideline is a 140-page document and contributes most of the index; the SVS 2018 "
-        "slide deck is short and contributes few chunks. Retrieval ranks by similarity alone "
-        "and applies no per-document weighting, boost or filter, so a short document is not "
-        "disadvantaged for a question it answers well — but it does mean the corpus is not "
-        "balanced across organisations.</p>",
-    )
-
-    provenance = corpus.get("provenance") or {}
-    st.markdown(
-        f'<div class="card tight"><div class="card-label">Metadata provenance</div>'
-        f'<div class="kv"><div class="k">Source file</div>'
-        f'<div class="v">{ui.esc(provenance.get("file"))}</div>'
-        f'<div class="k">SHA-256</div><div class="v">{ui.esc(provenance.get("sha256"))}</div>'
-        f'<div class="k">Chunk counts</div>'
-        f'<div class="v">{ui.esc(corpus.get("chunk_counts_source"))}</div></div>'
-        f'<div class="footnote" style="margin-top:0.8rem">Every field shown above was extracted '
-        f"from the PDFs during ingestion and is served verbatim. Where a document does not state "
-        f"something, it is shown as missing rather than filled in.</div></div>",
-        unsafe_allow_html=True,
-    )
-
-
-def _document_card(doc: dict[str, Any], total: int | None) -> None:
+def _card(doc: dict[str, Any], total: int | None) -> str:
     chunks = doc.get("indexed_chunks")
-    share = ""
-    if chunks and total:
-        share = f"{100 * chunks / total:.1f}% of the index"
+    share = (chunks / total) if (isinstance(chunks, int) and total) else 0.0
+    share_txt = f"{share * 100:.1f}% of the index" if share else "—"
 
     status = str(doc.get("extraction_status") or "")
-    status_chip = (
-        f'<span class="check y">✓ extraction {ui.esc(status)}</span>'
-        if status == "ok"
-        else f'<span class="check w">▲ extraction {ui.esc(status)}</span>'
+    status_pill = c.status_pill(
+        f"extraction {status}", "verified" if status == "ok" else "caution",
+        glyph="check" if status == "ok" else None,
     )
 
     rows = [
-        ("Organisation", ui.esc(doc.get("source_organization"))),
-        ("Document type", ui.esc(doc.get("document_type"))),
-        ("Published", ui.esc(doc.get("publication_year"))),
-        ("Pages", ui.esc(doc.get("page_count"))),
-        ("Indexed chunks", ui.esc(f"{chunks:,}" if chunks is not None else None)),
-        ("Source locator", ui.esc(doc.get("source_url"))),
-        ("Source file", ui.esc(doc.get("source_file"))),
-        ("Extraction library", ui.esc(doc.get("extraction_library"))),
+        ("Organisation", doc.get("source_organization")),
+        ("Type", doc.get("document_type")),
+        ("Published", doc.get("publication_year")),
+        ("Pages", doc.get("page_count")),
+        ("Indexed chunks", f"{chunks:,}" if isinstance(chunks, int) else None),
+        ("Source locator", doc.get("source_url")),
+        ("Source file", doc.get("source_file")),
+        ("Extraction library", doc.get("extraction_library")),
     ]
+    if doc.get("authors"):
+        rows.append(("Authors", ", ".join(doc["authors"])))
     if doc.get("public_access") is not None:
         rows.append(("Public access", "yes" if doc["public_access"] else "not stated"))
-    if doc.get("authors"):
-        rows.append(("Authors", ui.esc(", ".join(doc["authors"]))))
 
-    kv = "".join(f'<div class="k">{k}</div><div class="v">{v}</div>' for k, v in rows)
-
-    credibility = doc.get("credibility_note")
-    credibility_html = (
-        f'<div class="footnote" style="margin-top:0.9rem;padding-top:0.8rem;'
-        f'border-top:1px solid #E1E5EC"><b>Provenance recorded at extraction.</b> '
-        f"{ui.esc(credibility)}</div>"
-        if credibility
-        else ""
+    note = doc.get("credibility_note")
+    note_html = (
+        f'<div class="tiny" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">'
+        f'<b>Recorded at extraction.</b> {c.esc(note)}</div>' if note else ""
     )
 
-    st.markdown(
-        f'<div class="card">'
-        f'<div class="ev-head" style="margin-bottom:0.5rem">'
-        f'<span class="ev-rank">{ui.esc(doc.get("document_id"))}</span>'
-        f'<span class="ev-doc">{ui.esc(doc.get("document_name"))}</span></div>'
-        f'<div class="checks" style="margin-bottom:0.85rem">'
-        f'<span class="check o">{ui.esc(doc.get("publication_year"))}</span>'
-        f'<span class="check o">{ui.esc(doc.get("page_count"))} pages</span>'
-        + (f'<span class="check y">{ui.esc(f"{chunks:,}")} chunks · {ui.esc(share)}</span>'
-           if chunks is not None else "")
-        + status_chip
-        + f'</div><div class="kv">{kv}</div>{credibility_html}</div>',
-        unsafe_allow_html=True,
+    return (
+        f'<div class="panel">'
+        f'<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">'
+        f'<span class="pill neutral mono">{c.esc(doc.get("document_id"))}</span>'
+        f'{status_pill}</div>'
+        f'<div style="font-weight:600;font-size:1.0625rem;line-height:1.35;margin:10px 0 4px;'
+        f'max-width:68ch">{c.esc(doc.get("document_name"))}</div>'
+        f'<div class="mono tiny" style="margin-bottom:14px">{c.esc(share_txt)}</div>'
+        f"{c.coverage_bar(share)}"
+        f'<div style="height:16px"></div>'
+        f"{c.definition_list(rows)}{note_html}</div>"
     )
 
 
-def _year_span(documents: list[dict[str, Any]]) -> str:
-    years = [int(d["publication_year"]) for d in documents if d.get("publication_year")]
-    if not years:
-        return "—"
-    return f"{min(years)}–{max(years)}"
+def render(ctx: Context) -> None:
+    try:
+        corpus = api_client.corpus()
+    except ApiError as error:
+        c.write(c.error_state("Corpus unavailable", f"<p>{c.esc(error.message)}</p>"))
+        return
+
+    docs = corpus.get("documents") or []
+    total = corpus.get("total_indexed_chunks")
+    years = [d["publication_year"] for d in docs if d.get("publication_year")]
+
+    c.tile_row([
+        c.metric_tile("Guidelines", corpus.get("n_documents"), "authoritative documents", "accent"),
+        c.metric_tile("Indexed chunks", f"{total:,}" if total else "—",
+                      f"counted in {corpus.get('chunk_counts_source')}", "verified"),
+        c.metric_tile("Pages", sum(int(d.get("page_count") or 0) for d in docs), "across the corpus"),
+        c.metric_tile("Years", f"{min(years)}–{max(years)}" if years else "—", "publication range"),
+    ])
+
+    c.write('<hr class="hair">')
+    for doc in sorted(docs, key=lambda d: -(d.get("indexed_chunks") or 0)):
+        c.write(_card(doc, total))
+
+    c.write('<hr class="hair">')
+    c.write(c.empty_state(
+        "How this corpus is weighted",
+        "<p>Chunk counts are proportional to document length, not to authority. ESVS 2024 is a "
+        "140-page guideline and contributes most of the index; the SVS 2018 slide deck is short and "
+        "contributes few chunks. Retrieval ranks by similarity alone and applies no per-document "
+        "weighting, boost or filter — so a short document is not disadvantaged for a question it "
+        "answers well, but the corpus is not balanced across organisations.</p>", glyph="info"))
+
+    provenance = corpus.get("provenance") or {}
+    c.write(c.panel("Metadata provenance", c.definition_list([
+        ("Source file", provenance.get("file")),
+        ("SHA-256", provenance.get("sha256")),
+        ("Chunk counts", corpus.get("chunk_counts_source")),
+    ])))

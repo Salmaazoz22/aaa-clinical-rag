@@ -135,10 +135,10 @@ _NAV_BASE_CSS = """
   position: relative; width: 100%;
 }
 [data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover {
-  background: rgba(255,255,255,.04); color: #FFFFFF; border: 0;
+  background: rgba(255,255,255,.04); color: var(--surface); border: 0;
 }
 [class*="st-key-nav-"][class*="-active"] [data-testid="stBaseButton-secondary"] {
-  color: #FFFFFF; background: rgba(224,168,85,.10); font-weight: 500;
+  color: var(--surface); background: rgba(224,168,85,.10); font-weight: 500;
 }
 [class*="st-key-nav-"][class*="-active"] [data-testid="stBaseButton-secondary"]::after {
   content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px;
