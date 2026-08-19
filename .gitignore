@@ -56,3 +56,6 @@ aaa-clinical-raggehad/
 for ground truth code/
 *.egg-info/
 __pycache__/
+
+# Self-hosted fonts and favicon are committed on purpose (see static/), so the
+# demo has no external font dependency. Nothing else in static/ is generated.

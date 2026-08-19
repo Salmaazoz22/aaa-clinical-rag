@@ -1,0 +1,101 @@
+# Native theme. This is deliberately the FIRST line of defence, not the last.
+#
+# If the app were styled with CSS alone, every widget would render in Streamlit's
+# default palette for the instant before the injected stylesheet applies — and
+# again on every rerun. Setting the platform theme means the native widgets are
+# already the right colour and the CSS only has to handle layout and the custom
+# component vocabulary.
+#
+# Keys here are checked against Streamlit 1.61.1, which supports the full
+# [theme.sidebar] namespace and [[theme.fontFaces]]. See INVENTORY.md §4.
+#
+# Values mirror ui/tokens.py. tokens.py is the source of truth; this file is a
+# hand-kept copy because TOML cannot import Python. tests/test_ui.py asserts the
+# two stay in sync.
+
+[server]
+headless = true
+# Serves static/ at /app/static/. Required by the [[theme.fontFaces]] URLs below
+# and by the favicon; without it the faces 404 silently and the app falls back.
+enableStaticServing = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+
+# ---------------------------------------------------------------------------
+# Reading canvas — the light surface where clinical text is read
+# ---------------------------------------------------------------------------
+[theme]
+base = "light"
+
+primaryColor            = "#C0803A"   # --contrast
+backgroundColor         = "#F1F4F3"   # --linen
+secondaryBackgroundColor = "#FFFFFF"  # --surface
+textColor               = "#0C1418"   # --ink
+borderColor             = "#D8DEDC"   # --line
+linkColor               = "#0C1418"
+
+baseFontSize   = 16
+baseRadius     = "4px"
+buttonRadius   = "4px"
+showWidgetBorder = true
+showSidebarBorder = false
+
+font        = "Instrument Sans, Inter Tight, Inter, system-ui, sans-serif"
+headingFont = "Instrument Sans, Inter Tight, Inter, system-ui, sans-serif"
+codeFont    = "IBM Plex Mono, ui-monospace, SFMono-Regular, monospace"
+
+# Semantic families, kept off the brand accent on purpose.
+greenColor  = "#3B7355"   # --verified
+redColor    = "#9E3B3E"   # --aorta
+orangeColor = "#C0803A"
+blueColor   = "#4A6572"   # --neutral
+
+# Charts inherit the token palette rather than Streamlit's categorical default.
+chartCategoricalColors = ["#0C1418", "#C0803A", "#3B7355", "#4A6572", "#9E3B3E", "#5C6B70"]
+chartSequentialColors  = ["#F1F4F3", "#D8DEDC", "#A9B6B9", "#7A8B90", "#4A6572", "#16242A", "#0C1418"]
+
+# ---------------------------------------------------------------------------
+# Instrument rail — the dark chrome. Themed natively so Streamlit's own widgets
+# inside the sidebar render correctly instead of being fought with CSS.
+# ---------------------------------------------------------------------------
+[theme.sidebar]
+backgroundColor          = "#16242A"   # --slate
+secondaryBackgroundColor = "#1E3038"
+textColor                = "#FFFFFF"
+primaryColor             = "#E0A855"   # --contrast lifted, for dark backgrounds
+borderColor              = "#2A3C43"
+linkColor                = "#E0A855"
+baseRadius               = "4px"
+showWidgetBorder         = false
+
+# ---------------------------------------------------------------------------
+# Self-hosted faces. No external request during a live demo, and no flash of
+# fallback font. Files live in assets/fonts/ and are served by ui.inject_theme().
+# ---------------------------------------------------------------------------
+[[theme.fontFaces]]
+family = "Instrument Sans"
+url = "app/static/fonts/InstrumentSans-Variable.woff2"
+weight = "400 700"
+style = "normal"
+
+[[theme.fontFaces]]
+family = "Source Serif 4"
+url = "app/static/fonts/SourceSerif4-Variable.woff2"
+weight = "400 700"
+style = "normal"
+
+[[theme.fontFaces]]
+family = "IBM Plex Mono"
+url = "app/static/fonts/IBMPlexMono-Regular.woff2"
+weight = "400"
+style = "normal"
+
+[[theme.fontFaces]]
+family = "IBM Plex Mono"
+url = "app/static/fonts/IBMPlexMono-Medium.woff2"
+weight = "500"
+style = "normal"
