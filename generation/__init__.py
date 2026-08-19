@@ -33,6 +33,7 @@ from generation.pipeline import GenerationResult, answer_question, select_usable
 from generation.prompts import SYSTEM_PROMPT, build_messages, build_user_prompt
 from generation.providers import (
     Completion,
+    FallbackProvider,
     LLMProvider,
     MissingAPIKeyError,
     ProviderError,
@@ -58,6 +59,7 @@ from generation.validator import (
     conflict_position_count,
     documents_cited,
     resolve_citations,
+    summarize_evidence_grade,
     validate_answer,
 )
 
@@ -68,6 +70,7 @@ __all__ = [
     "DEFAULT_SCORE_THRESHOLD",
     "DEFAULT_TOP_K",
     "DISCLAIMER",
+    "FallbackProvider",
     "Finding",
     "GenerationResult",
     "GenerationSettings",
@@ -96,6 +99,7 @@ __all__ = [
     "resolve_citations",
     "screen_query",
     "select_usable_hits",
+    "summarize_evidence_grade",
     "validate_answer",
     # emergency gate (A1)
     "EmergencyVerdict",

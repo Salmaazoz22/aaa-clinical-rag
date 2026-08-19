@@ -250,6 +250,30 @@ class OpenAICompatibleProvider(LLMProvider):
         )
 
 
+@dataclass
+class FallbackProvider(LLMProvider):
+    """Wraps primary and secondary providers to provide cross-provider fallback."""
+
+    primary: LLMProvider
+    secondary: LLMProvider
+
+    def __post_init__(self) -> None:
+        self.name = f"{self.primary.name}->{self.secondary.name}"
+        self.model = f"{self.primary.model} (fallback: {self.secondary.model})"
+
+    def complete(self, messages: Sequence[dict[str, str]], *, json_mode: bool = True) -> Completion:
+        try:
+            return self.primary.complete(messages, json_mode=json_mode)
+        except ProviderError as primary_exc:
+            try:
+                return self.secondary.complete(messages, json_mode=json_mode)
+            except ProviderError as secondary_exc:
+                raise ProviderError(
+                    f"primary provider '{self.primary.name}' failed ({primary_exc}); "
+                    f"secondary provider '{self.secondary.name}' also failed ({secondary_exc})"
+                ) from secondary_exc
+
+
 def build_provider(settings: "GenerationSettings" | None = None) -> LLMProvider:
     """Build the provider selected by configuration."""
     if settings is None:
@@ -258,7 +282,7 @@ def build_provider(settings: "GenerationSettings" | None = None) -> LLMProvider:
         settings = load_settings()
 
     spec = resolve_provider_spec(settings.provider)
-    return OpenAICompatibleProvider(
+    primary = OpenAICompatibleProvider(
         spec=spec,
         model=settings.model,
         api_key=settings.api_key or "",
@@ -266,3 +290,20 @@ def build_provider(settings: "GenerationSettings" | None = None) -> LLMProvider:
         max_output_tokens=settings.max_output_tokens,
         timeout=settings.timeout,
     )
+
+    if not getattr(settings, "enable_fallback", False):
+        return primary
+
+    secondary_name = "openrouter" if spec.name != "openrouter" else "groq"
+    secondary_spec = resolve_provider_spec(secondary_name)
+    secondary_key = os.environ.get(secondary_spec.key_env) or ""
+    secondary = OpenAICompatibleProvider(
+        spec=secondary_spec,
+        model=secondary_spec.model,
+        api_key=secondary_key,
+        temperature=settings.temperature,
+        max_output_tokens=settings.max_output_tokens,
+        timeout=settings.timeout,
+    )
+
+    return FallbackProvider(primary=primary, secondary=secondary)

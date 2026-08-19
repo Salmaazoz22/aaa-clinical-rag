@@ -11,8 +11,11 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import sys
 from pathlib import Path
+
+from unittest.mock import patch
 
 import pytest
 
@@ -27,8 +30,11 @@ from generation.prompts import SYSTEM_PROMPT, build_context_block, build_message
 from generation.providers import (  # noqa: E402
     PROVIDER_SPECS,
     Completion,
+    FallbackProvider,
+    LLMProvider,
     MissingAPIKeyError,
     OpenAICompatibleProvider,
+    ProviderError,
     UnknownProviderError,
     resolve_provider_spec,
 )
@@ -830,6 +836,123 @@ class TestProviders:
     def test_provider_is_never_half_configured(self):
         provider = OpenAICompatibleProvider(spec=PROVIDER_SPECS["groq"], model="m", api_key="k")
         assert provider.model == "m" and provider.name == "groq"
+
+    def test_fallback_successful_request_on_primary(self):
+        primary = FakeProvider(good_answer())
+        secondary = ExplodingProvider()
+        fallback = FallbackProvider(primary=primary, secondary=secondary)
+
+        messages = [{"role": "user", "content": "hi"}]
+        comp = fallback.complete(messages)
+
+        assert comp.provider == "fake"
+        assert len(primary.calls) == 1
+        # secondary is ExplodingProvider — if called, it would raise AssertionError
+
+    def test_fallback_primary_fails_secondary_succeeds(self):
+        class FailingPrimary(LLMProvider):
+            name = "groq"
+            model = "openai/gpt-oss-120b"
+
+            def complete(self, messages, *, json_mode=True):
+                raise ProviderError("Groq 429 rate limit / TPM ceiling exceeded")
+
+        secondary = FakeProvider(good_answer())
+        secondary.name = "openrouter"
+        secondary.model = "deepseek/deepseek-r1:free"
+
+        fallback = FallbackProvider(primary=FailingPrimary(), secondary=secondary)
+        messages = [{"role": "user", "content": "hi"}]
+        comp = fallback.complete(messages)
+
+        assert comp.provider == "openrouter"
+        assert comp.model == "deepseek/deepseek-r1:free"
+        assert comp.to_dict()["provider"] == "openrouter"
+        assert len(secondary.calls) == 1
+
+    def test_fallback_primary_fails_secondary_also_fails(self):
+        class FailingPrimary(LLMProvider):
+            name = "groq"
+            model = "openai/gpt-oss-120b"
+
+            def complete(self, messages, *, json_mode=True):
+                raise ProviderError("Groq primary connection reset")
+
+        class FailingSecondary(LLMProvider):
+            name = "openrouter"
+            model = "deepseek/deepseek-r1:free"
+
+            def complete(self, messages, *, json_mode=True):
+                raise ProviderError("OpenRouter 503 Service Unavailable")
+
+        fallback = FallbackProvider(primary=FailingPrimary(), secondary=FailingSecondary())
+        messages = [{"role": "user", "content": "hi"}]
+
+        with pytest.raises(ProviderError) as exc_info:
+            fallback.complete(messages)
+
+        err_msg = str(exc_info.value)
+        assert "groq" in err_msg
+        assert "Groq primary connection reset" in err_msg
+        assert "openrouter" in err_msg
+        assert "OpenRouter 503 Service Unavailable" in err_msg
+
+    def test_fallback_disabled_by_default(self):
+        from generation.providers import build_provider
+
+        settings = GenerationSettings(
+            provider="groq",
+            model="openai/gpt-oss-120b",
+            base_url="https://api.groq.com/openai/v1",
+            api_key="sk-test",
+            top_k=5,
+            score_threshold=0.75,
+            temperature=0.0,
+            max_output_tokens=4000,
+            timeout=30.0,
+            enable_fallback=False,
+        )
+        provider = build_provider(settings)
+        assert isinstance(provider, OpenAICompatibleProvider)
+        assert not isinstance(provider, FallbackProvider)
+
+    def test_fallback_enabled_builds_fallback_provider(self):
+        from generation.providers import build_provider
+
+        with patch.dict(os.environ, {"OPENROUTER_API_KEY": "sk-or-test"}):
+            settings = GenerationSettings(
+                provider="groq",
+                model="openai/gpt-oss-120b",
+                base_url="https://api.groq.com/openai/v1",
+                api_key="sk-groq-test",
+                top_k=5,
+                score_threshold=0.75,
+                temperature=0.0,
+                max_output_tokens=4000,
+                timeout=30.0,
+                enable_fallback=True,
+            )
+            provider = build_provider(settings)
+            assert isinstance(provider, FallbackProvider)
+            assert provider.primary.name == "groq"
+            assert provider.secondary.name == "openrouter"
+
+    def test_oversized_request_simulated_failure_triggers_fallback(self):
+        class OversizedPrimary(LLMProvider):
+            name = "groq"
+            model = "openai/gpt-oss-120b"
+
+            def complete(self, messages, *, json_mode=True):
+                raise ProviderError("400 Request too large: 8500 tokens exceeds TPM ceiling of 8000")
+
+        secondary = FakeProvider(good_answer())
+        secondary.name = "openrouter"
+        secondary.model = "deepseek/deepseek-r1:free"
+
+        fallback = FallbackProvider(primary=OversizedPrimary(), secondary=secondary)
+        comp = fallback.complete([{"role": "user", "content": "query"}])
+        assert comp.provider == "openrouter"
+        assert comp.to_dict()["provider"] == "openrouter"
 
 
 def test_default_threshold_is_the_documented_starting_value():

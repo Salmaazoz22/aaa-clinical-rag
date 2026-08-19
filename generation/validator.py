@@ -29,6 +29,9 @@ own record
 and certainty is never numeric
 a non-refusal carries citations         an answer with no evidence at all
 a refusal carries the fixed message     a refusal dressed up as an answer
+every substantive sentence in the       narrative prose that introduces facts
+`recommendation` prose maps to at       beyond what any validated citation
+least one supporting-evidence excerpt   excerpt covers (lexical overlap check)
 ======================================  ==========================================
 
 Two rules govern the design:
@@ -48,6 +51,7 @@ errors fail the report.
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from typing import Any, Sequence
 
@@ -86,6 +90,7 @@ W_EMPTY_EXCERPT = "empty_excerpt"
 W_DUPLICATE_CITATION = "duplicate_citation"
 W_CONFLICT_SINGLE_POSITION = "conflict_single_position"
 W_NUMERIC_CERTAINTY_PROSE = "numeric_certainty_in_prose"
+W_RECOMMENDATION_UNSUPPORTED_SENTENCE = "recommendation_unsupported_sentence"
 
 SEVERITY_ERROR = "error"
 SEVERITY_WARNING = "warning"
@@ -98,6 +103,14 @@ SCORE_TOLERANCE = 1e-3
 #: Minimum length for an excerpt to be worth checking against the source. Below
 #: this, a substring test is meaningless (any two texts share short fragments).
 MIN_EXCERPT_CHARS = 12
+
+#: Minimum number of content tokens a recommendation sentence must share with
+#: at least one supporting-evidence excerpt for the sentence to count as
+#: grounded. Set deliberately low (2) because a clinical sentence like
+#: "repair is recommended at 55 mm" shares only a handful of content words with
+#: an excerpt that may phrase the same fact differently. Raising this risks false
+#: positives on short sentences; lowering it to 1 allows trivially short overlaps.
+MIN_GROUNDING_TOKENS = 2
 
 _ELLIPSIS = re.compile(r"\s*(?:\.\.\.+|…)\s*")
 
@@ -113,6 +126,18 @@ _NUMERIC_CERTAINTY = (
 # will not match the stored text byte-for-byte. Implemented here rather than
 # imported, because the evaluation's copy is frozen scoring code and must not
 # grow a second caller.
+#
+# Normalisation order (applied inside `normalise_for_match` only -- never to
+# stored text or model output):
+#   1. NFKC: decomposes compatibility forms (e.g. fi-ligature -> fi, fullwidth).
+#   2. Ligature map: catches any PDF-specific ligatures NFKC did not handle.
+#   3. Smart-quote map: curly/typographic quotes -> straight ASCII equivalents.
+#   4. Dash/hyphen map: every dash/hyphen Unicode variant -> ASCII hyphen (-).
+#      Previously these were mapped to a space, which caused "CTA-based" with
+#      an en-dash to compare as "CTA based" -- a false mismatch.
+#   5. Miscellaneous glyphs (>=, <=, etc.) -> space.
+#   6. Collapse all whitespace (including non-breaking, thin, zero-width)
+#      to a single ASCII space.
 _LIGATURES = {
     "ﬀ": "ff", "ﬁ": "fi", "ﬂ": "fl", "ﬃ": "ffi", "ﬄ": "ffl",
     "ﬅ": "st", "ﬆ": "st",
@@ -122,22 +147,62 @@ _QUOTES = {
     "“": '"', "”": '"', "„": '"', "‟": '"',
     "´": "'", "`": "'",
 }
-_GLYPH_TO_SPACE = ("–", "—", "−", "≥", "≤", "‡", "†", " ")
+# All common dash/hyphen variants -> ASCII hyphen.
+# Kept separate from _GLYPH_TO_SPACE so that "CTA-based" (with a typographic
+# dash) matches "CTA-based" rather than becoming "CTA based" (wrong form).
+_DASHES_TO_HYPHEN = (
+    "‐",  # HYPHEN
+    "‑",  # NON-BREAKING HYPHEN
+    "‒",  # FIGURE DASH
+    "–",  # EN DASH
+    "—",  # EM DASH
+    "―",  # HORIZONTAL BAR
+    "−",  # MINUS SIGN
+    "﹘",  # SMALL EM DASH
+    "﹣",  # SMALL HYPHEN-MINUS
+    "－",  # FULLWIDTH HYPHEN-MINUS
+)
+# Glyphs that should become a space rather than a hyphen.
+_GLYPH_TO_SPACE = (
+    "≥",  # >=
+    "≤",  # <=
+    "‡",  # double dagger
+    "†",  # dagger
+    " ",  # NO-BREAK SPACE
+)
 
 
 def normalise_for_match(text: Any) -> str:
-    """Normalise text for substring comparison. Never used to alter output."""
+    """Normalise text for substring comparison. Never used to alter output.
+
+    Applies NFKC, ligature expansion, quote straightening, dash-to-hyphen
+    mapping, and whitespace collapsing so that typographic variants of the
+    same word compare as equal. The original `text` is never modified.
+    """
     if text is None:
         return ""
     s = str(text)
-    for src, dst in _LIGATURES.items():
-        s = s.replace(src, dst)
+    # Step 1: Quotes and ligatures BEFORE NFKC.
+    # U+00B4 (ACUTE ACCENT ´) is decomposed by NFKC into SPACE+U+0301, so it
+    # must be replaced before normalisation or it will never match the key.
     for src, dst in _QUOTES.items():
         s = s.replace(src, dst)
+    for src, dst in _LIGATURES.items():
+        s = s.replace(src, dst)
+    # Step 2: NFKC handles remaining compatibility decompositions (fullwidth
+    # characters, remaining ligatures, compatibility superscripts, etc.).
+    s = unicodedata.normalize("NFKC", s)
+    # Step 3: Dash/hyphen variants -> ASCII hyphen so that "CTA-based" (with
+    # any typographic dash) normalises to "CTA-based".
+    for dash in _DASHES_TO_HYPHEN:
+        s = s.replace(dash, "-")
+    # Step 4: Miscellaneous non-alphanumeric glyphs -> space.
     for glyph in _GLYPH_TO_SPACE:
         s = s.replace(glyph, " ")
+    # Step 5: Case-fold and collapse all whitespace (including \t, \n, thin
+    # spaces, zero-width spaces, etc.) to a single ASCII space.
     s = s.lower()
-    return re.sub(r"\s+", " ", s).strip()
+    return re.sub(r"[\s\u200b\u200c\u200d\ufeff]+", " ", s).strip()
 
 
 # --- findings --------------------------------------------------------------
@@ -264,6 +329,118 @@ def _loose_text_match(claimed: Any, truth: Any) -> bool:
     if not a or not b:
         return False
     return a == b or a in b or b in a
+
+
+# --- recommendation grounding (lexical) -----------------------------------
+
+# Stop words to exclude from the token overlap calculation. These words carry
+# no discriminating content so they must not count as grounding evidence.
+# The list targets clinical/academic prose specifically; it is not exhaustive
+# but covers the most frequent false-positive sources.
+_STOP_WORDS: frozenset[str] = frozenset({
+    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
+    "of", "with", "by", "from", "as", "is", "are", "was", "were", "be",
+    "been", "has", "have", "had", "do", "does", "did", "not", "no", "nor",
+    "that", "this", "these", "those", "it", "its", "which", "who", "whom",
+    "when", "where", "how", "what", "if", "than", "then", "so", "also",
+    "both", "each", "any", "all", "more", "most", "such", "other",
+    "may", "should", "would", "could", "will", "can", "must", "shall",
+    "there", "their", "they", "them", "we", "our", "he", "she", "his",
+    "her", "i", "my", "you", "your", "been", "being", "about", "above",
+    "after", "although", "among", "because", "between", "during",
+    "however", "including", "rather", "therefore", "thus", "while",
+    "whereas", "whether", "per", "via", "within", "without", "based",
+    "note", "see", "given", "further", "nevertheless", "nonetheless",
+})
+
+# Sentences consisting *only* of connector / transitional content do not
+# carry factual claims and need no grounding. A sentence is treated as a
+# "connector" when it has no content tokens after stop-word removal.
+_SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
+
+
+def _content_tokens(text: str) -> frozenset[str]:
+    """Return the significant lower-cased word-tokens of *text*.
+
+    Keeps only tokens that are at least two characters long, are not pure
+    stop words, and contain at least one alphanumeric character.  Numbers
+    such as "55" and "5.5" are deliberately kept because they are the most
+    specific signal in clinical sentences (threshold values, page ranges).
+    """
+    normed = normalise_for_match(text)  # already lower-cased
+    tokens = re.findall(r"[a-z0-9][a-z0-9./-]*", normed)
+    return frozenset(
+        t for t in tokens
+        if len(t) >= 2 and t not in _STOP_WORDS
+    )
+
+
+def _recommendation_grounding_findings(
+    recommendation: str,
+    grounding_excerpts: list[str],
+    location: str = "recommendation",
+) -> list[Finding]:
+    """Check that every substantive sentence in *recommendation* is traceable
+    to at least one entry in *grounding_excerpts*.
+
+    Approach (lexical only -- no embedding models):
+      1. Split the recommendation into sentences.
+      2. For each sentence, extract its content tokens (numbers, nouns, key
+         terms) by removing stop words and very short tokens.
+      3. If the sentence has no content tokens it is a connector/transition
+         with nothing to ground, so it is skipped.
+      4. For each non-trivial sentence, compute the token overlap against each
+         grounding excerpt.  The sentence is considered grounded if at least
+         one excerpt shares >= MIN_GROUNDING_TOKENS content tokens with it.
+      5. Sentences that fail grounding get W_RECOMMENDATION_UNSUPPORTED_SENTENCE.
+
+    Limitations (flagged for future work, not implemented here):
+      - Token overlap cannot detect logical contradiction -- a sentence that
+        *directly contradicts* an excerpt would still pass this check.
+      - Paraphrased claims that use entirely different vocabulary will be
+        flagged as unsupported even when they convey the same fact.
+      - Multi-sentence run-ons not terminated with sentence-ending punctuation
+        are treated as a single sentence.
+    """
+    findings: list[Finding] = []
+    if not recommendation or not recommendation.strip():
+        return findings
+
+    # Pre-compute excerpt token sets once for all sentences.
+    excerpt_token_sets: list[frozenset[str]] = [
+        _content_tokens(ex) for ex in grounding_excerpts if ex and ex.strip()
+    ]
+    # Nothing to check against: skip the whole check rather than flag everything.
+    if not excerpt_token_sets:
+        return findings
+
+    sentences = _SENTENCE_SPLIT.split(recommendation.strip())
+    for sent_idx, sentence in enumerate(sentences):
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        sent_tokens = _content_tokens(sentence)
+        if len(sent_tokens) < MIN_GROUNDING_TOKENS:
+            # Connector sentence: too short to carry a falsifiable claim.
+            continue
+
+        grounded = any(
+            len(sent_tokens & ex_tokens) >= MIN_GROUNDING_TOKENS
+            for ex_tokens in excerpt_token_sets
+        )
+        if not grounded:
+            findings.append(
+                Finding(
+                    W_RECOMMENDATION_UNSUPPORTED_SENTENCE,
+                    SEVERITY_WARNING,
+                    "a sentence in 'recommendation' does not share enough content tokens "
+                    "with any supporting-evidence excerpt; it may introduce a claim that "
+                    "goes beyond the cited evidence (lexical check, needs human review)",
+                    location=f"{location}[sentence {sent_idx}]",
+                    actual=sentence[:200],
+                )
+            )
+    return findings
 
 
 def _excerpt_findings(
@@ -683,6 +860,48 @@ def validate_answer(
                 _excerpt_findings(bullet["excerpt"], by_id[chunk_id], f"{location}.excerpt", chunk_id)
             )
 
+    # --- recommendation prose grounding -----------------------------------
+    # Only run when: (a) the answer is not a refusal, (b) there are valid
+    # citations (no point checking grounding when there's nothing to ground
+    # against), and (c) recommendation is a non-empty string.
+    if (
+        not report.is_refusal
+        and isinstance(recommendation, str)
+        and recommendation.strip()
+        and not report.has(E_MISSING_FIELD)  # skip if structural check already failed
+    ):
+        # Collect excerpts only from evidence bullets whose chunk_id is not
+        # hallucinated, so a fabricated citation cannot "cover" a prose sentence.
+        valid_evidence_excerpts: list[str] = []
+        for bullet in evidence:
+            if not isinstance(bullet, dict):
+                continue
+            b_chunk_id = str(bullet.get("chunk_id") or "").strip()
+            if not b_chunk_id or b_chunk_id not in by_id:
+                continue  # hallucinated or missing -- not grounding material
+            excerpt_text = bullet.get("excerpt")
+            if isinstance(excerpt_text, str) and excerpt_text.strip():
+                valid_evidence_excerpts.append(excerpt_text)
+
+        # Also include citation-level excerpts (citations list can carry excerpts
+        # independently of supporting_evidence bullets).
+        for citation in citations:
+            if not isinstance(citation, dict):
+                continue
+            c_chunk_id = str(citation.get("chunk_id") or "").strip()
+            if not c_chunk_id or c_chunk_id not in by_id:
+                continue
+            c_excerpt = citation.get("excerpt")
+            if isinstance(c_excerpt, str) and c_excerpt.strip():
+                valid_evidence_excerpts.append(c_excerpt)
+
+        if valid_evidence_excerpts:
+            report.findings.extend(
+                _recommendation_grounding_findings(
+                    recommendation, valid_evidence_excerpts
+                )
+            )
+
     # --- an answer must be cited at all -----------------------------------
     if not report.is_refusal and not citations:
         report.findings.append(
@@ -805,6 +1024,121 @@ def documents_cited(answer: dict[str, Any], retrieved: Sequence[dict[str, Any]])
         if doc and str(doc) not in docs:
             docs.append(str(doc))
     return docs
+
+
+# --- evidence-grade summary ------------------------------------------------
+
+import math as _math
+
+
+def _is_usable_grade(value: Any) -> bool:
+    """True when *value* is a non-empty string that is not a NaN sentinel.
+
+    The corpus stores grades as strings (e.g. ``'A'``, ``'1'``,
+    ``'C recommendation'``) or as ``None`` when the guideline does not use a
+    formal grading system (ESVS 2024, NICE NG156, USPSTF 2019 in this
+    corpus).  Some ingestion pipelines also leave ``float('nan')`` in the
+    payload field when a cell in the source spreadsheet was blank -- that is
+    treated as absent, not as a meaningful grade string.
+    """
+    if value is None:
+        return False
+    if isinstance(value, float) and _math.isnan(value):
+        return False
+    s = str(value).strip()
+    return bool(s) and s.lower() not in {"nan", "none", "null", "n/a", ""}
+
+
+def summarize_evidence_grade(citations_resolved: list[dict[str, Any]]) -> dict[str, Any]:
+    """Produce an answer-level evidence-grade summary from already-resolved citations.
+
+    Reads *only* the ``recommendation_grade`` and ``evidence_level`` fields
+    that ``resolve_citations()`` populates from the retriever's own records.
+    Never invents, infers, upgrades or downgrades a value.
+
+    Parameters
+    ----------
+    citations_resolved:
+        The list returned by ``resolve_citations(answer, retrieved)``.
+        Unresolved citations (``resolved == False``) are excluded from the
+        summary because their metadata fields are unknown.
+
+    Returns
+    -------
+    A dict with the following guaranteed keys:
+
+    ``available``
+        ``True`` if at least one resolved citation carries a non-null,
+        non-NaN grade or level string.  ``False`` otherwise (e.g. a refusal
+        with no citations, or all cited chunks from guidelines that do not
+        publish formal grades in this corpus).
+
+    ``recommendation_grades``
+        Sorted list of distinct non-null ``recommendation_grade`` strings
+        present across all resolved citations.  Empty list when none are
+        available.  **Do not attempt to order these across guidelines**:
+        ``'1'`` (SVS) and ``'C recommendation'`` (SVS/USPSTF) come from
+        different scales.
+
+    ``evidence_levels``
+        Sorted list of distinct non-null ``evidence_level`` strings (e.g.
+        ``['A', 'B']``).  Empty list when none are available.
+
+    ``n_citations_with_grade``
+        Integer count of resolved citations that carry at least one of
+        ``recommendation_grade`` or ``evidence_level``.
+
+    ``n_citations_total``
+        Integer count of *resolved* citations (unresolved / hallucinated
+        citations are excluded).
+
+    Shape is stable: all four keys are always present regardless of whether
+    metadata is available, so callers need not guard against ``KeyError``.
+
+    Corpus note (as of index V1_atomic_pagesafe):
+        - SVS 2018 chunks carry ``recommendation_grade`` (``'1'``, ``'2'``,
+          ``'I statement'``) and ``evidence_level`` (``'A'``, ``'B'``,
+          ``'C'``).
+        - ESVS 2024, NICE NG156 and USPSTF 2019 chunks have ``None`` for
+          both fields.  This is expected; the summary returns
+          ``available: false`` for answers grounded exclusively in those
+          three guidelines.
+    """
+    resolved_only = [c for c in (citations_resolved or []) if isinstance(c, dict) and c.get("resolved")]
+    n_total = len(resolved_only)
+
+    grades: list[str] = []
+    levels: list[str] = []
+    n_with_grade = 0
+
+    for citation in resolved_only:
+        g = citation.get("recommendation_grade")
+        l = citation.get("evidence_level")
+        has_either = False
+        if _is_usable_grade(g):
+            s = str(g).strip()
+            if s not in grades:
+                grades.append(s)
+            has_either = True
+        if _is_usable_grade(l):
+            s = str(l).strip()
+            if s not in levels:
+                levels.append(s)
+            has_either = True
+        if has_either:
+            n_with_grade += 1
+
+    grades.sort()
+    levels.sort()
+    available = bool(grades or levels)
+
+    return {
+        "available": available,
+        "recommendation_grades": grades,
+        "evidence_levels": levels,
+        "n_citations_with_grade": n_with_grade,
+        "n_citations_total": n_total,
+    }
 
 
 # --- views used by the evaluation ------------------------------------------

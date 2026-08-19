@@ -56,6 +56,7 @@ from generation.schema import (  # noqa: E402
 from generation.validator import (  # noqa: E402
     documents_cited,
     resolve_citations,
+    summarize_evidence_grade,
     validate_answer,
 )
 
@@ -121,6 +122,7 @@ class GenerationResult:
     parse_meta: dict[str, Any] | None = None
     disclaimer_normalised: bool = False
     prompt: dict[str, str] | None = None
+    evidence_grade_summary: dict[str, Any] = field(default_factory=dict)
 
     @property
     def refused(self) -> bool:
@@ -136,6 +138,7 @@ class GenerationResult:
             "answer": self.answer,
             "citations_resolved": self.citations_resolved,
             "documents_cited": self.documents_cited,
+            "evidence_grade_summary": self.evidence_grade_summary,
             "validation": self.validation,
             "retrieval": {
                 "n_retrieved": len(self.retrieved),
@@ -225,6 +228,7 @@ def answer_question(
         result.validation = report.to_dict()
         result.citations_resolved = resolve_citations(answer, refusal_hits)
         result.documents_cited = documents_cited(answer, refusal_hits)
+        result.evidence_grade_summary = summarize_evidence_grade(result.citations_resolved)
         return result
 
     if emergency_verdict.is_emergency:
@@ -276,6 +280,7 @@ def answer_question(
     result.answer = answer
     result.citations_resolved = resolve_citations(answer, usable)
     result.documents_cited = documents_cited(answer, usable)
+    result.evidence_grade_summary = summarize_evidence_grade(result.citations_resolved)
 
     if is_refusal(answer):
         # The model judged the evidence insufficient under rule R1(a)/(b). That

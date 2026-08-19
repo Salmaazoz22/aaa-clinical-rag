@@ -80,6 +80,8 @@ DEFAULT_TIMEOUT = 180.0
 # (`data/embeddings/index_meta.json`), so the whole corpus fits comfortably.
 MAX_CHUNK_CHARS = 0  # 0 = no truncation
 
+DEFAULT_ENABLE_FALLBACK = False
+
 
 def _as_float(value: str | None, default: float) -> float:
     if value is None or value.strip() == "":
@@ -91,6 +93,12 @@ def _as_int(value: str | None, default: int) -> int:
     if value is None or value.strip() == "":
         return default
     return int(value)
+
+
+def _as_bool(value: str | None, default: bool) -> bool:
+    if value is None or value.strip() == "":
+        return default
+    return value.strip().lower() in ("1", "true", "yes", "on")
 
 
 @dataclass(frozen=True)
@@ -106,6 +114,7 @@ class GenerationSettings:
     temperature: float
     max_output_tokens: int
     timeout: float
+    enable_fallback: bool = DEFAULT_ENABLE_FALLBACK
 
     def describe(self) -> dict[str, object]:
         """Description safe to print or persist. Carries no secret material."""
@@ -119,6 +128,7 @@ class GenerationSettings:
             "temperature": self.temperature,
             "max_output_tokens": self.max_output_tokens,
             "timeout_s": self.timeout,
+            "enable_fallback": self.enable_fallback,
         }
 
 
@@ -152,4 +162,5 @@ def load_settings(env_file: Path | None = None, provider: str | None = None) -> 
         temperature=_as_float(os.environ.get("GENERATION_TEMPERATURE"), DEFAULT_TEMPERATURE),
         max_output_tokens=_as_int(os.environ.get("GENERATION_MAX_OUTPUT_TOKENS"), DEFAULT_MAX_OUTPUT_TOKENS),
         timeout=_as_float(os.environ.get("GENERATION_TIMEOUT"), DEFAULT_TIMEOUT),
+        enable_fallback=_as_bool(os.environ.get("GENERATION_ENABLE_FALLBACK"), DEFAULT_ENABLE_FALLBACK),
     )
