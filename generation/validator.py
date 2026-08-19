@@ -176,8 +176,9 @@ def normalise_for_match(text: Any) -> str:
     """Normalise text for substring comparison. Never used to alter output.
 
     Applies NFKC, ligature expansion, quote straightening, dash-to-hyphen
-    mapping, and whitespace collapsing so that typographic variants of the
-    same word compare as equal. The original `text` is never modified.
+    mapping, range 'e' artifact normalization, and whitespace collapsing so that
+    typographic variants of the same word compare as equal. The original `text` is
+    never modified.
     """
     if text is None:
         return ""
@@ -196,6 +197,8 @@ def normalise_for_match(text: Any) -> str:
     # any typographic dash) normalises to "CTA-based".
     for dash in _DASHES_TO_HYPHEN:
         s = s.replace(dash, "-")
+    # Step 3.5: Convert '30 e 39' (PDF extraction artifact for range en-dash) to '30-39'
+    s = re.sub(r"\b(\d+)\s*e\s*(\d+)\b", r"\1-\2", s)
     # Step 4: Miscellaneous non-alphanumeric glyphs -> space.
     for glyph in _GLYPH_TO_SPACE:
         s = s.replace(glyph, " ")
@@ -375,6 +378,9 @@ def _content_tokens(text: str) -> frozenset[str]:
     )
 
 
+_NEGATION_TERMS = frozenset({"not", "no", "never", "against", "contraindicated", "unrecommended", "unsupported", "discouraged"})
+
+
 def _recommendation_grounding_findings(
     recommendation: str,
     grounding_excerpts: list[str],
@@ -392,15 +398,8 @@ def _recommendation_grounding_findings(
       4. For each non-trivial sentence, compute the token overlap against each
          grounding excerpt.  The sentence is considered grounded if at least
          one excerpt shares >= MIN_GROUNDING_TOKENS content tokens with it.
-      5. Sentences that fail grounding get W_RECOMMENDATION_UNSUPPORTED_SENTENCE.
-
-    Limitations (flagged for future work, not implemented here):
-      - Token overlap cannot detect logical contradiction -- a sentence that
-        *directly contradicts* an excerpt would still pass this check.
-      - Paraphrased claims that use entirely different vocabulary will be
-        flagged as unsupported even when they convey the same fact.
-      - Multi-sentence run-ons not terminated with sentence-ending punctuation
-        are treated as a single sentence.
+      5. Also check for polarity/negation contradictions between sentence and excerpt.
+      6. Sentences that fail grounding get W_RECOMMENDATION_UNSUPPORTED_SENTENCE.
     """
     findings: list[Finding] = []
     if not recommendation or not recommendation.strip():
@@ -424,11 +423,12 @@ def _recommendation_grounding_findings(
             # Connector sentence: too short to carry a falsifiable claim.
             continue
 
-        grounded = any(
-            len(sent_tokens & ex_tokens) >= MIN_GROUNDING_TOKENS
-            for ex_tokens in excerpt_token_sets
-        )
-        if not grounded:
+        matching_excerpts = [
+            ex_tokens for ex_tokens in excerpt_token_sets
+            if len(sent_tokens & ex_tokens) >= MIN_GROUNDING_TOKENS
+        ]
+
+        if not matching_excerpts:
             findings.append(
                 Finding(
                     W_RECOMMENDATION_UNSUPPORTED_SENTENCE,
@@ -440,6 +440,24 @@ def _recommendation_grounding_findings(
                     actual=sentence[:200],
                 )
             )
+        else:
+            # Polarity contradiction check: sentence has negation but excerpt does not (or vice versa)
+            sent_has_negation = bool(sent_tokens & _NEGATION_TERMS)
+            any_polarity_match = any(
+                bool(ex_tokens & _NEGATION_TERMS) == sent_has_negation
+                for ex_tokens in matching_excerpts
+            )
+            if not any_polarity_match:
+                findings.append(
+                    Finding(
+                        W_RECOMMENDATION_UNSUPPORTED_SENTENCE,
+                        SEVERITY_WARNING,
+                        "a sentence in 'recommendation' has a polarity/negation mismatch "
+                        "with its cited excerpt; claim may contradict evidence",
+                        location=f"{location}[sentence {sent_idx}]",
+                        actual=sentence[:200],
+                    )
+                )
     return findings
 
 
@@ -811,6 +829,16 @@ def validate_answer(
             continue
 
         claim = bullet.get("claim")
+        if claim is None or not isinstance(claim, str) or not claim.strip():
+            report.findings.append(
+                Finding(
+                    E_MISSING_FIELD,
+                    SEVERITY_ERROR,
+                    "supporting_evidence bullet is missing required non-empty string 'claim'",
+                    location=f"{location}.claim",
+                )
+            )
+
         chunk_id = bullet.get("chunk_id")
         chunk_id = str(chunk_id).strip() if chunk_id is not None else ""
 

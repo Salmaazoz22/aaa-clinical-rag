@@ -297,6 +297,9 @@ def build_provider(settings: "GenerationSettings" | None = None) -> LLMProvider:
     secondary_name = "openrouter" if spec.name != "openrouter" else "groq"
     secondary_spec = resolve_provider_spec(secondary_name)
     secondary_key = os.environ.get(secondary_spec.key_env) or ""
+    if not secondary_key:
+        return primary
+
     secondary = OpenAICompatibleProvider(
         spec=secondary_spec,
         model=secondary_spec.model,

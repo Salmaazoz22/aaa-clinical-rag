@@ -80,7 +80,7 @@ DEFAULT_TIMEOUT = 180.0
 # (`data/embeddings/index_meta.json`), so the whole corpus fits comfortably.
 MAX_CHUNK_CHARS = 0  # 0 = no truncation
 
-DEFAULT_ENABLE_FALLBACK = False
+DEFAULT_ENABLE_FALLBACK = True
 
 
 def _as_float(value: str | None, default: float) -> float:

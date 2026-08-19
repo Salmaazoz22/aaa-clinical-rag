@@ -91,6 +91,28 @@ _AAA_CONTEXT: tuple[re.Pattern[str], ...] = (
     re.compile(r"\bpulsatile\b.{0,30}\b(mass|lump|swelling)\b", re.I),
 )
 
+_RED_FLAG_COMBINATIONS: tuple[re.Pattern[str], ...] = (
+    # Severe/sudden abdominal/back/flank pain + collapse/fainting/syncope/hypotension/shock
+    re.compile(
+        r"\b(severe|excruciating|tearing|ripping|sudden)\b.{0,60}\b(abdominal|back|flank|loin)\s+pain\b.{0,60}\b(faint\w*|syncope|syncopal|collaps\w*|passed\s+out|hypotension|shock)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\b(faint\w*|syncope|syncopal|collaps\w*|passed\s+out|hypotension|shock)\b.{0,60}\b(severe|excruciating|tearing|ripping|sudden)\b.{0,60}\b(abdominal|back|flank|loin)\s+pain\b",
+        re.I,
+    ),
+    # Tearing or ripping back/abdominal pain
+    re.compile(
+        r"\b(sudden\s+)?(tearing|ripping)\s+(abdominal|back|flank|loin)?\s*pain\b",
+        re.I,
+    ),
+    # Pulsatile mass + pain or sudden onset
+    re.compile(
+        r"\b(pulsatile|pulsating)\b.{0,40}\b(mass|lump|swelling)\b.{0,40}\b(pain|severe|sudden)\b",
+        re.I,
+    ),
+)
+
 
 # ---------------------------------------------------------------------------
 # Verdict dataclass
@@ -124,10 +146,8 @@ def screen_emergency(query: str) -> EmergencyVerdict:
     Fires when at least one pattern from EACH of the two signal groups matches:
       - ACUTE_SYMPTOM: something severe/sudden is happening right now.
       - AAA_CONTEXT: the query is anchored to an aortic aneurysm.
-
-    A bare mention of "sudden pain" with no AAA context does NOT fire.
-    A bare mention of "known AAA" with no acute symptom does NOT fire.
-    Both must co-occur.
+    OR when a red-flag symptom combination matches (e.g. sudden severe back/abdominal
+    pain combined with collapse/fainting/syncope).
 
     Returns an `EmergencyVerdict` with `is_emergency=True` only when the gate
     fires.  The detail string is intended for internal audit only — it is never
@@ -138,14 +158,16 @@ def screen_emergency(query: str) -> EmergencyVerdict:
 
     acute_hits = [p.pattern for p in _ACUTE_SYMPTOM if p.search(query)]
     context_hits = [p.pattern for p in _AAA_CONTEXT if p.search(query)]
+    red_flag_hits = [p.pattern for p in _RED_FLAG_COMBINATIONS if p.search(query)]
 
-    if acute_hits and context_hits:
+    if (acute_hits and context_hits) or red_flag_hits:
         return EmergencyVerdict(
             is_emergency=True,
-            acute_signals=acute_hits,
-            context_signals=context_hits,
+            acute_signals=acute_hits or red_flag_hits,
+            context_signals=context_hits or red_flag_hits,
             detail=(
-                "Query combines an acute-symptom indicator with an AAA-context cue. "
+                "Query combines acute emergency symptoms (or red-flag presentation) "
+                "consistent with a potential vascular emergency. "
                 "This system cannot assess whether this is an emergency."
             ),
         )

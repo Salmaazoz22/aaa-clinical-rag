@@ -32,8 +32,13 @@ from generation.schema import (
 )
 
 
-def _describe_evidence(hits: Sequence[dict[str, Any]]) -> str:
+def _describe_evidence(hits: Sequence[dict[str, Any]], reason: str = "") -> str:
     """One sentence naming what the retrieval actually returned."""
+    if reason == REFUSAL_POTENTIAL_EMERGENCY:
+        if hits:
+            return f"Guideline retrieval was performed ({len(hits)} passage(s) examined), but details are suppressed for emergency safety."
+        return "Guideline retrieval details are suppressed for emergency safety."
+
     if not hits:
         return "No guideline passages were returned for this question."
 
@@ -96,7 +101,7 @@ def build_refusal(
     is detectable by string match as well as by `confidence`. What follows is the
     helpful part: what was found, what is missing, what would answer it.
     """
-    found = _describe_evidence(hits)
+    found = _describe_evidence(hits, reason=reason)
 
     if reason == REFUSAL_NO_CHUNKS:
         missing = (

@@ -1151,3 +1151,58 @@ class TestEmergencyGate:
         )
         assert not result.refused
         assert len(provider.calls) == 1, "model must be called for a normal query"
+
+
+def test_red_flag_emergency_symptoms_without_aaa_keyword() -> None:
+    """Red-flag presentation (sudden severe abdominal/back pain + fainting) fires emergency gate without explicit AAA mention."""
+    verdict = screen_emergency("sudden severe abdominal and back pain and I passed out")
+    assert verdict.is_emergency, "Red-flag acute pain + collapse presentation must fire emergency gate"
+
+
+def test_patient_specific_safety_age_and_measurement() -> None:
+    """Queries like 'I am 67 and have a 6.2 cm AAA. Should I have surgery?' are deterministically blocked."""
+    from generation.safety import screen_query
+    verdict = screen_query("I am 67 and have a 6.2 cm AAA. Should I have surgery?")
+    assert verdict.blocked, "Query describing personal demographics and aneurysm measurement must be blocked"
+    assert verdict.rule in ("B1", "B3", "B5")
+
+
+def test_esvs_range_normalization_30_e_39() -> None:
+    """Validator normalizes PDF extraction artifacts like '30 e 39 mm' to match '30–39 mm' excerpts."""
+    from generation.validator import normalise_for_match, _excerpt_findings
+    norm_source = normalise_for_match("the threshold is 30 e 39 mm")
+    norm_excerpt = normalise_for_match("the threshold is 30–39 mm")
+    assert norm_excerpt == norm_source
+    hit = {"chunk_id": "c1", "text": "the threshold is 30 e 39 mm for surveillance"}
+    findings = _excerpt_findings("the threshold is 30–39 mm", hit, "location", "c1")
+    assert not any(f.code == "excerpt_not_in_chunk" for f in findings)
+
+
+def test_emergency_refusal_wording_never_claims_no_passages_returned() -> None:
+    """Emergency refusal text must never claim 'No guideline passages were returned'."""
+    result = answer_question(
+        "sudden severe back pain and fainting",
+        retriever=FakeRetriever([ESVS_CONFLICT, NICE_THRESHOLD]),
+        provider=ExplodingProvider(),
+        settings=settings_for(),
+    )
+    assert result.refused
+    assert result.refusal["reason"] == REFUSAL_POTENTIAL_EMERGENCY
+    recommendation = result.answer["recommendation"]
+    assert "No guideline passages were returned" not in recommendation
+
+
+def test_malformed_evidence_fails_closed() -> None:
+    """Validator report must have ok=False when supporting_evidence contains malformed items."""
+    from generation.validator import validate_answer
+    bad_answer = {
+        "recommendation": "Some recommendation.",
+        "confidence": "High Confidence",
+        "supporting_evidence": [{"chunk_id": "c1"}],  # missing required 'claim' string
+        "citations": [{"chunk_id": "c1", "document": "doc1", "section": "sec1", "page": 1, "retrieval_score": 0.9, "excerpt": "text"}],
+        "disclaimer": "This is evidence-grounded decision support...",
+    }
+    retrieved = [{"chunk_id": "c1", "document": "doc1", "section": "sec1", "page": 1, "score": 0.9, "text": "text"}]
+    report = validate_answer(bad_answer, retrieved)
+    assert not report.ok, "Answer with malformed supporting_evidence bullet must fail closed (ok=False)"
+

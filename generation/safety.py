@@ -54,6 +54,8 @@ _SIGNALS: dict[str, tuple[re.Pattern[str], ...]] = {
         re.compile(r"\b\d{1,3}[\s-]*(?:year|yr)s?[\s-]*old\b", re.I),
         re.compile(r"\b\d{1,3}\s*y[/\s]?o\b", re.I),
         re.compile(r"\b(?:a|an)\s+\d{1,3}[\s-]*(?:year|yr)s?[\s-]*old\s+(?:man|woman|male|female|patient)\b", re.I),
+        re.compile(r"\b(i\s+am|i'm|aged?)\s+\d{1,3}\b", re.I),
+        re.compile(r"\b\d{1,3}\s+years?\s+of\s+age\b", re.I),
     ),
     # The question asks what to do about someone, rather than what a guideline says.
     "individual_directed_ask": (
@@ -78,18 +80,14 @@ _SIGNALS: dict[str, tuple[re.Pattern[str], ...]] = {
     ),
     # First-person possessive reference to own medical condition.
     # Fires when a speaker uses "my" + a vascular / aneurysm term to describe
-    # their own body or diagnosis.  Paired with individual_directed_ask in Rule
-    # B5, this closes the bypass where "Should I have surgery for my aneurysm?"
-    # evaded B1-B4 (no explicit patient reference, no demographics, no dosage).
-    #
-    # Deliberately narrow: only possessives that attach "my" directly to a
-    # recognised aortic/vascular condition noun, so that general phrasing such
-    # as "my clinical question" or "in my practice" does not fire.
+    # their own body or diagnosis.
     "self_reported_condition": (
         re.compile(r"\bmy\s+(aaa|aneurysm|aortic\s+aneurysm|abdominal\s+(aortic\s+)?aneurysm)\b", re.I),
         re.compile(r"\bmy\s+(aorta|aortic\s+dilation|aortic\s+dilatation|aortic\s+expansion)\b", re.I),
         re.compile(r"\bmy\s+(condition|disease|diagnosis|symptoms?)\b.{0,40}\b(aaa|aneurysm|aortic)\b", re.I),
         re.compile(r"\b(aaa|aneurysm|aortic)\b.{0,40}\bmy\s+(condition|disease|diagnosis|symptoms?)\b", re.I),
+        re.compile(r"\b(have|has|got|diagnosed\s+with)\s+a?\s*[\d.]*\s*(cm|mm)\s*(aaa|aneurysm|aortic\s+aneurysm)\b", re.I),
+        re.compile(r"\b[\d.]+\s*(cm|mm)\s*(aaa|aneurysm|aortic\s+aneurysm)\b", re.I),
     ),
 }
 
