@@ -33,6 +33,7 @@ from generation.providers import (  # noqa: E402
     resolve_provider_spec,
 )
 from generation.safety import screen_query  # noqa: E402
+from generation.emergency import screen_emergency, EmergencyVerdict  # noqa: E402
 from generation.schema import (  # noqa: E402
     CONFIDENCE_INSUFFICIENT,
     DISCLAIMER,
@@ -40,6 +41,7 @@ from generation.schema import (  # noqa: E402
     REFUSAL_MESSAGE,
     REFUSAL_NO_CHUNKS,
     REFUSAL_PATIENT_SPECIFIC,
+    REFUSAL_POTENTIAL_EMERGENCY,
     is_refusal,
 )
 from generation.validator import (  # noqa: E402
@@ -639,6 +641,78 @@ class TestSafetyGate:
         assert result.safety["blocked"] is True
         assert result.retrieved, "the audit record still shows what retrieval would have found"
 
+    # --- B5: first-person bypass (A2) ---
+
+    @pytest.mark.parametrize(
+        "query",
+        [
+            # Core bypass case — the original gap.
+            "Should I have surgery for my aneurysm?",
+            # Variants on the same structure.
+            "Can I have elective repair for my AAA?",
+            "Should I be worried about my aortic aneurysm?",
+            "What should I do about my aneurysm?",
+            "Do I need an operation for my AAA?",
+            "Must I have EVAR for my aortic aneurysm?",
+            # Possessive with slightly more surrounding text.
+            "Should I have my aneurysm repaired now or wait?",
+            "Can I safely watch my AAA without surgery?",
+        ],
+    )
+    def test_first_person_bypass_queries_are_blocked(self, query):
+        """Rule B5: 'should I' + 'my aneurysm/AAA' must be blocked."""
+        verdict = screen_query(query)
+        assert verdict.blocked, (
+            f"Expected blocked=True for B5 bypass query: {query!r}\n"
+            f"  signals={verdict.signals}"
+        )
+
+    @pytest.mark.parametrize(
+        "query",
+        [
+            # General clinical questions — must NOT fire on 'my' used in general prose.
+            "What are the recommendations for screening for abdominal aortic aneurysm?",
+            "What do the guidelines recommend regarding AAA screening in women?",
+            "Should men aged 65 to 75 be screened for AAA?",
+            "What statin dose do the guidelines recommend for patients with AAA?",
+            "What ultrasound surveillance interval is recommended for a 45 mm aneurysm?",
+            "Is the threshold for elective repair 55 mm or 60 mm?",
+            # 'My' in a professional context — must pass.
+            "In my clinical practice, how should I apply the AAA guidelines?",
+            # Directed ask with no self-reported condition — general.
+            "Should we screen all men over 65 for AAA?",
+        ],
+    )
+    def test_b5_does_not_create_false_positives(self, query):
+        """B5 must not block general questions or professional phrasing."""
+        verdict = screen_query(query)
+        assert not verdict.blocked, (
+            f"Expected blocked=False (false positive): {query!r}\n"
+            f"  signals={verdict.signals}"
+        )
+
+    def test_b5_rule_label_is_correct(self):
+        """The rule field must be 'B5' so evaluation can check the right gate fired."""
+        verdict = screen_query("Should I have surgery for my aneurysm?")
+        assert verdict.blocked
+        assert verdict.rule == "B5", f"Expected rule='B5', got rule={verdict.rule!r}"
+        assert "self_reported_condition" in verdict.signals
+        assert "individual_directed_ask" in verdict.signals
+
+    def test_b5_pipeline_refuses_with_no_citations(self):
+        """End-to-end: B5 query must refuse without calling the model and carry no citations."""
+        result = answer_question(
+            "Should I have surgery for my aneurysm?",
+            retriever=FakeRetriever([ESVS_CONFLICT, NICE_THRESHOLD]),
+            provider=ExplodingProvider(),
+            settings=settings_for(),
+        )
+        assert result.refused
+        assert result.refusal["reason"] == REFUSAL_PATIENT_SPECIFIC
+        assert result.refusal["gate"] == "safety:B5"
+        assert result.answer["citations"] == []
+        assert result.safety["blocked"] is True
+
 
 # ---------------------------------------------------------------------------
 # System prompt (slide 6)
@@ -760,3 +834,197 @@ class TestProviders:
 
 def test_default_threshold_is_the_documented_starting_value():
     assert DEFAULT_SCORE_THRESHOLD == 0.75
+
+
+# ---------------------------------------------------------------------------
+# Emergency gate (A1)
+# ---------------------------------------------------------------------------
+
+# Positive cases: should fire the emergency gate.
+_EMERGENCY_POSITIVE = [
+    # The prototypical rupture presentation.
+    "sudden severe back pain, I have a known 6cm aneurysm",
+    # Tearing pain with a named AAA.
+    "I'm having tearing pain in my abdomen — I have a known AAA",
+    # Rupture language alone (no adjective needed, rupture itself is the cue).
+    "I think my aneurysm has ruptured",
+    # Ripping chest/back with aneurysm mention.
+    "ripping pain in my back and abdomen — diagnosed with aortic aneurysm last year",
+    # Syncope + known aneurysm.
+    "I collapsed and I have a known AAA — what should I do?",
+    # Hypotension + aneurysm.
+    "severe abdominal pain and hypotension, known 7cm aneurysm",
+    # Deteriorating patient with aneurysm.
+    "rapidly deteriorating patient with a ruptured AAA",
+]
+
+# Negative cases: informational questions that mention pain or urgency but must
+# NOT be blocked (no acute-symptom + AAA-context co-occurrence, or not both).
+_EMERGENCY_NEGATIVE = [
+    # General screening question — no acute symptom.
+    "What are the recommendations for screening for abdominal aortic aneurysm?",
+    # Guideline thresholds — no acute symptom.
+    "What do the guidelines recommend regarding AAA screening in women?",
+    # Age-targeted screening — no acute symptom.
+    "Should men aged 65 to 75 be screened for AAA?",
+    # Statin dosing — no acute symptom.
+    "What statin dose do the guidelines recommend for patients with AAA?",
+    # Surveillance interval — no acute symptom.
+    "What ultrasound surveillance interval is recommended for a 45 mm aneurysm?",
+    # Repair threshold — no acute symptom.
+    "Is the threshold for elective repair 55 mm or 60 mm?",
+    # "Severe" alone without an acute context or AAA cue.
+    "What are the severe complications of untreated AAA?",
+    # Back pain as a chronic symptom topic, no acute indicator.
+    "Do patients with AAA commonly experience back pain as a chronic symptom?",
+    # Pain mentioned but clearly historical/informational.
+    "What does the evidence say about pain management after open AAA repair?",
+]
+
+
+class TestEmergencyGate:
+    # --- unit-level: screen_emergency function ---
+
+    @pytest.mark.parametrize("query", _EMERGENCY_POSITIVE)
+    def test_emergency_queries_are_detected(self, query: str) -> None:
+        """True positives: clear emergency phrasing + AAA context must fire."""
+        verdict = screen_emergency(query)
+        assert verdict.is_emergency, (
+            f"Expected emergency=True for: {query!r}\n"
+            f"  acute_signals={verdict.acute_signals}\n"
+            f"  context_signals={verdict.context_signals}"
+        )
+
+    @pytest.mark.parametrize("query", _EMERGENCY_NEGATIVE)
+    def test_informational_queries_are_not_blocked(self, query: str) -> None:
+        """True negatives: informational / general questions must NOT fire."""
+        verdict = screen_emergency(query)
+        assert not verdict.is_emergency, (
+            f"Expected emergency=False for: {query!r}\n"
+            f"  acute_signals={verdict.acute_signals}\n"
+            f"  context_signals={verdict.context_signals}"
+        )
+
+    def test_empty_string_does_not_fire(self) -> None:
+        """Edge case: empty string must not fire (mirrors screen_query behaviour)."""
+        verdict = screen_emergency("")
+        assert not verdict.is_emergency
+
+    def test_non_string_returns_no_emergency(self) -> None:
+        """Non-string input must not raise; it returns is_emergency=False."""
+        verdict = screen_emergency(None)  # type: ignore[arg-type]
+        assert not verdict.is_emergency
+
+    def test_verdict_to_dict_is_serialisable(self) -> None:
+        import json
+        verdict = screen_emergency(_EMERGENCY_POSITIVE[0])
+        assert verdict.is_emergency
+        d = verdict.to_dict()
+        assert json.loads(json.dumps(d))["is_emergency"] is True
+
+    # --- priority: emergency beats patient-specific ---
+
+    def test_emergency_wins_over_patient_specific_when_both_fire(self) -> None:
+        """A query that is BOTH an emergency AND patient-specific must produce
+        the emergency refusal reason, not the patient-specific one.
+        """
+        # This query fires B1 (explicit_patient_reference: "my father") AND the
+        # emergency gate (sudden + tearing + known aneurysm context).
+        query = "My father has sudden tearing abdominal pain and a known 6cm aneurysm"
+        result = answer_question(
+            query,
+            retriever=FakeRetriever([ESVS_CONFLICT, NICE_THRESHOLD]),
+            provider=ExplodingProvider(),
+            settings=settings_for(),
+        )
+        assert result.refused
+        assert result.refusal["reason"] == REFUSAL_POTENTIAL_EMERGENCY, (
+            f"Expected emergency reason, got: {result.refusal['reason']}"
+        )
+        assert result.refusal["gate"] == "emergency"
+
+    # --- pipeline integration: model is never called on emergency path ---
+
+    def test_emergency_refuses_without_calling_the_model(self) -> None:
+        """Mirror of test_blocked_query_refuses_locally_with_no_citations.
+
+        The ExplodingProvider raises AssertionError if the model is called —
+        which proves the emergency branch returned before reaching generation.
+        """
+        result = answer_question(
+            "sudden severe back pain, I have a known 6cm aneurysm",
+            retriever=FakeRetriever([ESVS_CONFLICT, NICE_THRESHOLD]),
+            provider=ExplodingProvider(),
+            settings=settings_for(),
+        )
+        assert result.refused
+        assert result.refusal["reason"] == REFUSAL_POTENTIAL_EMERGENCY
+        assert result.refusal["gate"] == "emergency"
+        assert result.answer["citations"] == [], (
+            "emergency refusal must carry no citations"
+        )
+        assert result.answer["recommendation"].startswith(REFUSAL_MESSAGE)
+        assert is_refusal(result.answer)
+
+    def test_emergency_refusal_includes_audit_record_of_retrieval(self) -> None:
+        """The retrieved-hits audit record must still be populated on this path,
+        consistent with the existing patient-specific behaviour.
+        """
+        result = answer_question(
+            "sudden tearing back pain and a known AAA",
+            retriever=FakeRetriever([ESVS_CONFLICT, NICE_THRESHOLD]),
+            provider=ExplodingProvider(),
+            settings=settings_for(),
+        )
+        assert result.refused
+        assert result.refusal["reason"] == REFUSAL_POTENTIAL_EMERGENCY
+        assert result.retrieved, "audit record must show what retrieval would have found"
+
+    def test_emergency_refusal_does_not_weaken_patient_specific_gate(self) -> None:
+        """Pre-existing TestSafetyGate cases: patient-specific queries still blocked.
+
+        Asserts that the safety gate (screen_query) continues to work correctly
+        for all original blocked queries — i.e. A1 hasn't disturbed A0's logic.
+        """
+        patient_specific_queries = [
+            "My patient is a 72-year-old man with a 5.9 cm AAA and severe COPD. Should I offer him EVAR?",
+            "What dose of atorvastatin should I start for my 68-year-old patient with a 4.5 cm aneurysm?",
+            "This patient has a 6 cm aneurysm, what should we do?",
+            "Does my patient have an aneurysm?",
+            "A 74-year-old woman has a 5.2 cm aneurysm. Should I refer her for repair?",
+        ]
+        from generation.safety import screen_query as _screen
+        for q in patient_specific_queries:
+            assert _screen(q).blocked, f"Patient-specific gate must still block: {q!r}"
+
+    def test_emergency_refusal_message_directs_to_emergency_services(self) -> None:
+        """The refusal text must clearly direct to emergency services and must not
+        appear to offer a clinical assessment or guideline citation.
+        """
+        result = answer_question(
+            "I have sudden severe abdominal pain, my aneurysm might be rupturing",
+            retriever=FakeRetriever([ESVS_CONFLICT, NICE_THRESHOLD]),
+            provider=ExplodingProvider(),
+            settings=settings_for(),
+        )
+        text = result.answer["recommendation"]
+        assert result.refusal["reason"] == REFUSAL_POTENTIAL_EMERGENCY
+        # Must direct to emergency services.
+        assert any(kw in text.lower() for kw in ("emergency", "999", "911", "112")), (
+            "Refusal must name emergency services"
+        )
+        # Must not carry any citations (no guideline text offered as an answer).
+        assert result.answer["citations"] == []
+        assert result.answer["supporting_evidence"] == []
+
+    def test_non_emergency_query_reaches_generation_normally(self) -> None:
+        """An ordinary clinical question is unaffected by the emergency gate."""
+        provider = FakeProvider(good_answer())
+        result = answer_question(
+            "Is the threshold for elective repair 55 mm or 60 mm?",
+            retriever=FakeRetriever([ESVS_CONFLICT, NICE_THRESHOLD]),
+            provider=provider,
+            settings=settings_for(threshold=0.75),
+        )
+        assert not result.refused
+        assert len(provider.calls) == 1, "model must be called for a normal query"

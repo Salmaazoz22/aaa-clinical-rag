@@ -340,6 +340,18 @@ _REFUSAL_COPY = {
         "A more specific question — naming the population, the diameter band, or the procedure — "
         "usually retrieves a passage that addresses it directly.",
     ),
+    "potential_emergency_presentation": (
+        "⚠ Potential emergency — seek immediate care",
+        "This query describes symptoms that may indicate a medical emergency. "
+        "This system cannot assess whether this is an emergency and must not be used in place of "
+        "emergency medical evaluation. No guideline text has been cited here — doing so would "
+        "look like clinical guidance for an acute individual situation, which this system is "
+        "not designed or validated to provide.",
+        "Call emergency services immediately (999 / 112 / 911) or go to the nearest emergency "
+        "department now if you or someone else is experiencing sudden severe abdominal or back "
+        "pain, collapse, or other signs of a possible vascular emergency. Do not wait for an "
+        "online response.",
+    ),
 }
 
 

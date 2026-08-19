@@ -100,12 +100,14 @@ REFUSAL_NO_CHUNKS = "no_chunks_retrieved"
 REFUSAL_BELOW_THRESHOLD = "all_scores_below_threshold"
 REFUSAL_NOT_SPECIFIC = "evidence_not_specific_enough"
 REFUSAL_PATIENT_SPECIFIC = "patient_specific_request"
+REFUSAL_POTENTIAL_EMERGENCY = "potential_emergency_presentation"
 
 REFUSAL_REASONS: tuple[str, ...] = (
     REFUSAL_NO_CHUNKS,
     REFUSAL_BELOW_THRESHOLD,
     REFUSAL_NOT_SPECIFIC,
     REFUSAL_PATIENT_SPECIFIC,
+    REFUSAL_POTENTIAL_EMERGENCY,
 )
 
 

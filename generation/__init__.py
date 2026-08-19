@@ -50,6 +50,7 @@ from generation.schema import (
     answer_json_schema,
     is_refusal,
 )
+from generation.emergency import EmergencyVerdict, screen_emergency
 from generation.validator import (
     Finding,
     ValidationReport,
@@ -96,4 +97,7 @@ __all__ = [
     "screen_query",
     "select_usable_hits",
     "validate_answer",
+    # emergency gate (A1)
+    "EmergencyVerdict",
+    "screen_emergency",
 ]

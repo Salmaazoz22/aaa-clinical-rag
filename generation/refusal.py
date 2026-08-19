@@ -28,6 +28,7 @@ from generation.schema import (
     REFUSAL_MESSAGE,
     REFUSAL_NO_CHUNKS,
     REFUSAL_PATIENT_SPECIFIC,
+    REFUSAL_POTENTIAL_EMERGENCY,
 )
 
 
@@ -134,6 +135,18 @@ def build_refusal(
             "modality. The individual decision belongs with the treating clinician, in a "
             "multidisciplinary team discussion where indicated."
         )
+    elif reason == REFUSAL_POTENTIAL_EMERGENCY:
+        missing = (
+            "This query describes symptoms that may indicate a medical emergency. "
+            "This system cannot assess whether this is an emergency and is not a substitute "
+            "for emergency medical evaluation."
+        )
+        would_answer = (
+            "If you or someone else is experiencing sudden severe abdominal or back pain, "
+            "collapse, or other signs of a possible vascular emergency: call emergency services "
+            "immediately (999 / 112 / 911) or go to the nearest emergency department now. "
+            "Do not wait for an online response."
+        )
     else:
         missing = "The retrieved evidence does not support an answer to the question as asked."
         would_answer = (
@@ -142,12 +155,13 @@ def build_refusal(
 
     recommendation = " ".join([REFUSAL_MESSAGE, found, missing, would_answer])
 
-    # For a patient-specific refusal the retrieved passages are deliberately NOT
-    # cited: doing so would amount to offering guideline text as an answer to a
-    # question about an individual, which is what rule F1 forbids.
+    # For a patient-specific or potential-emergency refusal the retrieved passages
+    # are deliberately NOT cited: doing so would amount to offering guideline text
+    # as an answer to a question about an individual acute situation.
+    _NO_CITATIONS_REASONS = {REFUSAL_PATIENT_SPECIFIC, REFUSAL_POTENTIAL_EMERGENCY}
     citations: list[dict[str, Any]] = []
     evidence: list[dict[str, Any]] = []
-    if reason != REFUSAL_PATIENT_SPECIFIC:
+    if reason not in _NO_CITATIONS_REASONS:
         citations = _citations_for_examined(hits)
         evidence = [
             {

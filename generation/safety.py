@@ -76,6 +76,21 @@ _SIGNALS: dict[str, tuple[re.Pattern[str], ...]] = {
         re.compile(r"\bis\s+(this|my|his|her)\s+\w*\s*(an?\s+)?(aaa|aneurysm|rupture)\b", re.I),
         re.compile(r"\bwhat('s|\s+is)\s+(the\s+)?diagnosis\b", re.I),
     ),
+    # First-person possessive reference to own medical condition.
+    # Fires when a speaker uses "my" + a vascular / aneurysm term to describe
+    # their own body or diagnosis.  Paired with individual_directed_ask in Rule
+    # B5, this closes the bypass where "Should I have surgery for my aneurysm?"
+    # evaded B1-B4 (no explicit patient reference, no demographics, no dosage).
+    #
+    # Deliberately narrow: only possessives that attach "my" directly to a
+    # recognised aortic/vascular condition noun, so that general phrasing such
+    # as "my clinical question" or "in my practice" does not fire.
+    "self_reported_condition": (
+        re.compile(r"\bmy\s+(aaa|aneurysm|aortic\s+aneurysm|abdominal\s+(aortic\s+)?aneurysm)\b", re.I),
+        re.compile(r"\bmy\s+(aorta|aortic\s+dilation|aortic\s+dilatation|aortic\s+expansion)\b", re.I),
+        re.compile(r"\bmy\s+(condition|disease|diagnosis|symptoms?)\b.{0,40}\b(aaa|aneurysm|aortic)\b", re.I),
+        re.compile(r"\b(aaa|aneurysm|aortic)\b.{0,40}\bmy\s+(condition|disease|diagnosis|symptoms?)\b", re.I),
+    ),
 }
 
 
@@ -114,7 +129,13 @@ def screen_query(query: str) -> SafetyVerdict:
     B2  the question asks for a diagnosis of an individual;
     B3  an individual's demographics appear together with an
         individual-directed ask or a dosing request;
-    B4  a dosing request appears together with an individual-directed ask.
+    B4  a dosing request appears together with an individual-directed ask;
+    B5  a first-person directed ask co-occurs with a first-person possessive
+        reference to the speaker's own vascular condition ("Should I have
+        surgery for my aneurysm?").  B1–B4 all miss this because there is no
+        explicit patient token, no demographics, and no dosing language; the
+        bypass is closed here by recognising that "my aneurysm" + "should I"
+        is unambiguously personal.
 
     A dosing or directed question with no individual attached is NOT blocked
     here. "What statin dose do the guidelines recommend?" is a general question
@@ -143,5 +164,11 @@ def screen_query(query: str) -> SafetyVerdict:
         )
     if "dosage_request" in have and "individual_directed_ask" in have:
         return verdict("B4", "the question asks what to prescribe or dose for a specific individual")
+    if "individual_directed_ask" in have and "self_reported_condition" in have:
+        return verdict(
+            "B5",
+            "the question uses a first-person directed ask together with a possessive reference "
+            "to the speaker's own vascular condition",
+        )
 
     return SafetyVerdict(blocked=False, signals=signals)

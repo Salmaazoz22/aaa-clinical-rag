@@ -38,6 +38,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from generation.config import GenerationSettings, load_settings  # noqa: E402
+from generation.emergency import screen_emergency  # noqa: E402
 from generation.parsing import parse_answer  # noqa: E402
 from generation.prompts import SYSTEM_PROMPT, build_messages  # noqa: E402
 from generation.providers import LLMProvider, build_provider  # noqa: E402
@@ -49,6 +50,7 @@ from generation.schema import (  # noqa: E402
     REFUSAL_NO_CHUNKS,
     REFUSAL_NOT_SPECIFIC,
     REFUSAL_PATIENT_SPECIFIC,
+    REFUSAL_POTENTIAL_EMERGENCY,
     is_refusal,
 )
 from generation.validator import (  # noqa: E402
@@ -183,6 +185,13 @@ def answer_question(
         safety={},
     )
 
+    # --- gate -1: potential emergency presentation (highest priority) --------
+    # Runs BEFORE the patient-specific gate so that a query which is BOTH an
+    # emergency presentation AND patient-specific always returns the emergency
+    # redirect, never the calmer patient-specific message.  No model call, no
+    # citations, no guideline text — only a redirect to emergency services.
+    emergency_verdict = screen_emergency(query)
+
     # --- gate 0: patient-specific request (before any model call) ----------
     verdict = screen_query(query)
     result.safety = verdict.to_dict()
@@ -202,13 +211,13 @@ def answer_question(
         for h in dropped
     ]
 
-    def finish_refusal(reason: str, gate: str, refusal_hits: Sequence[dict[str, Any]]) -> GenerationResult:
+    def finish_refusal(reason: str, gate: str, refusal_hits: Sequence[dict[str, Any]], refusal_detail: str | None = None) -> GenerationResult:
         answer = build_refusal(
             reason,
             query=query,
             hits=refusal_hits,
             threshold=threshold,
-            detail=verdict.detail,
+            detail=refusal_detail if refusal_detail is not None else verdict.detail,
         )
         result.answer = answer
         result.refusal = {"reason": reason, "gate": gate}
@@ -217,6 +226,16 @@ def answer_question(
         result.citations_resolved = resolve_citations(answer, refusal_hits)
         result.documents_cited = documents_cited(answer, refusal_hits)
         return result
+
+    if emergency_verdict.is_emergency:
+        # Emergency takes priority over patient-specific: the urgent-care redirect
+        # must win even when both conditions are simultaneously true.
+        return finish_refusal(
+            REFUSAL_POTENTIAL_EMERGENCY,
+            "emergency",
+            (),  # no citations, same rationale as patient-specific
+            refusal_detail=emergency_verdict.detail,
+        )
 
     if verdict.blocked:
         # Deliberately refused with no citations and no model call: see
