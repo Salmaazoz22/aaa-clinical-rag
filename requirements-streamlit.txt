@@ -12,3 +12,7 @@
 # and this file.
 streamlit>=1.36
 requests>=2.31
+# Voice input: the speech-to-text composer calls Whisper over an
+# OpenAI-compatible endpoint (ui/transcription.py). This is the ONLY vendor SDK
+# the frontend needs -- it does not call the generation providers.
+openai>=1.40

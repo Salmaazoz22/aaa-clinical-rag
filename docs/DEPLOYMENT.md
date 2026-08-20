@@ -79,11 +79,25 @@ not a runtime dependency, and are correct for the local workflow.
 ### Frontend (Streamlit Cloud → App settings → Secrets)
 
 ```toml
-API_URL = "https://aaa-clinical-rag-production.up.railway.app"
+API_URL     = "https://aaa-clinical-rag-production.up.railway.app"
+GROQ_API_KEY = "gsk_..."   # or OPENAI_API_KEY — voice input only
 ```
 
-That is the whole list. No API key belongs in the frontend's secrets: the UI never calls
-Groq, OpenRouter or Qdrant.
+`API_URL` is required. The speech key is required only for the **voice input** feature,
+which transcribes a recording in the frontend before submitting it as an ordinary
+question — so that credential belongs here rather than with the backend. Set one of
+`OPENAI_API_KEY` (→ `whisper-1`) or `GROQ_API_KEY` (→ `whisper-large-v3`); with neither,
+the voice popover says so and text input is unaffected.
+
+No other key belongs in the frontend's secrets: the UI calls no vendor except the speech
+provider, and never Qdrant or the generation providers.
+
+**Set a real key, never the template value.** `ui/settings.is_placeholder` rejects
+`your_groq_api_key_here` and friends rather than sending them upstream. It has to: the
+deployed app used to load the committed `.env.example` into its environment, authenticate
+with that placeholder, and surface the provider's `401 Invalid API Key` to the reader —
+a message that reads like a revoked key rather than an unconfigured app. Templates are
+not configuration; only `.env` and the secrets store are.
 
 ### Backend (wherever `uvicorn api.main:app` runs)
 
@@ -145,7 +159,8 @@ Streamlit Community Cloud installs the repository's root `requirements.txt`, whi
 **backend's** dependency set: it pulls `sentence-transformers` and `transformers`, and
 with them PyTorch. The frontend needs none of that — it needs `streamlit` and `requests`.
 
-`requirements-streamlit.txt` records the minimal frontend set. Community Cloud will not
+`requirements-streamlit.txt` records the minimal frontend set — `streamlit`, `requests`,
+and `openai` for the Whisper voice composer. Community Cloud will not
 pick it up automatically from a repo that also has `requirements.txt`; it is there for the
 UI-only deployment route (a branch or repo containing `ui/`, `assets/`, `.streamlit/` and
 that file). Deploying this repository as-is works, but installs far more than the UI uses
@@ -162,6 +177,7 @@ Frontend, on Streamlit Community Cloud:
 - [x] fonts/favicon committed under `ui/static/`
 - [x] backend URL reachable from a secret
 - [x] **`API_URL` set to the deployed backend** (Railway)
+- [ ] `GROQ_API_KEY` (or `OPENAI_API_KEY`) set, if voice input is wanted
 - [ ] consider the UI-only dependency route (§5)
 
 Backend, wherever it runs:

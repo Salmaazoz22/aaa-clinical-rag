@@ -29,6 +29,8 @@ from urllib.parse import urlsplit
 import requests
 import streamlit as st
 
+from ui.settings import secret as read_secret
+
 #: Where the API lives when nothing is configured: a backend started by hand on
 #: the same machine. Correct for `uvicorn api.main:app` in another terminal, and
 #: wrong everywhere else -- see `base_url()`.
@@ -71,15 +73,12 @@ API_URL_SETTING = API_URL_SETTINGS[-1]
 def _secret(name: str) -> str:
     """Read one Streamlit secret, tolerating the common case of having none.
 
-    `st.secrets` raises when no secrets file exists, which is the normal state
-    for a local `streamlit run`. That is not an error here: it just means the
-    setting is not being supplied that way.
+    Delegates to `ui/settings.py`, which is where the frontend's configuration
+    access lives, so there is one implementation of "read a setting" rather than
+    one per module. Kept as a named function because it is the seam the tests
+    substitute.
     """
-    try:
-        value = st.secrets.get(name)
-    except Exception:  # noqa: BLE001 - no secrets file, or an unreadable one
-        return ""
-    return str(value).strip() if value else ""
+    return read_secret(name)
 
 
 def configured_base_url() -> str | None:

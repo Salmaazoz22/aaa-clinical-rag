@@ -23,7 +23,7 @@ from ui.demo_questions import DEMOS
 from ui.icons import icon
 from ui.shell import Context
 from ui.pdf_highlighter import render_highlighted_pdf_page
-from ui.transcription import transcribe_audio_bytes
+from ui.transcription import is_configured as voice_is_configured, transcribe_audio_bytes
 
 Q = "ask_question"
 RESULT = "ask_result"
@@ -185,7 +185,11 @@ def _composer(ctx: Context) -> None:
     with st.container(key="composer"):
         c.write('<div class="eyebrow">Clinical question</div>')
 
-        # Voice input popover (Speech-to-Text)
+        # Voice input popover (Speech-to-Text). Resolved once per render: it
+        # reads configuration only -- no audio, no network, no provider call, so
+        # a typed question never touches the speech provider.
+        voice_configured = voice_is_configured()
+
         voice_popover = st.popover("Voice Input / Speech-to-Text", width="stretch")
         with voice_popover:
             c.write(
@@ -194,6 +198,17 @@ def _composer(ctx: Context) -> None:
                 '2. Click <b>Convert Voice to Text</b> below.<br>'
                 '3. Verify/edit the text in the input box before submitting.</div>'
             )
+            # Say up front when the feature cannot work, rather than letting the
+            # reader record a question and only then be told. Names the setting,
+            # never a value.
+            if not voice_configured:
+                c.write(
+                    '<div class="tiny" style="margin:0 0 8px">'
+                    "<b>Voice transcription is not configured.</b> Add "
+                    "<code>OPENAI_API_KEY</code> or <code>GROQ_API_KEY</code> to the app's "
+                    "secrets to enable it. Text input is unaffected.</div>"
+                )
+
             audio_file = st.audio_input("Record clinical question", key="ask_voice_input")
             if audio_file is not None:
                 if st.button("Convert Voice to Text", type="primary", key="btn_transcribe_voice", width="stretch"):
