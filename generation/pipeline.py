@@ -232,11 +232,20 @@ def answer_question(
 
         retriever = QdrantRetriever()
 
-    hits = retriever.search(query, top_k=top_k)
+    # Timed as two stages when the retriever exposes them. `search()` is exactly
+    # `search_vector(embed_query(q))`, so this changes nothing about retrieval --
+    # it only says which half the time went to. Worth the four lines: production
+    # spent 28 s per request in here and the single combined number could not say
+    # whether that was the encoder or the vector store.
+    if hasattr(retriever, "embed_query") and hasattr(retriever, "search_vector"):
+        vector = retriever.embed_query(query)
+        _mark("embedding")
+        hits = retriever.search_vector(vector, top_k=top_k)
+        _mark("qdrant")
+    else:
+        hits = retriever.search(query, top_k=top_k)
+        _mark("retrieval")
     result.retrieved = [_lite(h) for h in hits]
-    # One stage: `retriever.search` embeds the query and queries Qdrant. Split
-    # measurements of the two live in the retriever's own benchmark.
-    _mark("retrieval")
 
     usable, dropped = select_usable_hits(hits, threshold)
     result.used_chunk_ids = [str(h.get("chunk_id")) for h in usable]

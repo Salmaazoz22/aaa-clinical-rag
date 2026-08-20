@@ -24,6 +24,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 import sys
 from contextlib import asynccontextmanager
 from functools import lru_cache
@@ -63,6 +64,35 @@ log = logging.getLogger("clinical_rag.api")
 _retriever: QdrantRetriever | None = None
 
 
+def _configure_torch_threads() -> None:
+    """Pin the encoder's thread count to the container's real CPU allowance.
+
+    PyTorch sizes its intra-op thread pool from the number of cores it can SEE,
+    not from the cgroup quota the container is actually allowed. On a hosted
+    container that reports many cores while granting a fraction of one, the pool
+    is oversubscribed and the threads spend their time contending rather than
+    working: encoding one short query took 28 s in production against 90 ms on a
+    developer machine, with the vector store ruled out at ~0.5 s.
+
+    Set TORCH_NUM_THREADS to tune it; 1 is the right default for a
+    single-request-at-a-time service, where there is no throughput to win from
+    intra-op parallelism anyway.
+
+    This runs in the API process only. `ingestion/chunking.py` -- which built the
+    frozen index -- is deliberately untouched, so no indexed vector can shift.
+    """
+    try:
+        import torch
+    except ImportError:  # pragma: no cover - torch ships with sentence-transformers
+        return
+    try:
+        threads = max(1, int(os.environ.get("TORCH_NUM_THREADS", "1")))
+    except ValueError:
+        threads = 1
+    torch.set_num_threads(threads)
+    log.info("Encoder threads pinned to %d (visible cores: %s)", threads, os.cpu_count())
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup: initialise retriever and warm the embedding model.
@@ -72,6 +102,7 @@ async def lifespan(app: FastAPI):
     """
     global _retriever
     try:
+        _configure_torch_threads()
         _retriever = QdrantRetriever()
         # Touch the model property so it is loaded once at startup, not on the
         # first /v1/answer request (which would add latency for that caller).

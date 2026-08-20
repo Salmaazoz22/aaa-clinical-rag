@@ -402,3 +402,119 @@ class TestPipelineTimings:
         with pytest.raises(ProviderError):
             answer_question("At what diameter is elective repair recommended in men?",
                             retriever=_Retriever(), provider=_Dead(), settings=_settings())
+
+
+# ---------------------------------------------------------------------------
+# 5. Retrieval is timed in two halves, and timing it changes nothing
+# ---------------------------------------------------------------------------
+
+class _SplitRetriever:
+    """A retriever exposing the two halves, like the real QdrantRetriever."""
+
+    def __init__(self):
+        self.embed_calls = 0
+        self.search_calls = 0
+        self.combined_calls = 0
+
+    def embed_query(self, query):
+        self.embed_calls += 1
+        return [0.0] * 768
+
+    def search_vector(self, vector, top_k=5):
+        self.search_calls += 1
+        return [_hit()]
+
+    def search(self, query, top_k=5):  # pragma: no cover - must not be reached
+        self.combined_calls += 1
+        return [_hit()]
+
+
+def _stub_provider():
+    import json
+
+    from generation.schema import DISCLAIMER
+
+    answer = {
+        "recommendation": "Elective repair is considered at 55 mm in men.",
+        "supporting_evidence": [], "citations": [],
+        "confidence": "Insufficient Evidence", "disclaimer": DISCLAIMER,
+    }
+
+    class _P:
+        name = model = "stub"
+
+        def complete(self, messages, *, json_mode=True):
+            return Completion(text=json.dumps(answer), provider="stub", model="stub")
+
+    return _P()
+
+
+class TestRetrievalTimingSplit:
+    def test_embedding_and_qdrant_are_timed_separately(self):
+        """One combined number could not say whether 28 s was the encoder or the store."""
+        from generation.pipeline import answer_question
+
+        retriever = _SplitRetriever()
+        result = answer_question("At what diameter is elective repair recommended in men?",
+                                 retriever=retriever, provider=_stub_provider(),
+                                 settings=_settings())
+        assert "embedding" in result.timings_ms
+        assert "qdrant" in result.timings_ms
+        assert retriever.embed_calls == 1 and retriever.search_calls == 1
+
+    def test_the_split_uses_the_same_calls_search_would(self):
+        """`search()` IS `search_vector(embed_query(q))`, so nothing changes."""
+        from generation.pipeline import answer_question
+
+        retriever = _SplitRetriever()
+        answer_question("At what diameter is elective repair recommended in men?",
+                        retriever=retriever, provider=_stub_provider(), settings=_settings())
+        assert retriever.combined_calls == 0
+
+    def test_a_retriever_without_the_split_still_works(self):
+        """Injected fakes that only implement `search` must keep working."""
+        from generation.pipeline import answer_question
+
+        result = answer_question("At what diameter is elective repair recommended in men?",
+                                 retriever=_Retriever(), provider=_stub_provider(),
+                                 settings=_settings())
+        assert "retrieval" in result.timings_ms
+        assert "embedding" not in result.timings_ms
+
+
+class TestEncoderThreadPinning:
+    def test_the_api_pins_threads_before_loading_the_model(self):
+        """Oversubscribed intra-op threads were 28 s of every production request."""
+        import api.main as main
+
+        assert hasattr(main, "_configure_torch_threads")
+        source = (ROOT / "api" / "main.py").read_text(encoding="utf-8")
+        lifespan = source[source.index("async def lifespan"):]
+        pin = lifespan.index("_configure_torch_threads()")
+        build = lifespan.index("QdrantRetriever()")
+        assert pin < build, "threads must be pinned before the encoder loads"
+
+    def test_the_thread_count_is_configurable(self, monkeypatch):
+        import api.main as main
+
+        monkeypatch.setenv("TORCH_NUM_THREADS", "4")
+        main._configure_torch_threads()
+        import torch
+
+        assert torch.get_num_threads() == 4
+        monkeypatch.setenv("TORCH_NUM_THREADS", "1")
+        main._configure_torch_threads()
+        assert torch.get_num_threads() == 1
+
+    def test_a_malformed_thread_count_falls_back_to_one(self, monkeypatch):
+        import api.main as main
+        import torch
+
+        monkeypatch.setenv("TORCH_NUM_THREADS", "banana")
+        main._configure_torch_threads()
+        assert torch.get_num_threads() == 1
+
+    def test_the_frozen_ingestion_path_is_untouched(self):
+        """Index-building embeddings must not be affected by a serving setting."""
+        chunking = (ROOT / "ingestion" / "chunking.py").read_text(encoding="utf-8")
+        assert "set_num_threads" not in chunking
