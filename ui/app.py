@@ -8,7 +8,7 @@ A pure HTTP client of the FastAPI service. Nothing under `ui/` imports
 retrieval implementation in this project and it lives behind the API.
 `tests/test_ui.py` enforces that by parsing every UI source.
 
-    CLINICAL_RAG_API_URL=http://host:port  streamlit run ui/app.py
+    API_URL=http://host:port  streamlit run ui/app.py
 
 The hidden style guide is at `?dev=1`.
 """

@@ -45,16 +45,28 @@ That is an architectural rewrite, not a deployment fix.
 | Native theme | `.streamlit/config.toml` — committed, includes `enableStaticServing = true` |
 | Fonts and favicon | `ui/static/` — committed, so there is no external font request |
 | Backend URL | read from a Streamlit **secret** first, then an environment variable, then the localhost default (`ui/api_client.base_url`) |
+| Accepted setting names | `API_URL`, then `CLINICAL_RAG_API_URL` (`ui/api_client.API_URL_SETTINGS`) |
 | Secrets template | `.streamlit/secrets.toml.example` |
 | Secrets are ignored by git | `.streamlit/secrets.toml` is in `.gitignore` |
 
 ### The localhost coupling is resolved for the frontend
 
 `ui/api_client.DEFAULT_BASE_URL` is `http://127.0.0.1:8000`. In a cloud container nothing
-listens there, so that default is exactly wrong — which is why `base_url()` now reads
-`CLINICAL_RAG_API_URL` from `st.secrets` before falling back to it. Streamlit Community
-Cloud has no environment-variable panel; secrets are the only channel, and reading
-`os.environ` alone would have made the setting unreachable.
+listens there, so that default is exactly wrong — which is why `base_url()` reads the
+configured URL from `st.secrets` before falling back to it. Streamlit Community Cloud has
+no environment-variable panel; secrets are the only channel, and reading `os.environ`
+alone would have made the setting unreachable.
+
+**The setting name is part of the contract.** The deployed app read only
+`CLINICAL_RAG_API_URL` while the Streamlit secret was named `API_URL`; the lookup missed,
+`base_url()` returned the localhost default, and the live UI reported *"Nothing is
+answering at http://127.0.0.1:8000"* with the secret correctly set the whole time. Both
+names are now accepted, `API_URL` first — see `ui/api_client.API_URL_SETTINGS`.
+
+**Cold starts.** A hosted backend that has been idle takes time to answer its first
+request: 24 s measured against the Railway deployment, against 0.4 s warm. The health
+probe therefore allows `REMOTE_HEALTH_TIMEOUT` (30 s) instead of the local 8 s whenever a
+URL is configured, so a sleeping container is not reported as a dead one.
 
 Three strings in `ui/views/` still print `uvicorn api.main:app --port 8000` — these are
 the "the backend is not running" help texts. They are instructions for a local operator,
@@ -67,7 +79,7 @@ not a runtime dependency, and are correct for the local workflow.
 ### Frontend (Streamlit Cloud → App settings → Secrets)
 
 ```toml
-CLINICAL_RAG_API_URL = "https://your-backend-host.example.com"
+API_URL = "https://aaa-clinical-rag-production.up.railway.app"
 ```
 
 That is the whole list. No API key belongs in the frontend's secrets: the UI never calls
@@ -149,7 +161,7 @@ Frontend, on Streamlit Community Cloud:
 - [x] `.streamlit/config.toml` committed
 - [x] fonts/favicon committed under `ui/static/`
 - [x] backend URL reachable from a secret
-- [ ] **`CLINICAL_RAG_API_URL` set to a deployed backend** ← the one remaining blocker
+- [x] **`API_URL` set to the deployed backend** (Railway)
 - [ ] consider the UI-only dependency route (§5)
 
 Backend, wherever it runs:

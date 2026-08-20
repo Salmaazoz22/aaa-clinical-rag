@@ -15,7 +15,7 @@ from typing import Any
 
 import streamlit as st
 
-from ui import components as c
+from ui import api_client, components as c
 from ui.icons import NAMES, icon
 
 FIXTURE_HIT: dict[str, Any] = {
@@ -189,9 +189,11 @@ def render(ctx: Any = None) -> None:
     c.write(c.empty_state("Ask a question to begin",
                           "<p>Every answer arrives with the passages it was built from, each one's "
                           "similarity score, and the validator's verdict on every citation.</p>"))
+    # The sample renders the address this app is actually configured with, so the
+    # style guide cannot drift into showing a localhost URL to a deployed reader.
     c.write(c.error_state("Backend unavailable",
-                          "<p>Nothing is answering at <code>http://127.0.0.1:8000</code>. Start it "
-                          "with <code>uvicorn api.main:app</code>.</p>"))
+                          f"<p>Nothing is answering at <code>{c.esc(api_client.base_url())}</code>. "
+                          "Start it with <code>uvicorn api.main:app</code>.</p>"))
     c.write(c.error_state("Live generation unavailable",
                           "<p>No LLM key is configured. Retrieval and both refusal gates still "
                           "work.</p>", glyph="alert"))

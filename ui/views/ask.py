@@ -493,6 +493,28 @@ def _empty_right(ctx: Context) -> None:
     )
 
 
+def _backend_hint() -> str:
+    """What to do about an unreachable backend — which depends on which one it is.
+
+    Telling someone running against a deployed API to `uvicorn api.main:app` is
+    not just unhelpful, it points at the wrong machine entirely. The two cases
+    need opposite advice, so the advice is chosen from the resolved
+    configuration rather than assumed.
+    """
+    if api_client.is_remote_backend():
+        return (
+            "<p>The address above came from the app's configuration, so the deployed service "
+            "is either still waking up or is down. A first request after an idle period can "
+            "take some seconds — use <b>Re-check services</b> in the rail to try again.</p>"
+        )
+    return (
+        "<p>Start it from the project root with "
+        "<code>uvicorn api.main:app --host 127.0.0.1 --port 8000</code>, then use "
+        "<b>Re-check services</b> in the rail. To point this page at a deployed backend "
+        "instead, set <code>API_URL</code> in the app's secrets.</p>"
+    )
+
+
 def _render_error(error: ApiError) -> None:
     if error.status_code == 502:
         c.write(c.error_state(
@@ -515,8 +537,7 @@ def _render_error(error: ApiError) -> None:
             "Backend unavailable",
             f"<p>Nothing is answering at <code>{c.esc(api_client.base_url())}</code>. This page is "
             "a client of the FastAPI service and has no retrieval of its own.</p>"
-            "<p>Start it with <code>uvicorn api.main:app --port 8000</code>, then use "
-            "<b>Re-check services</b> in the rail.</p>"))
+            + _backend_hint()))
     else:
         c.write(c.error_state("Request failed",
                               f"<p>{c.esc(error.message)}</p>"
@@ -538,9 +559,7 @@ def render(ctx: Context) -> None:
             f"<p>Nothing is answering at <code>{c.esc(api_client.base_url())}</code>. This page is "
             "a client of the FastAPI service and has no retrieval of its own, so it cannot show "
             "results until the API is up.</p>"
-            "<p>Start it from the project root with "
-            "<code>uvicorn api.main:app --host 127.0.0.1 --port 8000</code>, then use "
-            "<b>Re-check services</b> in the rail.</p>"))
+            + _backend_hint()))
         return
 
     if ctx.meta_error is not None:
