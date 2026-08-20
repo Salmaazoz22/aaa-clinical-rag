@@ -33,6 +33,8 @@ from __future__ import annotations
 import os
 import time
 from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FuturesTimeout
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Sequence
 
@@ -439,19 +441,49 @@ class FallbackProvider(LLMProvider):
         self, provider: LLMProvider, messages: Sequence[dict[str, str]],
         json_mode: bool, budget: float | None,
     ) -> Completion:
-        if budget is None or not hasattr(provider, "timeout"):
+        """Run `provider` under a hard wall-clock bound of `budget` seconds.
+
+        TWO mechanisms, because the SDK's own timeout is not sufficient on its
+        own. `timeout` reaches httpx as a per-operation read timeout: it fires
+        when a socket read stalls, not when total elapsed time is long. A
+        provider that drips a long response steadily never trips it. Measured in
+        production: a 90 s deadline and a 60 s socket timeout, and the fallback
+        still returned after 101.6 s.
+
+        So the socket timeout is shortened AND the call is run on a worker
+        thread the caller stops waiting for when the budget expires. The thread
+        is left to finish and be discarded -- there is no way to interrupt a
+        blocking socket read in CPython -- but the CALLER's wait is bounded,
+        which is what makes the response time predictable.
+        """
+        if budget is None:
             return provider.complete(messages, json_mode=json_mode)
-        original = provider.timeout
-        provider.timeout = min(original, budget)
-        # The SDK client caches its own timeout, so it has to be rebuilt when the
-        # budget shortens it. `_client` is the documented lazy-build slot.
+
+        original = getattr(provider, "timeout", None)
         cached = getattr(provider, "_client", None)
-        provider._client = None
+        if original is not None:
+            provider.timeout = min(original, budget)
+            # The SDK client caches its own timeout, so it has to be rebuilt
+            # when the budget shortens it. `_client` is the lazy-build slot.
+            provider._client = None
+
+        executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="llm")
         try:
-            return provider.complete(messages, json_mode=json_mode)
+            future = executor.submit(provider.complete, messages, json_mode=json_mode)
+            try:
+                return future.result(timeout=budget)
+            except FuturesTimeout as exc:
+                raise DeadlineExceededError(
+                    f"{getattr(provider, 'name', 'provider')} did not answer within the "
+                    f"{budget:.0f}s left of the {self.deadline_s:.0f}s generation budget"
+                ) from exc
         finally:
-            provider.timeout = original
-            provider._client = cached
+            # Do not block on a call that overran: shutdown(wait=False) lets the
+            # orphaned request finish in the background and be dropped.
+            executor.shutdown(wait=False)
+            if original is not None:
+                provider.timeout = original
+                provider._client = cached
 
     def complete(self, messages: Sequence[dict[str, str]], *, json_mode: bool = True) -> Completion:
         started = time.monotonic()

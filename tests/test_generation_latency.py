@@ -279,6 +279,29 @@ class TestDeadline:
         assert chain.primary.max_retries == 1
         assert chain.secondary.max_retries == 1
 
+    def test_a_slow_provider_is_cut_off_at_the_budget(self):
+        """The residual gap: the SDK timeout is per-read, not total elapsed.
+
+        Production measured a fallback returning after 101.6 s under a 90 s
+        deadline and a 60 s socket timeout, because a steadily-drip-fed response
+        never stalls a socket read. The caller's wait must be bounded regardless.
+        """
+        primary = _Stub("groq", fail=True)
+        secondary = _Stub("openrouter", seconds=30)   # ignores any socket timeout
+        provider = FallbackProvider(primary=primary, secondary=secondary, deadline_s=1.5)
+
+        started = time.monotonic()
+        with pytest.raises(DeadlineExceededError):
+            provider.complete([])
+        elapsed = time.monotonic() - started
+        assert elapsed < 10, f"caller waited {elapsed:.1f}s for a 1.5s budget"
+
+    def test_a_fast_provider_is_not_disturbed_by_the_bound(self):
+        primary = _Stub("groq")
+        completion = FallbackProvider(primary=primary, secondary=_Stub("openrouter"),
+                                      deadline_s=30).complete([])
+        assert completion.provider == "groq"
+
     def test_min_fallback_seconds_is_sane(self):
         assert 0 < MIN_FALLBACK_SECONDS < 30
 
