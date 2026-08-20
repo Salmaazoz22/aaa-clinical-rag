@@ -86,6 +86,23 @@ class ProviderSpec:
     #: `GENERATION_MODEL` cannot reach because that names the *primary*.
     model_env: str = ""
 
+    #: Largest single request the endpoint will accept, in tokens, counting the
+    #: prompt PLUS the completion budget the caller reserves. 0 means "no known
+    #: limit" and disables the guard.
+    #:
+    #: This is not a nicety. Groq's free tier caps a request at 8,000 tokens per
+    #: minute and counts `max_completion_tokens` as *reserved*, not as used. With
+    #: a ~4,250-token prompt and a 4,000-token reservation, every answer request
+    #: totalled 8,287 and came back `413 Request too large` -- deterministically,
+    #: on every call, even though the model only ever generated ~1,200 tokens.
+    #: The pipeline then fell through to a free fallback model that takes 97-150 s,
+    #: which is the entire 240 s production timeout. See `_fit_completion_budget`.
+    max_request_tokens: int = 0
+
+    #: Environment variable overriding `max_request_tokens`, so a paid tier or a
+    #: different model can raise the ceiling without a code change.
+    max_request_tokens_env: str = ""
+
     #: `max_tokens` is deprecated on some OpenAI-compatible endpoints and
     #: rejected on others, so the parameter name is part of the spec.
     max_tokens_param: str = "max_tokens"
@@ -107,6 +124,10 @@ PROVIDER_SPECS: dict[str, ProviderSpec] = {
         model="openai/gpt-oss-120b",
         key_env="GROQ_API_KEY",
         model_env="GROQ_MODEL",
+        # Free-tier tokens-per-minute ceiling for gpt-oss-120b. Raise it with
+        # GROQ_MAX_REQUEST_TOKENS on a paid tier.
+        max_request_tokens=8000,
+        max_request_tokens_env="GROQ_MAX_REQUEST_TOKENS",
         supports_json_mode=True,
         max_tokens_param="max_completion_tokens",
         is_reasoning_model=True,
@@ -124,6 +145,10 @@ PROVIDER_SPECS: dict[str, ProviderSpec] = {
         model="openai/gpt-oss-20b:free",
         key_env="OPENROUTER_API_KEY",
         model_env="OPENROUTER_MODEL",
+        # OpenRouter publishes no single per-request token ceiling that applies
+        # across its model catalogue, so the guard stays off unless configured.
+        max_request_tokens=0,
+        max_request_tokens_env="OPENROUTER_MAX_REQUEST_TOKENS",
         # OpenRouter's free tier does not honour `response_format` uniformly
         # across providers, so the schema is enforced by the prompt and by the
         # parser, not by the endpoint.
@@ -133,6 +158,49 @@ PROVIDER_SPECS: dict[str, ProviderSpec] = {
         is_reasoning_model=True,
     ),
 }
+
+
+#: Characters per token when estimating prompt size. Measured against this
+#: project's own prompts on Groq: 17,312 characters reported as 4,287 prompt
+#: tokens is 4.04 chars/token. 3.5 deliberately OVER-estimates, because the cost
+#: of guessing high is a slightly smaller completion budget and the cost of
+#: guessing low is the 413 this guard exists to prevent.
+CHARS_PER_TOKEN = 3.5
+
+#: Held back from the request budget for the chat scaffolding the endpoint adds
+#: around the messages (role envelopes, tool preamble, response_format).
+#: Measured overhead was ~40 tokens; this is generous on purpose.
+REQUEST_TOKEN_RESERVE = 256
+
+#: Below this, a completion cannot hold a citation-carrying answer, so it is
+#: better to fail fast and let the fallback try than to send a request that can
+#: only produce a truncated one.
+MIN_COMPLETION_TOKENS = 512
+
+#: Less remaining budget than this and the fallback is not worth starting: a
+#: request that is certain to be cut off mid-generation costs the caller time and
+#: returns nothing. Better to fail immediately with a clear, bounded error.
+MIN_FALLBACK_SECONDS = 5.0
+
+
+class RequestTooLargeError(ProviderError):
+    """The prompt cannot fit this provider's per-request token ceiling.
+
+    A distinct type because it is *not* retryable and not transient: the same
+    request will fail identically every time, so the fallback should be tried
+    immediately rather than after a retry ladder.
+    """
+
+
+def estimate_tokens(messages: Sequence[dict[str, str]]) -> int:
+    """Approximate prompt size in tokens, erring high. No tokeniser needed.
+
+    The exact count is the endpoint's business and differs per model; what this
+    has to be is a safe upper bound, so that `_fit_completion_budget` never
+    reserves more than the endpoint will accept.
+    """
+    characters = sum(len(str(m.get("content") or "")) for m in messages)
+    return int(characters / CHARS_PER_TOKEN) + REQUEST_TOKEN_RESERVE
 
 
 def resolve_provider_spec(name: str) -> ProviderSpec:
@@ -229,12 +297,52 @@ class OpenAICompatibleProvider(LLMProvider):
             )
         return self._client
 
+    def request_token_ceiling(self) -> int:
+        """This provider's per-request token ceiling, or 0 when unknown."""
+        if self.spec.max_request_tokens_env:
+            override = (os.environ.get(self.spec.max_request_tokens_env) or "").strip()
+            if override:
+                try:
+                    return max(0, int(override))
+                except ValueError:
+                    pass
+        return self.spec.max_request_tokens
+
+    def _fit_completion_budget(self, messages: Sequence[dict[str, str]]) -> int:
+        """How many completion tokens may be RESERVED for this request.
+
+        Endpoints that meter by tokens-per-minute charge the reservation, not the
+        usage: Groq counts `prompt + max_completion_tokens` against an 8,000 TPM
+        free-tier ceiling, so reserving 4,000 for a model that generates ~1,200
+        turned every request into `413 Request too large`. Shrinking the
+        reservation to fit costs nothing -- the model stops when it is done, and
+        `finish_reason` still reports truncation if it ever were binding.
+
+        Raises `RequestTooLargeError` when even the minimum will not fit, so the
+        caller can fall back at once instead of sending a request that is certain
+        to be rejected.
+        """
+        ceiling = self.request_token_ceiling()
+        if not ceiling:
+            return self.max_output_tokens
+
+        prompt_tokens = estimate_tokens(messages)
+        allowed = ceiling - prompt_tokens
+        if allowed < MIN_COMPLETION_TOKENS:
+            raise RequestTooLargeError(
+                f"{self.spec.name}/{self.model}: the prompt needs about {prompt_tokens} tokens "
+                f"and the endpoint accepts {ceiling} per request, leaving {allowed} for the "
+                f"answer (minimum {MIN_COMPLETION_TOKENS}). Reduce the evidence sent, or raise "
+                f"{self.spec.max_request_tokens_env or 'the request ceiling'}."
+            )
+        return min(self.max_output_tokens, allowed)
+
     def complete(self, messages: Sequence[dict[str, str]], *, json_mode: bool = True) -> Completion:
         kwargs: dict[str, Any] = {
             "model": self.model,
             "messages": list(messages),
             "temperature": self.temperature,
-            self.spec.max_tokens_param: self.max_output_tokens,
+            self.spec.max_tokens_param: self._fit_completion_budget(messages),
         }
         if json_mode and self.spec.supports_json_mode:
             kwargs["response_format"] = {"type": "json_object"}
@@ -287,23 +395,75 @@ class OpenAICompatibleProvider(LLMProvider):
         )
 
 
+class DeadlineExceededError(ProviderError):
+    """The generation budget for one request ran out."""
+
+
 @dataclass
 class FallbackProvider(LLMProvider):
-    """Wraps primary and secondary providers to provide cross-provider fallback."""
+    """Primary, then secondary, under ONE wall-clock budget for the pair.
+
+    The budget is the point. Without it the worst case is the sum of every
+    provider's own timeout times its retry count, which for the previous
+    configuration (180 s, 3 retries, two providers) was twenty-four minutes with
+    nothing in the request path able to stop it. What the client actually
+    experienced was a 240 s read timeout and no answer.
+
+    `deadline_s` bounds the pair. Before trying the secondary the remaining time
+    is computed, and the secondary is given a timeout no larger than what is
+    left; if nothing meaningful is left, the attempt is skipped and a bounded
+    error is raised instead. A caller therefore knows the maximum time a
+    generation can take, which is what makes a graceful failure possible.
+    """
 
     primary: LLMProvider
     secondary: LLMProvider
+
+    #: Wall-clock budget for the whole chain, seconds. 0 disables the bound.
+    deadline_s: float = 0.0
 
     def __post_init__(self) -> None:
         self.name = f"{self.primary.name}->{self.secondary.name}"
         self.model = f"{self.primary.model} (fallback: {self.secondary.model})"
 
-    def complete(self, messages: Sequence[dict[str, str]], *, json_mode: bool = True) -> Completion:
+    def _call_within(
+        self, provider: LLMProvider, messages: Sequence[dict[str, str]],
+        json_mode: bool, budget: float | None,
+    ) -> Completion:
+        if budget is None or not hasattr(provider, "timeout"):
+            return provider.complete(messages, json_mode=json_mode)
+        original = provider.timeout
+        provider.timeout = min(original, budget)
+        # The SDK client caches its own timeout, so it has to be rebuilt when the
+        # budget shortens it. `_client` is the documented lazy-build slot.
+        cached = getattr(provider, "_client", None)
+        provider._client = None
         try:
-            return self.primary.complete(messages, json_mode=json_mode)
+            return provider.complete(messages, json_mode=json_mode)
+        finally:
+            provider.timeout = original
+            provider._client = cached
+
+    def complete(self, messages: Sequence[dict[str, str]], *, json_mode: bool = True) -> Completion:
+        started = time.monotonic()
+
+        def remaining() -> float | None:
+            if not self.deadline_s:
+                return None
+            return self.deadline_s - (time.monotonic() - started)
+
+        try:
+            return self._call_within(self.primary, messages, json_mode, remaining())
         except ProviderError as primary_exc:
+            left = remaining()
+            if left is not None and left < MIN_FALLBACK_SECONDS:
+                raise DeadlineExceededError(
+                    f"primary provider '{self.primary.name}' failed ({primary_exc}); "
+                    f"the {self.deadline_s:.0f}s generation budget left {max(0.0, left):.1f}s, "
+                    f"too little to try '{self.secondary.name}'"
+                ) from primary_exc
             try:
-                return self.secondary.complete(messages, json_mode=json_mode)
+                return self._call_within(self.secondary, messages, json_mode, left)
             except ProviderError as secondary_exc:
                 raise ProviderError(
                     f"primary provider '{self.primary.name}' failed ({primary_exc}); "
@@ -366,4 +526,8 @@ def build_provider(settings: "GenerationSettings" | None = None) -> LLMProvider:
         timeout=settings.timeout,
     )
 
-    return FallbackProvider(primary=primary, secondary=secondary)
+    return FallbackProvider(
+        primary=primary,
+        secondary=secondary,
+        deadline_s=float(getattr(settings, "deadline", 0.0) or 0.0),
+    )

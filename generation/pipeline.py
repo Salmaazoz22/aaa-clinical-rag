@@ -29,6 +29,7 @@ for.
 from __future__ import annotations
 
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Sequence
@@ -126,6 +127,9 @@ class GenerationResult:
     disclaimer_normalised: bool = False
     prompt: dict[str, str] | None = None
     evidence_grade_summary: dict[str, Any] = field(default_factory=dict)
+    #: Milliseconds per stage. Durations only -- no prompt text, no question, no
+    #: credential ever lands here, so the whole dict is safe to log.
+    timings_ms: dict[str, float] = field(default_factory=dict)
 
     @property
     def refused(self) -> bool:
@@ -152,6 +156,7 @@ class GenerationResult:
                 "dropped": self.dropped_chunks,
                 "hits": self.retrieved,
             },
+            "timings_ms": self.timings_ms,
             "generation": {
                 "completion": self.completion,
                 "parse_meta": self.parse_meta,
@@ -192,6 +197,17 @@ def answer_question(
         safety={},
     )
 
+    # Stage timings. Durations only, so the whole dict is safe to log; see
+    # `GenerationResult.timings_ms`. `_mark` is called at the end of each stage.
+    _t0 = time.perf_counter()
+    _last = _t0
+
+    def _mark(stage: str) -> None:
+        nonlocal _last
+        now = time.perf_counter()
+        result.timings_ms[stage] = round((now - _last) * 1000, 1)
+        _last = now
+
     # --- gate -1: potential emergency presentation (highest priority) --------
     # Runs BEFORE the patient-specific gate so that a query which is BOTH an
     # emergency presentation AND patient-specific always returns the emergency
@@ -209,6 +225,7 @@ def answer_question(
     # ESVS passage on that topic, so the similarity floor cannot catch it.
     edition_verdict = screen_guideline_edition(query)
     result.guideline_scope = edition_verdict.to_dict()
+    _mark("safety")
 
     if retriever is None:
         from vectordb.retriever import QdrantRetriever
@@ -217,6 +234,9 @@ def answer_question(
 
     hits = retriever.search(query, top_k=top_k)
     result.retrieved = [_lite(h) for h in hits]
+    # One stage: `retriever.search` embeds the query and queries Qdrant. Split
+    # measurements of the two live in the retriever's own benchmark.
+    _mark("retrieval")
 
     usable, dropped = select_usable_hits(hits, threshold)
     result.used_chunk_ids = [str(h.get("chunk_id")) for h in usable]
@@ -224,6 +244,7 @@ def answer_question(
         {"chunk_id": h.get("chunk_id"), "similarity_score": _score(h), "document_id": h.get("document_id")}
         for h in dropped
     ]
+    _mark("grounding")
 
     def finish_refusal(reason: str, gate: str, refusal_hits: Sequence[dict[str, Any]], refusal_detail: str | None = None) -> GenerationResult:
         answer = build_refusal(
@@ -240,6 +261,8 @@ def answer_question(
         result.citations_resolved = resolve_citations(answer, refusal_hits)
         result.documents_cited = documents_cited(answer, refusal_hits)
         result.evidence_grade_summary = summarize_evidence_grade(result.citations_resolved)
+        _mark("refusal")
+        result.timings_ms["total"] = round((time.perf_counter() - _t0) * 1000, 1)
         return result
 
     if emergency_verdict.is_emergency:
@@ -284,6 +307,7 @@ def answer_question(
     provider = provider or build_provider(settings)
     completion = provider.complete(messages, json_mode=True)
     result.completion = completion.to_dict()
+    _mark("generation")
 
     answer, parse_meta = parse_answer(completion.text)
     result.parse_meta = parse_meta
@@ -303,6 +327,8 @@ def answer_question(
     result.citations_resolved = resolve_citations(answer, usable)
     result.documents_cited = documents_cited(answer, usable)
     result.evidence_grade_summary = summarize_evidence_grade(result.citations_resolved)
+    _mark("validation")
+    result.timings_ms["total"] = round((time.perf_counter() - _t0) * 1000, 1)
 
     if is_refusal(answer):
         # The model judged the evidence insufficient under rule R1(a)/(b). That

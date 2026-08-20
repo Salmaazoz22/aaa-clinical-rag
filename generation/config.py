@@ -69,7 +69,23 @@ DEFAULT_TEMPERATURE = 0.0
 # tokens are billed against the same output budget as the JSON answer, so a
 # limit tuned for the answer alone truncates the JSON mid-object.
 DEFAULT_MAX_OUTPUT_TOKENS = 4000
-DEFAULT_TIMEOUT = 180.0
+
+# --- the latency budget ----------------------------------------------------
+#
+# `DEFAULT_TIMEOUT` was 180 s per provider, with the SDK retrying three times on
+# top and a fallback provider behind that: a worst case of 24 minutes, which
+# nothing in the request path could interrupt. What the client saw was its own
+# 240 s read timeout and no answer.
+#
+# 60 s per provider is well above the measured 6.3 s Groq generation and still
+# leaves room for a slow one, and DEFAULT_DEADLINE bounds the PAIR so the
+# primary's failure cannot push the fallback past the budget. A clinical
+# question either returns or fails cleanly inside DEFAULT_DEADLINE.
+DEFAULT_TIMEOUT = 60.0
+
+# Wall-clock budget for one generation across the whole fallback chain. Set to 0
+# to disable the bound (not recommended: that restores the unbounded behaviour).
+DEFAULT_DEADLINE = 90.0
 
 # Evidence text is sent to the model in full. The reference implementation
 # truncates each document to 1,000 characters before prompting; that would
@@ -122,6 +138,7 @@ class GenerationSettings:
     temperature: float
     max_output_tokens: int
     timeout: float
+    deadline: float = DEFAULT_DEADLINE
     enable_fallback: bool = DEFAULT_ENABLE_FALLBACK
     fallback_provider: str = DEFAULT_FALLBACK_PROVIDER
     fallback_model: str = DEFAULT_FALLBACK_MODEL
@@ -138,6 +155,7 @@ class GenerationSettings:
             "temperature": self.temperature,
             "max_output_tokens": self.max_output_tokens,
             "timeout_s": self.timeout,
+            "deadline_s": self.deadline,
             "enable_fallback": self.enable_fallback,
             "fallback_provider": self.fallback_provider or None,
             "fallback_model": self.fallback_model or None,
@@ -174,6 +192,7 @@ def load_settings(env_file: Path | None = None, provider: str | None = None) -> 
         temperature=_as_float(os.environ.get("GENERATION_TEMPERATURE"), DEFAULT_TEMPERATURE),
         max_output_tokens=_as_int(os.environ.get("GENERATION_MAX_OUTPUT_TOKENS"), DEFAULT_MAX_OUTPUT_TOKENS),
         timeout=_as_float(os.environ.get("GENERATION_TIMEOUT"), DEFAULT_TIMEOUT),
+        deadline=_as_float(os.environ.get("GENERATION_DEADLINE"), DEFAULT_DEADLINE),
         enable_fallback=_as_bool(os.environ.get("GENERATION_ENABLE_FALLBACK"), DEFAULT_ENABLE_FALLBACK),
         fallback_provider=(os.environ.get("GENERATION_FALLBACK_PROVIDER") or DEFAULT_FALLBACK_PROVIDER).strip().lower(),
         fallback_model=(os.environ.get("GENERATION_FALLBACK_MODEL") or DEFAULT_FALLBACK_MODEL).strip(),

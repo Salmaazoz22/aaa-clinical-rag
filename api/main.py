@@ -372,7 +372,24 @@ def answer(req: AnswerRequest) -> dict[str, Any]:
             detail="The question could not be answered because of an internal error.",
         ) from exc
 
-    return result.to_dict()
+    payload = result.to_dict()
+
+    # Structured stage timings. Durations, gate name and provider only: no
+    # question text, no prompt, no retrieved passage, no credential. This is the
+    # observability that was missing when a request could hang for four minutes
+    # with nothing to say where the time went.
+    timings = payload.get("timings_ms") or {}
+    completion = (payload.get("generation") or {}).get("completion") or {}
+    log.info(
+        "answer stages_ms=%s total_ms=%s provider=%s refused=%s gate=%s citations=%d",
+        {k: v for k, v in timings.items() if k != "total"},
+        timings.get("total"),
+        completion.get("provider"),
+        payload.get("refused"),
+        (payload.get("refusal") or {}).get("gate"),
+        len((payload.get("answer") or {}).get("citations") or []),
+    )
+    return payload
 
 
 @app.get(
