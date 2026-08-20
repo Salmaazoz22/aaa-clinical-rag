@@ -248,6 +248,37 @@ class TestDeadline:
             FallbackProvider(primary=primary, secondary=secondary, deadline_s=90).complete([])
         assert "groq" in str(excinfo.value) and "openrouter" in str(excinfo.value)
 
+    def test_sdk_retries_are_bounded(self, monkeypatch):
+        """Same-provider retry cannot be the strategy: the fallback is."""
+        from generation.providers import _sdk_retries
+
+        monkeypatch.delenv("GENERATION_MAX_RETRIES", raising=False)
+        assert _sdk_retries() == 1
+        monkeypatch.setenv("GENERATION_MAX_RETRIES", "0")
+        assert _sdk_retries() == 0
+        monkeypatch.setenv("GENERATION_MAX_RETRIES", "banana")
+        assert _sdk_retries() == 1
+
+    def test_the_provider_default_retry_count_is_low(self):
+        provider = _provider()
+        assert provider.max_retries <= 1, (
+            "3 retries x 180 s x 2 providers was the 24-minute worst case"
+        )
+
+    def test_build_provider_applies_the_retry_bound(self, monkeypatch):
+        from generation.providers import build_provider
+
+        monkeypatch.setenv("OPENROUTER_API_KEY", "test-secondary")
+        monkeypatch.delenv("GENERATION_MAX_RETRIES", raising=False)
+        settings = GenerationSettings(
+            provider="groq", model="m", base_url="https://x.invalid", api_key="k",
+            top_k=5, score_threshold=0.75, temperature=0.0, max_output_tokens=4000,
+            timeout=30.0, deadline=45.0, enable_fallback=True,
+        )
+        chain = build_provider(settings)
+        assert chain.primary.max_retries == 1
+        assert chain.secondary.max_retries == 1
+
     def test_min_fallback_seconds_is_sane(self):
         assert 0 < MIN_FALLBACK_SECONDS < 30
 

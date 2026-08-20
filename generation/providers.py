@@ -257,7 +257,16 @@ class OpenAICompatibleProvider(LLMProvider):
     temperature: float = 0.0
     max_output_tokens: int = 4000
     timeout: float = 180.0
-    max_retries: int = 3
+
+    #: Retries the SDK makes for ONE provider. Deliberately low.
+    #:
+    #: Cross-provider fallback is a better retry than same-provider retry: when
+    #: the primary is rate-limited or metering the request as too large, trying
+    #: it again produces the same answer while spending the budget the fallback
+    #: needs. The SDK's ladder also honours Retry-After, so a 429 with a long
+    #: hint can eat the whole deadline on its own. One retry covers a genuinely
+    #: transient blip; anything past that is the other provider's job.
+    max_retries: int = 1
     _client: Any = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
@@ -484,6 +493,14 @@ def resolve_model(spec: ProviderSpec) -> str:
     return spec.model
 
 
+def _sdk_retries() -> int:
+    """Per-provider SDK retries, from GENERATION_MAX_RETRIES (default 1)."""
+    try:
+        return max(0, int((os.environ.get("GENERATION_MAX_RETRIES") or "1").strip()))
+    except ValueError:
+        return 1
+
+
 def build_provider(settings: "GenerationSettings" | None = None) -> LLMProvider:
     """Build the provider selected by configuration, with its fallback attached."""
     if settings is None:
@@ -499,6 +516,7 @@ def build_provider(settings: "GenerationSettings" | None = None) -> LLMProvider:
         temperature=settings.temperature,
         max_output_tokens=settings.max_output_tokens,
         timeout=settings.timeout,
+        max_retries=_sdk_retries(),
     )
 
     if not getattr(settings, "enable_fallback", False):
@@ -524,6 +542,7 @@ def build_provider(settings: "GenerationSettings" | None = None) -> LLMProvider:
         temperature=settings.temperature,
         max_output_tokens=settings.max_output_tokens,
         timeout=settings.timeout,
+        max_retries=_sdk_retries(),
     )
 
     return FallbackProvider(
