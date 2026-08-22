@@ -1,369 +1,352 @@
 # AAA Clinical RAG
 
-> ⚠️ **This is a clinical information retrieval / RAG research prototype. It has NOT been
-> clinically validated as a decision-support system.** It retrieves guideline passages; it does
-> not generate advice, and no claim of clinical safety, accuracy or fitness for patient care is
-> made. The corpus contains genuinely **conflicting** recommendations across guidelines, which
-> the system surfaces without reconciling. Not for clinical use.
+> ⚠️ **Research prototype — not clinically validated, not for clinical use.**
+> Retrieves guideline passages and generates structured cited answers, but makes no claim of
+> clinical safety, accuracy, or fitness for patient care. The corpus contains genuinely conflicting
+> recommendations across guidelines, which the system surfaces without reconciling.
 
-Retrieval over four abdominal aortic aneurysm (AAA) clinical guidelines, with an evidence-first
-evaluation designed so that its own results can be checked and, where necessary, disbelieved.
+A retrieval-augmented generation system over four abdominal aortic aneurysm (AAA) clinical
+guidelines — USPSTF 2019, NICE NG156, ESVS 2024, and SVS 2018. Questions are answered with
+structured citations, validated against the evidence actually sent to the model, and refused
+when evidence is insufficient.
 
-**Retrieval is dense cosine similarity only.** No query rewriting, no intent detection, no
-keyword bonuses, no per-question rules. Nothing in the retrieval path can branch on *which*
-question is being asked — a rule that cannot see the question cannot be fitted to it.
+&nbsp;
 
----
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/291bb882-5e4f-48bd-bedf-3b3b26f317cf" />
 
-## Results
+*Clinical evidence retrieval and voice-enabled question interface*
 
-Three frozen question sets, **reported separately and never pooled**. `final20` is the only one
-that was authored and hash-frozen *before* the configuration being tested existed.
+&nbsp;
 
-| set | config | P@1 | P@3 | P@5 | MRR | R@5 | R@10 | Rel@1 | Ans@5 |
-|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| original10 | baseline (page-buffer, historical) | 0.500 | 0.333 | 0.400 | 0.619 | 0.357 | 0.468 | 5/10 | 8/10 |
-| original10 | **V1 atomic (SHIPPED)** | 0.600 | 0.433 | 0.400 | 0.775 | 0.415 | 0.558 | 6/10 | 10/10 |
-| heldout18 | baseline (page-buffer, historical) | 0.556 | 0.370 | 0.344 | 0.697 | 0.667 | 0.824 | 10/18 | 16/18 |
-| heldout18 | V1 atomic — as first published (superseded) | 0.722 | 0.556 | 0.444 | 0.815 | 0.769 | 0.898 | 13/18 | 17/18 |
-| heldout18 | **V1 atomic (SHIPPED, recomputed)** | 0.722 | **0.574** | **0.456** | **0.824** | 0.769 | 0.898 | 13/18 | 17/18 |
-| **final20** | baseline (page-buffer, historical) | 0.400 | 0.317 | 0.250 | 0.531 | 0.542 | 0.608 | 8/20 | 14/20 |
-| **final20** | **V1 atomic (SHIPPED)** | **0.550** | 0.333 | 0.300 | **0.664** | **0.667** | **0.783** | **11/20** | 16/20 |
+## Features
 
-The retriever is **identical** in every row — same model, same pinned revision, same dense
-cosine, no reranking. The only variable is where chunk boundaries fall.
+- **Cited, validated answers** — every response cites specific guideline chunks; a citation
+  validator checks each reference against what was actually sent to the model
+- **Layered safety gates** — emergency detection, patient-specific blocking, guideline-scope
+  checking, evidence-quality floor, and model-level refusal
+- **Cross-provider fallback** — primary LLM failure automatically retries on a secondary
+  provider under a bounded wall-clock deadline (default 90 s)
+- **Frozen retrieval** — dense cosine similarity only; no query rewriting, no intent
+  detection, no per-question rules
+- **Full audit trail** — retrieval scores, safety verdicts, validator findings, stage timings,
+  and provider metadata on every response
+- **Voice input** — Whisper speech-to-text for question composition
+- **524 tests** — chunking, vector DB, generation, citation validation, safety gates, API,
+  UI isolation, and provider fallback
 
-#### Correction: the heldout18 V1 row was recomputed on the shipped chunker
+&nbsp;
 
-The V1 rows were originally produced by `eval/experimental_atomic_chunking.py`, which carried a
-second copy of the atomic chunker. That copy emitted **1,764 chunks / 1,004 indexed** where the
-shipped chunker emits **1,760 / 991** — the difference being the citation-heading fix, which was
-off when those rows were written. `original10` and `final20` are unaffected (every metric
-identical), but three `heldout18` metrics moved, all upward:
-
-| metric | as first published | shipped chunker | Δ |
-|---|---:|---:|---:|
-| P@3 | 0.5556 | **0.5741** | +0.0185 |
-| P@5 | 0.4444 | **0.4556** | +0.0112 |
-| MRR | 0.8148 | **0.8241** | +0.0093 |
-
-The entire delta comes from one question — heldout18 Q7, "What cardiac assessment is needed before
-aneurysm repair?" — whose first relevant hit moved from rank 3 to rank 2. No other question changed
-any scored quantity. Seven other questions retrieved differently-numbered chunk ids from the same
-pages, which the page-range relevance rule scores identically.
-
-The superseded row is retained above rather than deleted. Artifact:
-`eval/runs/p1_shipped_chunker_all_sets.json`, which records both sets of numbers, the per-question
-detail, and a control confirming `final20` still reproduces
-`eval/runs/final_corrected_v1_final20.json` exactly. The two chunker implementations have since
-been collapsed into one (`ingestion/atomic_chunking.py`); see
-`docs/REFERENCE_COMPARISON.md`.
-
-**Decision: ADOPT WITH CAVEATS** (`eval/final_recommendation.md`). V1 is the first change in the
-project's history to raise P@1, and the only one to do so on a pre-registered set. **It is now the
-shipped default.**
-
-### Final corrected validation (the promotion gate)
-
-Every V1/V2 number above **except the recomputed heldout18 row** was produced with a known anchor
-defect present — numbered *bibliography*
-lines were being accepted as section headings (all 15 USPSTF "sections" were reference entries).
-The gate turned the fix on and re-ran V1 against `final20` only, tuning nothing:
-
-| metric | historical V1 (fix off) | corrected V1 (fix ON, shipped) | Δ |
-|---|---:|---:|---:|
-| P@1 | 0.5500 | 0.5500 | **+0.0000** |
-| MRR | 0.6642 | 0.6642 | **+0.0000** |
-| Recall@10 | 0.7833 | 0.7833 | **+0.0000** |
-
-All eight metrics identical. 15 bogus USPSTF and 13 bogus ESVS section anchors removed;
-recommendation anchors untouched. Artifact: `eval/runs/final_corrected_v1_final20.json`.
-
-### Why the highest-scoring configuration was rejected
-
-`V2_atomic_pure` posts the best raw numbers in the project (original10 P@1 0.700, MRR 0.820) and
-was **rejected**. The frozen relevance rule requires the chunk's page range to overlap the answer
-passage's page range, and V2's chunks average 5.57 pages. A control (`V4`) took the production
-index, changed **nothing** about retrieval, and merely widened page metadata — that alone was
-worth **P@1 +0.10**. Re-scoring every chunk on its start page only removes the term entirely:
-
-| config | orig-10 P@1 scored → strict | held-18 | final20 |
-|---|---|---|---|
-| baseline | 0.500 → 0.500 | 0.556 → 0.556 | 0.400 → 0.400 |
-| **V1** | 0.600 → **0.600** | 0.722 → **0.722** | 0.550 → **0.550** |
-| V2 | 0.700 → **0.400** | 0.722 → 0.667 | 0.550 → 0.550 |
-
-V1's gain is unchanged with and without the confound, on all three sets. V2's is not.
-
----
-
-## Corpus and index
-
-| | |
-|---|---|
-| Guidelines | USPSTF 2019 · NICE NG156 · ESVS 2024 · SVS 2018 |
-| Pages | 249 |
-| Chunker | **atomic / structure-driven (V1)** — `ingestion/atomic_chunking.py` |
-| Chunks | 1,760 total → **991 indexed** (references, contents pages, boilerplate and title-only slides are labelled and excluded, never deleted) |
-| Embedding | `abhinand/MedEmbed-base-v0.1`, revision `7a90c50263f620dff743eb9794b89a42bfc5d765` |
-| Vectors | 991 × 768, float32, L2-normalised |
-| Token safety | max 512 tokens, **0** over the model window; the validator raises rather than truncating |
-| Index | `numpy_cosine`, exhaustive |
-| Latency | ~32 ms/query, CPU only |
-
-**All 48 questions across the three sets are answerable from the index.** Poor retrieval is a
-retrieval failure, not a coverage gap, so adding documents is **not** recommended
-(`eval/corpus_audit.json`).
-
----
-
-## Production Vector Database
-
-Qdrant is the **production storage and retrieval backend**. The local numpy index is
-**preserved unchanged** as the reproducibility artifact — every published number above was
-produced from it, and it remains the reference the production store is verified against.
-
-| | research artifact | production backend |
-|---|---|---|
-| where | `data/embeddings/` (numpy, exhaustive cosine) | Qdrant collection `aaa_clinical_v1` |
-| role | what the frozen evaluation was run on | what a service queries |
-| used by | `eval/`, `notebooks/` | `vectordb/retriever.py` (FastAPI later) |
-
-**Same index, moved — not rebuilt.** Vector dimension **768**, distance **cosine**, top-K
-**10**, **991** points, `abhinand/MedEmbed-base-v0.1` @ `7a90c502…`, L2-normalised. The
-existing `embeddings.npy` values are uploaded as-is; nothing is re-chunked or re-embedded.
-Point IDs are deterministic — `uuid5(fixed-namespace, chunk_id)` — and the original `chunk_id`
-is preserved in the payload, which carries the complete indexed record (text, document,
-document_id, page_number/start/end, section, content_type, token_count, char_count,
-source_file, source_excerpt, recommendation_id/grade, evidence_level).
-
-Retrieval semantics are untouched: question → MedEmbed embedding → cosine → top 10. No
-reranking, no query rewriting, no intent detection, no filtering, no per-question rules, **no
-LLM yet**.
-
-### Local vs Qdrant equivalence
-
-The migration is only accepted if the database returns what the numpy index returns. All 48
-frozen questions (original10 + heldout18 + final20) are embedded once and sent down both paths:
-
-| queries | same top-1 | same top-10 | same order | max abs. score diff | verdict |
-|---:|---:|---:|---:|---:|---|
-| 48 / 48 pass | 48/48 | 48/48 | 48/48 | 2.075e-07 (tol 1e-05) | **EQUIVALENT** |
-
-Those question sets are used here **only** as a fixed query sample — no metric is computed, no
-gold standard is scored, nothing is tuned. Artifact:
-`eval/qdrant_migration_verification.json`. Full detail: `docs/vector_database.md`.
-
-### Running it
-
-```bash
-pip install -r requirements.txt
-cp .env.example .env                     # never commit .env
-
-docker compose up -d                     # local Qdrant v1.19.0 :6333 / :6334
-python vectordb/ingest.py --recreate     # migrate 991 vectors  (measured: 0.95 s)
-python vectordb/verify_migration.py      # local vs Qdrant equivalence, 48 queries
-python vectordb/benchmark.py             # latency + footprint
-python vectordb/retriever.py "When is elective AAA repair recommended?"
-```
-
-Ingestion refuses to run on bad data rather than repairing it: wrong dimension, NaN/Inf or
-unnormalised vectors, count mismatch, missing/duplicate chunk IDs, missing or null payload
-fields, token-limit violations, or an `index_meta.json` that does not name the pinned model.
-
-Environment (no credential is ever hardcoded or committed; see `.env.example`):
-`QDRANT_URL`, `QDRANT_API_KEY`, `QDRANT_COLLECTION`, `QDRANT_PREFER_GRPC`, `QDRANT_TIMEOUT`,
-`QDRANT_EXACT_SEARCH`, `QDRANT_LOCAL_PATH`. Qdrant Cloud is supported by pointing `QDRANT_URL`
-at the cluster and setting `QDRANT_API_KEY`; the same equivalence check is the acceptance test
-for any deployment target.
-
-Measured on local Docker, CPU, 48 queries × 3: Qdrant search **9.8 ms mean / 26.3 ms p95**,
-query embedding 39.5 ms, end-to-end 51.1 ms; collection 10.0 MiB, container ~92 MiB.
-
----
-
-## API and demo UI
-
-Two layers sit on top of the pipeline, and neither contains any of it.
+## How It Works
 
 ```
 Browser → Streamlit (ui/) → HTTP → FastAPI (api/) → generation.pipeline.answer_question
-                                                     → safety gate
-                                                     → MedEmbed → Qdrant
-                                                     → evidence threshold
-                                                     → LLM
-                                                     → citation validator
+                                                     ├─ safety gates (emergency, patient, scope)
+                                                     ├─ MedEmbed → Qdrant (retrieval)
+                                                     ├─ evidence threshold
+                                                     ├─ LLM (Groq / OpenRouter)
+                                                     └─ citation validator
 ```
 
-`api/` is a transport layer: it calls `answer_question` as-is and serialises the
-`GenerationResult` it gets back. `ui/` is an HTTP client: nothing under it imports
-`generation`, `retrieval`, `vectordb` or `ingestion`, and `tests/test_ui.py` asserts that by
-parsing every UI source. There is exactly one retrieval implementation in this project.
+**API** — thin transport layer; calls `answer_question` and serialises the result.
+No core logic lives here.
 
-### Endpoints
+**UI** — pure HTTP client. Nothing under `ui/` imports `generation`, `retrieval`, `vectordb`,
+or `ingestion` — enforced by test.
 
-| endpoint | returns |
-| --- | --- |
-| `GET /health` | API, Qdrant, index and LLM-key status |
-| `GET /v1/meta` | pinned model + revision, collection, dimensions, chunk count, index digests |
-| `POST /v1/answer` | the full audit record for one question, refusals included |
-| `GET /v1/chunks/{chunk_id}` | one chunk's stored payload, for citation audit |
-| `GET /v1/corpus` | the four guideline documents, with live per-document chunk counts |
-| `GET /v1/evaluation` | the frozen evaluation artifacts, verbatim, with the SHA-256 of the bytes read |
+&nbsp;
 
-`/v1/corpus` and `/v1/evaluation` exist so the UI can display corpus and metric values without
-hardcoding them. They read frozen artifacts off disk and return them unchanged — they have no
-way to produce any other number.
+Every question goes through four key processing stages: safety screening, dense evidence retrieval, thresholding, and model generation with mandatory citation validation.
 
-An upstream failure is never dressed up as an answer: a missing API key is `503`, an
-unparseable or failed model call is `502`, and an invalid question is `400`. No placeholder,
-cached or ungrounded answer is ever substituted.
+### Evidence Retrieval
 
-### Running it
+Relevant passages are retrieved from indexed guideline chunks using dense cosine similarity. Each retrieved chunk includes metadata enabling direct verification against the original source document.
+
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/8d84ca67-b906-47a9-a2fe-be362b962095" />
+
+*Evidence retrieval with source-level guideline verification*
+
+&nbsp;
+
+### Grounded Answer Pipeline
+
+Qualifying evidence is formatted into a structured prompt contract. The model generates an answer with explicit citations, which are validated against the evidence chunks actually provided.
+
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/6184a141-2ca3-41cc-ba79-76ba12fab9a3" />
+
+*End-to-end retrieval, grounding, and citation validation*
+
+&nbsp;
+
+## Safety and Reliability
+
+Every question passes through a chain of safety gates before an answer is produced.
+All gates except the last are deterministic — no model call required.
+
+| Gate | What it catches | Outcome |
+|---|---|---|
+| Emergency | Acute symptoms + AAA context | Redirect to emergency services |
+| Patient-specific | Diagnosis/dosing for a named individual | Refuse locally — details never leave the machine |
+| Guideline scope | Edition not in the corpus | Refuse with available editions |
+| Evidence floor | No chunk clears the similarity threshold | Refuse, citing what was examined |
+| Model judgement | Model considers evidence insufficient | Recorded as model-level refusal |
+
+When retrieved evidence does not meet the configured similarity threshold, the system refuses
+rather than generating a clinical answer from weak or merely topically related evidence.
+
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/aa093896-f2fb-45b6-8c95-5976861a5165" />
+
+*Evidence-threshold abstention when retrieved evidence is insufficient*
+
+&nbsp;
+
+When retrieved chunks from different guidelines disagree, the answer surfaces both positions
+with their own citations rather than silently resolving the conflict.
+
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/29319eb9-891e-48e9-8428-05a88fd5cceb" />
+
+*Guideline disagreement detection and citation validation*
+
+&nbsp;
+
+**Cross-provider fallback:** when the primary provider fails (rate limit, timeout, dead model
+slug), the same request retries on the secondary. Both providers operate under a single
+wall-clock deadline so the caller always gets a bounded response time. Both API keys must be
+set for fallback to activate.
+
+Details: `docs/generation.md`
+
+&nbsp;
+
+## Quick Start
+
+**Prerequisites:** Python ≥ 3.10, Docker, an API key for Groq and/or OpenRouter.
 
 ```bash
-pip install -r requirements.txt
-cp .env.example .env                     # never commit .env
+# 1. Install
+pip install -e .
 
-docker compose up -d                     # Qdrant :6333  (or set QDRANT_LOCAL_PATH for embedded mode)
-python vectordb/ingest.py --recreate     # migrate the 991 frozen vectors
+# 2. Configure
+cp .env.example .env              # edit .env — set GROQ_API_KEY at minimum
 
-uvicorn api.main:app --host 127.0.0.1 --port 8000    # terminal 1 — OpenAPI docs at /docs
-streamlit run ui/app.py                              # terminal 2 — http://localhost:8501
+# 3. Start Qdrant
+docker compose up -d              # v1.19.0 on :6333 (REST) / :6334 (gRPC)
+
+# 4. Populate the vector store
+python vectordb/ingest.py --recreate
+python vectordb/verify_migration.py
+
+# 5. Run
+uvicorn api.main:app --port 8000  # terminal 1 — API (docs at /docs)
+streamlit run ui/app.py           # terminal 2 — UI at localhost:8501
 ```
 
-The UI reads `CLINICAL_RAG_API_URL` to reach a backend elsewhere; it defaults to
-`http://127.0.0.1:8000`. With the API down it shows a "backend unavailable" page explaining how
-to start it, never a stack trace.
+&nbsp;
 
-Retrieval, the safety gate and the evidence threshold need no LLM key. Only a question that
-passes every gate reaches the model, so the refusal behaviour is fully demonstrable without one.
+## Configuration
 
-### UI pages
+All settings are environment-driven via `.env` (git-ignored). No credential is ever hardcoded.
+See `.env.example` for the full reference with documentation.
 
-| page | what it shows |
-| --- | --- |
-| **Ask** | answer, confidence, citation count and validator verdict; retrieved evidence with per-chunk similarity and full text; the evidence → answer trace; retrieval-score bars against the evidence floor; validator findings; run provenance; the raw API response |
-| **Evaluation** | the frozen retrieval metrics for all three question sets, every configuration, labelled frozen and served from `/v1/evaluation` with artifact digests |
-| **Safety & Abstention** | five example questions *executed live*, showing which gate fired and why |
-| **Architecture** | the request path as implemented, drawn from live configuration values |
-| **Guidelines & Sources** | the four documents, from extraction metadata, with live chunk counts |
-| **Technical Details** | each component, and why it is there rather than the obvious alternative |
+**Essential variables:**
 
-Clinical answers are never cached. Static metadata is, keyed on the backend address so
-repointing the UI cannot serve the previous backend's provenance.
+| Variable | Default | Purpose |
+|---|---|---|
+| `GROQ_API_KEY` | — | Primary LLM provider key |
+| `OPENROUTER_API_KEY` | — | Fallback provider key (strongly recommended) |
+| `GENERATION_PROVIDER` | `groq` | Which provider to use (`groq` / `openrouter`) |
+| `QDRANT_URL` | `http://localhost:6333` | Qdrant endpoint |
+| `QDRANT_COLLECTION` | `aaa_clinical_v1` | Collection name |
 
----
+**Tuning and reliability:**
 
-## Layout
+| Variable | Default | Purpose |
+|---|---|---|
+| `GENERATION_SCORE_THRESHOLD` | `0.75` | Evidence-quality floor (cosine similarity) |
+| `GENERATION_TOP_K` | `5` | Chunks retrieved per question |
+| `GENERATION_ENABLE_FALLBACK` | `true` | Cross-provider retry on failure |
+| `GENERATION_DEADLINE` | `90` | Wall-clock budget for the fallback chain (seconds) |
+| `GENERATION_TIMEOUT` | `60` | Per-provider socket timeout (seconds) |
 
-```
-data/                     PDFs, extracted pages, chunks, embeddings (the shipped V1 index)
-  archive_baseline_index/   the previous page-buffer index, preserved intact
-ingestion/                ** corpus -> chunks **
-  preprocess.py             PDF -> pages, sections, recommendations
-  chunking.py               token budget, validation, chunker selection
-  atomic_chunking.py        ** the shipped chunker (V1, structure-driven) **
-retrieval/                ** chunks -> ranked evidence **
-  index.py                  embeddings, local index, retrieval
-  rerank.py                 optional cross-encoder (NOT wired into production)
-api/                      ** FastAPI transport layer — no core logic **
-  main.py                   health, meta, answer, chunk, corpus, evaluation
-ui/                       ** Streamlit demo client — HTTP only, imports no pipeline **
-  app.py                    entry point, navigation
-  api_client.py             the only place the UI talks to the backend
-  theme.py · components.py  design system and render primitives
-  views/                    one module per page
-generation/               ** evidence -> cited answer (see docs/generation.md) **
-  safety.py                 pre-retrieval patient-specific gate
-  pipeline.py               retrieve -> threshold -> prompt -> generate -> validate
-  prompts.py · parsing.py · providers.py · refusal.py · schema.py · validator.py
-notebooks/                notebooks only; the pipeline modules moved to the packages above
-  final_evaluation.ipynb    ** the presentation notebook, 23 sections **
-  build_final_notebook.py   generates final_evaluation.ipynb
-eval/                     gold standards, evidence, and the frozen artifacts
-  gold_standard.json          10 questions   (frozen)
-  gold_standard_heldout.json  18 questions   (frozen)
-  gold_standard_final20.json  20 questions   (frozen; SHA in .sha256)
-  final_evidence.json         per-query retrieved evidence (pre-promotion index)
-  final_evaluation_results.json
-  experiment_history.json     23 experiments
-  scripts/                    every evaluation / audit / integrity tool
-    evaluate.py                 the frozen, retriever-agnostic evaluator
-  generation/                 the generation eval: set, results, report, citation review
-  runs/                       every historical run, preserved
-    final_corrected_v1_final20.json  evidence for the SHIPPED config
-vectordb/                 ** production vector database (Qdrant) — infrastructure only **
-  config.py                 env-driven settings; no credential in code
-  schema.py                 collection schema, deterministic point IDs, ingest validation
-  ingest.py                 migrate the existing 991 vectors into Qdrant
-  retriever.py              dense cosine top-10 from Qdrant (no rerank, no LLM)
-  verify_migration.py       local vs Qdrant equivalence -> eval/qdrant_migration_verification.json
-  benchmark.py              latency + footprint -> eval/qdrant_performance.json
-pyproject.toml            installs the packages: pip install -e .
-docker-compose.yml        local Qdrant only; the project itself is not containerised
-docs/                     HANDOFF.md ** start here ** · vector_database.md · generation.md
-                          experiment_history.md · presentation_story.md
-                          PROJECT_B_LESSONS.md · limitations.md · deployment_readiness.md
-tests/                    156 tests (29 chunking + 12 index binding + 40 vectordb + 75 generation)
-aaa-clinical-ragnour/     Project B - EXTERNAL read-only reference. Not a dependency,
-                          not published to git.
-aaa-clinical-raggehad/    A separate person's project variant. Untouched, not published to git.
-```
+Provider model slugs are pinned in code and overridable via `GROQ_MODEL`, `OPENROUTER_MODEL`,
+or `GENERATION_MODEL`. If a vendor retires a model, it's a `.env` edit, not a code change.
 
-## Reproduce
+Full variable reference: `.env.example` · Provider details: `docs/generation.md`
+
+&nbsp;
+
+## Usage
+
+**CLI:**
 
 ```bash
-pip install -e .                                       # installs ingestion/ retrieval/ generation/ vectordb/
+# Answer a question
+python -m generation.pipeline "What diameter threshold triggers elective AAA repair?"
 
-python eval/scripts/evaluate.py --label baseline       # shipped config, original 10
-python eval/scripts/run_final_evaluation.py            # baseline vs V1 vs V2, all 3 sets (~45 min CPU)
-python eval/scripts/rescore_conservative.py            # removes the page-overlap confound (instant)
-python eval/scripts/audit_corpus_and_questions.py      # corpus + question audits
-python eval/scripts/run_stability_checks.py            # 16 stability / readiness checks
-python eval/scripts/verify_integrity.py                # 19 integrity checks
-python eval/scripts/rebuild_shipped_index.py           # rebuild data/chunks + data/embeddings
-python eval/scripts/build_experiment_history.py        # regenerates history JSON + markdown
-python -m pytest tests -q                              # 156 tests
+# Full JSON audit record
+python -m generation.pipeline "..." --json
+
+# With prompt and overrides
+python -m generation.pipeline "..." --json --show-prompt --provider openrouter --top-k 3
+
+# Direct vector search
+python vectordb/retriever.py "When is elective AAA repair recommended?"
 ```
 
-**Open the presentation notebook** (already executed; outputs are committed):
+**API:**
+
+| Endpoint | Description |
+|---|---|
+| `GET /health` | API, Qdrant, index, and LLM-key status |
+| `POST /v1/answer` | Answer a question — full audit record, refusals included |
+| `GET /v1/meta` | Model, revision, collection, dimensions, chunk count |
+| `GET /v1/chunks/{chunk_id}` | Chunk payload for citation audit |
+| `GET /v1/corpus` | Guideline documents with live chunk counts |
+| `GET /v1/evaluation` | Frozen retrieval evaluation with SHA-256 digests |
 
 ```bash
-jupyter notebook notebooks/final_evaluation.ipynb
-# or re-execute end to end:
-jupyter nbconvert --to notebook --execute --inplace notebooks/final_evaluation.ipynb
+curl -X POST http://localhost:8000/v1/answer \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What diameter threshold triggers elective AAA repair?"}'
 ```
 
-**Where the evidence lives:** frozen question sets and the evaluator in `eval/`; per-query
-retrieved evidence in `eval/final_evidence.json` (historical index) and
-`eval/runs/final_corrected_v1_final20.json` (shipped config); every experiment ever run in
-`eval/runs/`; the full narrative in `docs/experiment_history.md`; SHA-256 of every frozen
-artifact in `eval/final_artifact_hashes.json`.
+Errors are never dressed up as answers: missing key → `503`, unparseable model response → `502`,
+invalid question → `400`.
 
-> **Reproduction boundary.** The shipped artifacts reproduce from the shipped code
-> (`python eval/rebuild_shipped_index.py`). Every run in `eval/runs/` and the tables in
-> `eval/final_evaluation_results.json` were scored against the **previous** page-buffer index,
-> preserved in `data/archive_baseline_index/`; they were not recomputed. That chunker is still
-> reachable via `run_chunking(strategy="page_buffer")`.
+**UI pages:** Ask · Evaluation · Safety & Abstention · Architecture · Guidelines & Sources · Technical Details
+
+&nbsp;
+
+## Development and Testing
+
+```bash
+python -m pytest tests -q                     # 524 tests
+python -m pytest tests/test_generation.py -q  # single module
+```
+
+Tests cover chunking, index binding, vector DB, generation pipeline, citation validation,
+safety gates, provider fallback, API endpoints, UI isolation, and voice transcription.
+All generation tests use injectable mocks — no vector store or network call required.
+
+**Evaluation and reproduction:**
+
+```bash
+python eval/scripts/run_final_evaluation.py        # retrieval: baseline vs V1 vs V2, all sets
+python eval/generation/run_generation_eval.py      # generation: answer quality
+python eval/scripts/verify_integrity.py            # integrity checks
+python eval/scripts/run_stability_checks.py        # stability checks
+jupyter notebook notebooks/final_evaluation.ipynb  # presentation notebook (outputs committed)
+```
+
+Full experiment history: `docs/experiment_history.md`
+
+&nbsp;
+
+## Corpus and Index
+
+| Property | Value |
+|---|---|
+| Guidelines | USPSTF 2019 · NICE NG156 · ESVS 2024 · SVS 2018 |
+| Chunks | 1,760 total → 991 indexed |
+| Embedding | `abhinand/MedEmbed-base-v0.1` · 768-dim · L2-normalised |
+| Token safety | Max 512 tokens · 0 over the model window |
+| Vector store | Qdrant (production) · NumPy (research artifact) |
+| Search | Dense cosine · exhaustive · top-K |
+
+**Retrieval results** (the pre-registered `final20` set):
+
+| Config | P@1 | MRR | R@10 |
+|---|---:|---:|---:|
+| Baseline (page-buffer) | 0.400 | 0.531 | 0.608 |
+| **V1 atomic (shipped)** | **0.550** | **0.664** | **0.783** |
+
+Same retriever in both rows — the only variable is chunk boundaries.
+
+Full results: `eval/final_evaluation_results.json` · Details: `docs/experiment_history.md`
+
+&nbsp;
+
+## Project Structure
+
+```
+ingestion/        Corpus → chunks (PDF extraction, atomic chunking)
+retrieval/        Embeddings, local index, optional reranker
+vectordb/         Qdrant: config, schema, ingest, retriever, migration verification
+generation/       Evidence → cited answer: pipeline, safety gates, providers, validator
+api/              FastAPI transport layer (no core logic)
+ui/               Streamlit client (HTTP only, no pipeline imports)
+data/             PDFs, extracted pages, chunks, embeddings
+eval/             Gold standards, frozen evaluation artifacts, scripts
+notebooks/        Presentation notebook (23 sections, outputs committed)
+docs/             Detailed documentation (start with HANDOFF.md)
+tests/            524 tests across 16 modules
+```
+
+&nbsp;
+
+## Deployment
+
+The project requires two processes:
+
+| Process | Command | Requirements |
+|---|---|---|
+| Backend | `uvicorn api.main:app` | ≥ 2 GB RAM, public URL, Qdrant access |
+| Frontend | `streamlit run ui/app.py` | `API_URL` pointing at the backend |
+
+The UI is deployable to Streamlit Community Cloud with `requirements-streamlit.txt` (minimal
+dependencies: `streamlit`, `requests`, `openai` — no PyTorch). The backend needs the full
+dependency set.
+
+Qdrant Cloud is supported: point `QDRANT_URL` at the cluster, set `QDRANT_API_KEY`, and run
+`python vectordb/ingest.py` once.
+
+Full guide: `docs/DEPLOYMENT.md`
+
+&nbsp;
+
+## Documentation
+
+| Document | Contents |
+|---|---|
+| `docs/HANDOFF.md` | **Start here** — project overview and handoff context |
+| `docs/generation.md` | Generation layer: gates, validation, providers, evaluation |
+| `docs/DEPLOYMENT.md` | Deployment guide for Streamlit Cloud + backend |
+| `docs/vector_database.md` | Qdrant migration, equivalence verification, benchmarks |
+| `docs/experiment_history.md` | All 23 retrieval experiments with results |
+| `docs/deployment_readiness.md` | What is verified and what is not |
+| `docs/limitations.md` | Known limitations and gaps |
+
+&nbsp;
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| `503` on `/v1/answer` | Set `GROQ_API_KEY` in `.env` |
+| `502` on `/v1/answer` | Set both API keys for fallback; check provider status |
+| UI shows "backend unavailable" | Start the API; verify `API_URL` points to the correct address |
+| Slow encoding in containers | Set `TORCH_NUM_THREADS=1` |
+| `413 Request too large` (Groq) | Free-tier limit; raise `GROQ_MAX_REQUEST_TOKENS` on a paid tier |
+| Fallback not activating | Both API keys must be set; check if the secondary model slug was retired |
+
+&nbsp;
 
 ## Status
 
-**Not production ready, and not claimed to be.** The retrieval core is deterministic,
-reproducible, token-safe and robust to malformed input (14/16 stability checks pass, 19/19
-integrity checks pass). A production vector store (Qdrant) now backs retrieval, verified
-equivalent to the local index on all 48 frozen questions — but there is still no service,
-no logging, no authentication, no answer generation, and **no abstention threshold** — an
-out-of-scope query still returns 10 chunks. See `docs/deployment_readiness.md`.
+This is a **research prototype**, not a production clinical system.
 
-## Project B
+✅ Deterministic, reproducible retrieval · Qdrant vector store verified against local index ·
+Grounded generation with structured citations · Five safety gates · Citation validation ·
+Cross-provider fallback with bounded latency · FastAPI service · Streamlit UI with voice
+input · 524 tests
 
-`aaa-clinical-ragnour/` (renamed from `aaa-clinical-rag/`) is a **separate** project kept as read-only comparison evidence. Nothing in
-it was modified or re-run, and **the final project does not depend on it in any way**.
+❌ Not clinically validated · No authentication or rate limiting · No persistent logging ·
+Abstention threshold is a starting value, not calibrated · No CI-verified PDF-to-index
+reproducibility
 
-Its chunking idea was audited, isolated and tested — that is where V1 comes from. Its retrieval
-machinery was refused: 10 intents for 10 evaluation questions, boosts naming specific answers by
-ID and literal sentence, and a checker whose "correct answers" are **9 of 10** literal strings
-copied from its own ranker's scoring rules. Measured by running its code: intents fire 10/10 on
-its own questions and **1/18** on ours. It also silently truncates **143 of 452** indexed chunks.
-Full audit: `eval/project_b_comparison.json`, `docs/PROJECT_B_LESSONS.md`.
+Full assessment: `docs/deployment_readiness.md`
+
+&nbsp;
+
+## License
+
+See the repository for license information.
